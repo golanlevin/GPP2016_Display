@@ -41,6 +41,7 @@ void ofApp::setup(){
 	filledContourMat.create    (skeletonBufH, skeletonBufW, CV_8UC(1));
 	filledContourImage.allocate(skeletonBufW, skeletonBufH, OF_IMAGE_GRAYSCALE);
 	skeletonImage.allocate     (skeletonBufW, skeletonBufH, OF_IMAGE_GRAYSCALE);
+	mySkeletonTracer.initialize(skeletonBufW, skeletonBufH);
 	
 	bufW = skeletonBufW;
 	bufH = skeletonBufH;
@@ -57,14 +58,15 @@ void ofApp::setup(){
 	myOfxCvContourFinder.setMinArea(minBlobSize);
 	myOfxCvContourFinder.setMaxArea(maxBlobSize);
 	
-	inputGuiPanel.setup("Input Settings", "settings/InputSettings.xml", displayM, (displayM*3)+(displayH*2));
-	inputGuiPanel.add(proxyThreshold.setup    ("proxyThreshold",		80, 0,254));
-	inputGuiPanel.add(inputLineSmoothing.setup("inputLineSmoothing",	5.0, 0.0, 16.0));
-	inputGuiPanel.add(inputLineResample.setup ("inputLineResample",		3.0, 1.0, 11.0));
-	inputGuiPanel.add(contourThickness.setup  ("contourThickness",		2, 0,8));
-	inputGuiPanel.add(bSmoothHolesToo.setup   ("bSmoothHolesToo",		false));
+	inputGuiPanel.setup("Settings", "settings/GPPSettings.xml", displayM, (displayM*3)+(displayH*2));
+	inputGuiPanel.add(proxyThreshold.setup		("proxyThreshold",		80, 0,254));
+	inputGuiPanel.add(inputLineSmoothing.setup	("inputLineSmoothing",	5.0, 0.0, 16.0));
+	inputGuiPanel.add(inputLineResample.setup	("inputLineResample",	3.0, 1.0, 11.0));
+	inputGuiPanel.add(contourThickness.setup	("contourThickness",	2, 0,8));
+	inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
 
-
+	inputGuiPanel.add(mySkeletonTracer.boneResampling.setup		("boneResampling",		3.0, 1.0, 11.0));
+	inputGuiPanel.add(mySkeletonTracer.boneSmoothing.setup		("boneSmoothing",		2.0, 0.0, 10.0));
 
 }
 
@@ -82,6 +84,8 @@ void ofApp::update(){
 	// Prepare a blob image, the input to thinning-based skeletonization.
 	reconstituteBlobsFromContours (theContoursi, skeletonBufW,skeletonBufH);
 	computeSkeletonImageFromBlobs (theContoursi, skeletonBufW,skeletonBufH);
+	
+	mySkeletonTracer.computeVectorSkeleton (skeletonBuffer);
 	
 	// Trace skeleton bones
 	// Use ofxCv RectTracker to determine bone identity over time
@@ -102,6 +106,8 @@ vector<vector<cv::Point>> ofApp::obtainRawContours(){
 		rawContours = myOfxCvContourFinder.getContours();
 	} else {
 		// rawContours = something fetched from OSC
+		// Note that it will be necessary for these to match ofxCv contours,
+		// For example, indication about whether a contour is a hole or not.
 	}
 	return rawContours;
 }
@@ -436,7 +442,25 @@ void ofApp::draw(){
 		ofDrawRectangle(roiMinX, roiMinY, roiMaxX-roiMinX, roiMaxY-roiMinY);
 		ofPopMatrix();
 	}
-	 
+	
+	// 5. Draw the skeleton-tracer state image.
+	ofSetHexColor(0xffffff);
+	displayX = 1*displayW + 2*displayM;
+	displayY = 2*displayH + 3*displayM;
+	ofPushMatrix();
+	ofTranslate(displayX,displayY);
+	mySkeletonTracer.drawStateImage();
+	ofPopMatrix();
+	
+	// 6. Draw the bones.
+	ofPushMatrix();
+	displayX = 2*displayW + 3*displayM;
+	displayY = 0*displayH + 1*displayM;
+	ofTranslate(displayX,displayY);
+	ofScale(3.5, 3.5);
+	mySkeletonTracer.drawBones();
+	ofPopMatrix();
+	
 	
 	/*
 	// finally, a report:
@@ -459,11 +483,19 @@ void ofApp::keyPressed(int key){
 				proxyVideoPlayer.setPaused(bProxyVideoPlayerPaused);
 			}
 			break;
+			
+		case ',':
+			proxyVideoPlayer.previousFrame();
+			break;
+		case '.':
+			proxyVideoPlayer.nextFrame();
+			break;
+			
 		case 'S':
-			inputGuiPanel.saveToFile("settings/InputSettings.xml");
+			inputGuiPanel.saveToFile("settings/GPPSettings.xml");
 			break;
 		case 'L':
-			inputGuiPanel.loadFromFile("settings/InputSettings.xml");
+			inputGuiPanel.loadFromFile("settings/GPPSettings.xml");
 			break;
 	}
 }

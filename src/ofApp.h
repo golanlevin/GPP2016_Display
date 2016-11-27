@@ -5,6 +5,9 @@
 #include "ofxCv.h"
 #include "ofxGui.h"
 
+#include "SkeletonTracer.h"
+
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -23,11 +26,19 @@ class ofApp : public ofBaseApp{
 	void windowResized(int w, int h);
 	void dragEvent(ofDragInfo dragInfo);
 	void gotMessage(ofMessage msg);
+	
+	int		displayW;
+	int		displayH;
+	int		displayM;
+	float	displayScale;
 
-
+	//-----------------------------------------------
+	// Proxy video processing.
+	// The "real" live app obtains contours over OSC from a PC running KinectV2.
+	// However, for proxy development, we load a local video file.
+	//
 	ofVideoPlayer			proxyVideoPlayer;
 	ofxCvColorImage			proxyColorImage;
-	
 	int		proxyCaptureW;
 	int		proxyCaptureH;
 	int		minBlobSize;
@@ -37,27 +48,27 @@ class ofApp : public ofBaseApp{
 
 	bool	bProxyVideoPlayerPaused;
 	bool	bUseProxyVideoInsteadOfOSC;
-	vector<vector<cv::Point>> obtainRawContours();
 	void	computeContoursFromProxyVideo();
+	
+	//-----------------------------------------------
+	// Contour calculation and filtering
+	//
+	vector<vector<cv::Point>> obtainRawContours();
 	void	filterContoursBeforeReconstitution(vector<vector<cv::Point>> contours);
 	void	reconstituteBlobsFromContours(vector<vector<cv::Point>> contours, int w, int h);
-	void	computeSkeletonImageFromBlobs(vector<vector<cv::Point>> contours, int w, int h);
 	
-
-	
-
 	ofxCv::ContourFinder myOfxCvContourFinder;
 	int		nCurrentPositiveContours;
 
-	
 	vector<vector<cv::Point>>	theContoursi;
 	vector<ofPolyline>			theContoursf;
 	cv::Mat						filledContourMat;
 	ofImage						filledContourImage;
 	
-	
 	//-----------------------------------------------
 	// Skeletonization.
+	//
+	void	computeSkeletonImageFromBlobs(vector<vector<cv::Point>> contours, int w, int h);
 	void	skeletonize();
 	inline int thin (int pass, unsigned char *table);
 	unsigned char* inputBuff;
@@ -74,22 +85,24 @@ class ofApp : public ofBaseApp{
 	unsigned char* skeletonBuffer;
 	ofImage	skeletonImage;
 
-
-	int		displayW;
-	int		displayH;
-	int		displayM;
-	float	displayScale;
-	
-	
-	// Settings for inputs
+	//-----------------------------------------------
+	// GUI Sliders and other controls
+	//
 	ofxPanel		inputGuiPanel;
 	ofxIntSlider	proxyThreshold;
 	ofxFloatSlider	inputLineSmoothing;
 	ofxFloatSlider	inputLineResample;
 	ofxIntSlider	contourThickness;
-	ofxToggle		bSmoothHolesToo; 
+	ofxToggle		bSmoothHolesToo;
 	
-
+	/*
+	ofxFloatSlider	boneResampling;
+	ofxFloatSlider	boneSmoothing;
+	 */
 	
+	//-----------------------------------------------
+	// Skeleton tracing produces ofPolylines.
+	//
+	SkeletonTracer	mySkeletonTracer;
 
 };
