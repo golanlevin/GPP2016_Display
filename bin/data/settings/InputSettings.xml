@@ -1,0 +1,8 @@
+<Input_Settings>
+	<proxyThreshold>80</proxyThreshold>
+	<inputLineSmoothing>5</inputLineSmoothing>
+	<inputLineResample>3</inputLineResample>
+	<contourThickness>2</contourThickness>
+<Input_Settings/>
+<bSmoothHolesToo>0</bSmoothHolesToo>
+</Input_Settings>

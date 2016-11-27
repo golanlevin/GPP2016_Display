@@ -1,0 +1,7 @@
+ofxCv
+ofxGui
+ofxKinect
+ofxOpenCv
+ofxOsc
+ofxVectorGraphics
+ofxXmlSettings
