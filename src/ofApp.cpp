@@ -457,7 +457,9 @@ void ofApp::draw(){
 	displayX = 2*displayW + 3*displayM;
 	displayY = 0*displayH + 1*displayM;
 	ofTranslate(displayX,displayY);
-	ofScale(3.5, 3.5);
+	ofScale(3.0,3.0);
+	ofSetHexColor(0x202020);
+	proxyColorImage.draw(0,0, displayW,displayH);
 	mySkeletonTracer.drawBones();
 	ofPopMatrix();
 	
@@ -496,6 +498,9 @@ void ofApp::keyPressed(int key){
 			break;
 		case 'L':
 			inputGuiPanel.loadFromFile("settings/GPPSettings.xml");
+			break;
+		case 'E':
+			mySkeletonTracer.exportVectorGraphics();
 			break;
 	}
 }

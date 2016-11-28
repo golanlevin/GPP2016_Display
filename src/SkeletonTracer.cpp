@@ -35,6 +35,47 @@ void SkeletonTracer::initialize (int w, int h){
 	boneSmoothKernW = 2;
 }
 
+//------------------------------------------------------------
+void SkeletonTracer::exportVectorGraphics(){
+	
+	string epsFilename = "renders/skeleton_" + ofToString(ofGetHours()) + "_" +
+		ofToString(ofGetMinutes()) + "_" + ofToString(ofGetSeconds()) + ".ps";
+	
+	myVectorGraphics.beginEPS(epsFilename);
+	myVectorGraphics.noFill();
+	myVectorGraphics.setColor(0x000000);
+	bool bCloseShapes = false;
+	
+	int nBones = bonesRawSmooth.size();
+	for (int b=0; b<nBones; b++){
+		ofPolyline aBone = bonesRawSmooth[b];
+		int nPoints = aBone.size();
+		if (nPoints > 4){
+			myVectorGraphics.beginShape();
+			for (int p=0; p<nPoints; p++){
+				float px = aBone[p].x;
+				float py = aBone[p].y;
+				if ((p==0) || (p == (nPoints-1))){
+					myVectorGraphics.curveVertex(px,py);
+				}
+				myVectorGraphics.curveVertex(px, py);
+			}
+			myVectorGraphics.endShape(bCloseShapes);
+			
+		} else if (nPoints >= 2){
+			myVectorGraphics.beginShape();
+			for (int p=0; p<nPoints; p++){
+				float px = aBone[p].x;
+				float py = aBone[p].y;
+				myVectorGraphics.polyVertex(px, py);
+			}
+			myVectorGraphics.endShape(bCloseShapes);
+		}
+	}
+	
+	myVectorGraphics.endEPS();
+}
+
 
 //------------------------------------------------------------
 void SkeletonTracer::computeVectorSkeleton (unsigned char* skeletonPixelBuffer){
@@ -457,9 +498,9 @@ void SkeletonTracer::drawBones(){
 	int colors[] = {0xFF6666,0x66FF66,0x6666FF, 0xFFFF33,0x33FFFF,0xFF33FF,
 					0xFF9900,0x0099FF,0xFF0099, 0x99FF00,0x00FF99,0x9900FF };
 	
-	ofFill();
-	ofSetHexColor(0x000000);
-	ofDrawRectangle(0,0, buffer_w, buffer_h);
+	//ofFill();
+	//ofSetHexColor(0x000000);
+	//ofDrawRectangle(0,0, buffer_w, buffer_h);
 	
 	int nBones = bonesRawSmooth.size(); ////bonesRawMerged.size(); //bonesRawTraced.size();
 	for (int i=0; i<nBones; i++){

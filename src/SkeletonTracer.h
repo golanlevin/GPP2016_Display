@@ -12,6 +12,9 @@
 #include "ofMain.h"
 #include "ofxCv.h" // for Tracker
 #include "ofxGui.h"
+#include "ofxVectorGraphics.h"
+
+#include "LaserMain.h" // for Bryce's laser-TSP optimization
 
 //---------------------------------------------
 #define SKEL_INVALID						-1
@@ -37,7 +40,7 @@ typedef enum SkelColor {
 typedef enum BoneTerminus {
 	BONE_START = 0,
 	BONE_END   = 1
-};
+} BoneTerminus;
 
 struct BoneMergeCouplet {
 	int				boneIIndex;
@@ -93,6 +96,17 @@ class SkeletonTracer {
 	int				getLocOfFirstUnlookedAtNeighbor (int loc);
 	int				countUnlookedAtNeighbors (int loc);
 	bool			checkIfAnyNeighborsAreBranchPoints (int loc);
+	
+	//--------------------------------
+	// Generate high resolution images.
+	ofxVectorGraphics	myVectorGraphics;
+	void			exportVectorGraphics(); 
+	
+	//--------------------------------
+	// TSP-based optimizer by Bryce Summers.
+	laser::LaserProgram	*program;
+	laser::Route		*route;
+	laser::Program		*commands;
 	
 };
 

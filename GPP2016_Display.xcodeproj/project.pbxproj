@@ -167,6 +167,15 @@
 		3B67E7341DEACF930053090C /* SkeletonTracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonTracer.cpp; sourceTree = "<group>"; };
 		3B67E7351DEACF930053090C /* SkeletonTracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonTracer.h; sourceTree = "<group>"; };
 		3B67E7371DEB1C330053090C /* GPPSettings.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = GPPSettings.xml; path = bin/data/settings/GPPSettings.xml; sourceTree = SOURCE_ROOT; };
+		3BCB26291DEBDC6F00B78F58 /* LaserDefs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LaserDefs.cpp; sourceTree = "<group>"; };
+		3BCB262A1DEBDC6F00B78F58 /* LaserDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LaserDefs.h; sourceTree = "<group>"; };
+		3BCB262B1DEBDC6F00B78F58 /* LaserMain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LaserMain.h; sourceTree = "<group>"; };
+		3BCB262C1DEBDC6F00B78F58 /* LaserProgram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LaserProgram.cpp; sourceTree = "<group>"; };
+		3BCB262D1DEBDC6F00B78F58 /* LaserProgram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LaserProgram.h; sourceTree = "<group>"; };
+		3BCB262E1DEBDC6F00B78F58 /* RouteNode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RouteNode.cpp; sourceTree = "<group>"; };
+		3BCB262F1DEBDC6F00B78F58 /* RouteNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RouteNode.h; sourceTree = "<group>"; };
+		3BCB26301DEBDC6F00B78F58 /* RouteOptimizer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RouteOptimizer.cpp; sourceTree = "<group>"; };
+		3BCB26311DEBDC6F00B78F58 /* RouteOptimizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RouteOptimizer.h; sourceTree = "<group>"; };
 		3CABCA8EA52D11C95F7A1309 /* registration.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = registration.h; path = ../../../addons/ofxKinect/libs/libfreenect/src/registration.h; sourceTree = SOURCE_ROOT; };
 		3DBD37876A11E46E4D7069B3 /* cameras.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 30; name = cameras.c; path = ../../../addons/ofxKinect/libs/libfreenect/src/cameras.c; sourceTree = SOURCE_ROOT; };
 		402C8F4015542356D362AC88 /* Calibration.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Calibration.cpp; path = ../../../addons/ofxCv/libs/ofxCv/src/Calibration.cpp; sourceTree = SOURCE_ROOT; };
@@ -659,6 +668,31 @@
 			name = photo;
 			sourceTree = "<group>";
 		};
+		3BCB261E1DEBDC6F00B78F58 /* ofxLaserTSP */ = {
+			isa = PBXGroup;
+			children = (
+				3BCB26281DEBDC6F00B78F58 /* src */,
+			);
+			name = ofxLaserTSP;
+			path = src/ofxLaserTSP;
+			sourceTree = "<group>";
+		};
+		3BCB26281DEBDC6F00B78F58 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				3BCB26291DEBDC6F00B78F58 /* LaserDefs.cpp */,
+				3BCB262A1DEBDC6F00B78F58 /* LaserDefs.h */,
+				3BCB262B1DEBDC6F00B78F58 /* LaserMain.h */,
+				3BCB262C1DEBDC6F00B78F58 /* LaserProgram.cpp */,
+				3BCB262D1DEBDC6F00B78F58 /* LaserProgram.h */,
+				3BCB262E1DEBDC6F00B78F58 /* RouteNode.cpp */,
+				3BCB262F1DEBDC6F00B78F58 /* RouteNode.h */,
+				3BCB26301DEBDC6F00B78F58 /* RouteOptimizer.cpp */,
+				3BCB26311DEBDC6F00B78F58 /* RouteOptimizer.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
 		3E44059DCBC2444D65660B9C /* imgproc */ = {
 			isa = PBXGroup;
 			children = (
@@ -752,6 +786,7 @@
 		6948EE371B920CB800B5AC1A /* local_addons */ = {
 			isa = PBXGroup;
 			children = (
+				3BCB261E1DEBDC6F00B78F58 /* ofxLaserTSP */,
 			);
 			name = local_addons;
 			sourceTree = "<group>";
