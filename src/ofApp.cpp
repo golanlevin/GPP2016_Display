@@ -65,9 +65,9 @@ void ofApp::setup(){
 	inputGuiPanel.add(contourThickness.setup	("contourThickness",	2, 0,8));
 	inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
 
-	inputGuiPanel.add(mySkeletonTracer.boneResampling.setup		("boneResampling",		3.0, 1.0, 11.0));
-	inputGuiPanel.add(mySkeletonTracer.boneSmoothing.setup		("boneSmoothing",		2.0, 0.0, 10.0));
-
+	inputGuiPanel.add(mySkeletonTracer.boneResampling.setup		("boneResampling",		2.5, 1.0, 11.0));
+	inputGuiPanel.add(mySkeletonTracer.boneSmoothSigma.setup	("boneSmoothSigma",		0.9, 0.0, 3.0));
+	inputGuiPanel.add(mySkeletonTracer.boneSmoothKernW.setup	("boneSmoothKernW",		2, 1, 7));
 }
 
 

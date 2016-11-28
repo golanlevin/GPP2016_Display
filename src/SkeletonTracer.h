@@ -60,7 +60,9 @@ class SkeletonTracer {
 	void	optimallyReorderBones();
 	void	drawStateImage();
 	void	drawBones();
+	ofPolyline getSmoothed (ofPolyline inputBone);
 	
+	ofPolyline			tempBone;
 	ofPolyline			currentBone;
 	vector<ofPolyline>	bonesRawTraced;		// 1. The raw traced bones
 	vector<ofPolyline>	bonesRawMerged;		// 2. Ultra-short bones appended to neighbors.
@@ -68,7 +70,9 @@ class SkeletonTracer {
 	vector<ofPolyline>	bonesPrev;			// Yesterframe's raw traced bones
 	
 	ofxFloatSlider	boneResampling;
-	ofxFloatSlider	boneSmoothing;
+	ofxFloatSlider	boneSmoothSigma;
+	ofxIntSlider	boneSmoothKernW;
+	
 	
 	int				buffer_w;
 	int				buffer_h;

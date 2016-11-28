@@ -30,6 +30,9 @@ void SkeletonTracer::initialize (int w, int h){
 	for (int i=0; i<SKEL_MAX_N_BRANCH_POINTS; i++){
 		branchPointIndices[i] = SKEL_INVALID;
 	}
+	
+	boneSmoothSigma = 0.9;
+	boneSmoothKernW = 2;
 }
 
 
@@ -363,7 +366,8 @@ void SkeletonTracer::smoothBones(){
 				
 			} else {
 				ofPolyline resampledBone = rawBone.getResampledBySpacing (boneResampling);
-				ofPolyline smoothedBone = resampledBone.getSmoothed (boneSmoothing);
+				// ofPolyline smoothedBone = resampledBone.getSmoothed (boneSmoothSigma);
+				ofPolyline smoothedBone = getSmoothed (resampledBone);
 				bonesRawSmooth.push_back(smoothedBone);
 			}
 			
@@ -374,6 +378,55 @@ void SkeletonTracer::smoothBones(){
 		
 	}
 	//
+}
+
+//------------------------------------------------------------
+ofPolyline SkeletonTracer::getSmoothed (ofPolyline inputBone){
+	
+	//---------------------------
+	// Construct a gaussian kernel to smooth the polyline.
+	int kernelW			= MIN(19,MAX(3,(boneSmoothKernW*2)+1)); // an odd number
+	int kernelCenter	= (int)kernelW/2;
+	int kLeft			= 0-kernelCenter;
+	int kRight			= kernelCenter;
+	float sigma			= MAX(0.01, boneSmoothSigma);
+	float sum			= 0;
+	
+	float* kernel = new float[kernelW];
+	for (int x=0; x<kernelW; ++x) {
+		float val = (x-kernelCenter)/sigma;
+		kernel[x] = exp(-0.5 * (val*val)) / (TWO_PI*sigma*sigma);
+		sum += kernel[x];
+	}
+	for (int x=0; x<kernelW; ++x) {
+		kernel[x] /= sum; // normalize the kernel values.
+	}
+
+	//---------------------------
+	// Copy (weighted) points into tempBone
+	tempBone.clear();
+	int nPoints = inputBone.size();
+	for (int i=0; i<nPoints; i++){
+		ofPoint ithPoint;
+		ithPoint.set(0,0);
+		
+		if (i==0){
+			ithPoint = inputBone[0];
+		} else if (i==(nPoints-1)){
+			ithPoint = inputBone[nPoints-1];
+		} else {
+			for (int k=0; k<kernelW; k++){
+				int j = MIN(MAX(0, i+k-kernelCenter),nPoints-1);
+				ithPoint += (inputBone[j] * kernel[k]);
+			}
+		}
+		tempBone.addVertex(ithPoint);
+	}
+	
+	//---------------------------
+	// Clean up and return.
+	delete[] kernel; 
+	return tempBone;
 }
 
 
