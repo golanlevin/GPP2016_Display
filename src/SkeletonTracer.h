@@ -76,7 +76,6 @@ class SkeletonTracer {
 	ofxFloatSlider	boneSmoothSigma;
 	ofxIntSlider	boneSmoothKernW;
 	
-	
 	int				buffer_w;
 	int				buffer_h;
 	unsigned char	*tmpBuffer;
@@ -107,6 +106,8 @@ class SkeletonTracer {
 	laser::LaserProgram	*program;
 	laser::Route		*route;
 	laser::Program		*commands;
+	
+	bool				bDoMergeBones;
 	
 };
 

@@ -68,6 +68,7 @@ void ofApp::setup(){
 	inputGuiPanel.add(mySkeletonTracer.boneResampling.setup		("boneResampling",		2.5, 1.0, 11.0));
 	inputGuiPanel.add(mySkeletonTracer.boneSmoothSigma.setup	("boneSmoothSigma",		0.9, 0.0, 3.0));
 	inputGuiPanel.add(mySkeletonTracer.boneSmoothKernW.setup	("boneSmoothKernW",		2, 1, 7));
+	
 }
 
 

@@ -33,6 +33,7 @@ void SkeletonTracer::initialize (int w, int h){
 	
 	boneSmoothSigma = 0.9;
 	boneSmoothKernW = 2;
+	bDoMergeBones = false;
 }
 
 //------------------------------------------------------------
@@ -195,6 +196,7 @@ void SkeletonTracer::traceVectorSkeletonFromSkeletonImage(){
 			nUnlookedAt = countUnlookedAtPixels();
 			currentLoc = getLocOfFirstSkeletonPixel();
 			currentBone.clear();
+			//addPointToCurrentBoneAtPixelIndex (currentLoc); ///
 		}
 	}
 	// printf("nUnlookedAt: %d | nSkels %d | nBones %d \n", nUnlookedAt, nSkeletons, (int) bonesRawTraced.size());
@@ -203,188 +205,200 @@ void SkeletonTracer::traceVectorSkeletonFromSkeletonImage(){
 //------------------------------------------------------------
 void SkeletonTracer::mergeBones(){
 	
-	int tooShort = 4;
-	vector<BoneMergeCouplet> coupletsOfMergedBones;
-	coupletsOfMergedBones.clear();
-	BoneMergeCouplet aCouplet;
-	
-	int nRawBones = bonesRawTraced.size();
-	for (int i=0; i<nRawBones; i++){
-		
-		// For every long-enough bone
-		ofPolyline ithBone = bonesRawTraced[i];
-		int ithBoneSize = ithBone.size();
-		if (ithBoneSize > tooShort){
-			ofVec3f piS = ithBone[0]; // start
-			ofVec3f piE = ithBone[ithBoneSize-1]; // end
-			
-			// Comparing with every too-short bone;
-			for (int j=0; j<nRawBones; j++){
-				if (j != i){
-					
-					// (Except for those which have already been merged)
-					bool jthBoneAlreadyMerged = false;
-					for (int k=0; k<coupletsOfMergedBones.size(); k++){
-						BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
-						if (kthCouplet.boneJIndex == j){
-							jthBoneAlreadyMerged = true;
-						}
-					}
-					
-					// Check to see if the Start or End of the long-enough bone
-					// is exactly coincident with the Start or End of the too-short bone
-					if (jthBoneAlreadyMerged == false){
-						ofPolyline jthBone = bonesRawTraced[j];
-						int jthBoneSize = jthBone.size();
-						if ((jthBoneSize >= 2) && (jthBoneSize <= tooShort)){
-							ofVec3f pjS = jthBone[0];
-							ofVec3f pjE = jthBone[jthBoneSize-1];
-							
-							int distiEjS = (int) ofDistSquared(piE.x,piE.y, pjS.x,pjS.y);
-							int distiEjE = (int) ofDistSquared(piE.x,piE.y, pjE.x,pjE.y);
-							int distiSjS = (int) ofDistSquared(piS.x,piS.y, pjS.x,pjS.y);
-							int distiSjE = (int) ofDistSquared(piS.x,piS.y, pjE.x,pjE.y);
-							
-							// If it is, then stash this couplet.
-							if ((distiEjS <= 1) || (distiEjE <= 1) || (distiSjS <= 1) || (distiSjE <= 1) ){
+	if (bDoMergeBones == false){
+		bonesRawMerged.clear();
+		int nRawBones = bonesRawTraced.size();
+		for (int i=0; i<nRawBones; i++){
+			ofPolyline ithBone = bonesRawTraced[i];
+			bonesRawMerged.push_back(ithBone);
+		}
 
-								if        (distiEjS <= 1){
-									aCouplet.boneITerminus	= BONE_END;
-									aCouplet.boneJTerminus	= BONE_START;
-								} else if (distiEjE <= 1) {
-									aCouplet.boneITerminus	= BONE_END;
-									aCouplet.boneJTerminus	= BONE_END;
-								} else if (distiSjS <= 1){
-									aCouplet.boneITerminus	= BONE_START;
-									aCouplet.boneJTerminus	= BONE_START;
-								} else if (distiSjE <= 1){
-									aCouplet.boneITerminus	= BONE_START;
-									aCouplet.boneJTerminus	= BONE_END;
+	
+	} else {
+	
+		int tooShort = 4;
+		vector<BoneMergeCouplet> coupletsOfMergedBones;
+		coupletsOfMergedBones.clear();
+		BoneMergeCouplet aCouplet;
+		
+		int nRawBones = bonesRawTraced.size();
+		for (int i=0; i<nRawBones; i++){
+			
+			// For every long-enough bone
+			ofPolyline ithBone = bonesRawTraced[i];
+			int ithBoneSize = ithBone.size();
+			if (ithBoneSize > tooShort){
+				ofVec3f piS = ithBone[0]; // start
+				ofVec3f piE = ithBone[ithBoneSize-1]; // end
+				
+				// Comparing with every too-short bone;
+				for (int j=0; j<nRawBones; j++){
+					if (j != i){
+						
+						// (Except for those which have already been merged)
+						bool jthBoneAlreadyMerged = false;
+						for (int k=0; k<coupletsOfMergedBones.size(); k++){
+							BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
+							if (kthCouplet.boneJIndex == j){
+								jthBoneAlreadyMerged = true;
+							}
+						}
+						
+						// Check to see if the Start or End of the long-enough bone
+						// is exactly coincident with the Start or End of the too-short bone
+						if (jthBoneAlreadyMerged == false){
+							ofPolyline jthBone = bonesRawTraced[j];
+							int jthBoneSize = jthBone.size();
+							if ((jthBoneSize >= 2) && (jthBoneSize <= tooShort)){
+								ofVec3f pjS = jthBone[0];
+								ofVec3f pjE = jthBone[jthBoneSize-1];
+								
+								int distiEjS = (int) ofDistSquared(piE.x,piE.y, pjS.x,pjS.y);
+								int distiEjE = (int) ofDistSquared(piE.x,piE.y, pjE.x,pjE.y);
+								int distiSjS = (int) ofDistSquared(piS.x,piS.y, pjS.x,pjS.y);
+								int distiSjE = (int) ofDistSquared(piS.x,piS.y, pjE.x,pjE.y);
+								
+								// If it is, then stash this couplet.
+								if ((distiEjS <= 1) || (distiEjE <= 1) || (distiSjS <= 1) || (distiSjE <= 1) ){
+
+									if        (distiEjS <= 1){
+										aCouplet.boneITerminus	= BONE_END;
+										aCouplet.boneJTerminus	= BONE_START;
+									} else if (distiEjE <= 1) {
+										aCouplet.boneITerminus	= BONE_END;
+										aCouplet.boneJTerminus	= BONE_END;
+									} else if (distiSjS <= 1){
+										aCouplet.boneITerminus	= BONE_START;
+										aCouplet.boneJTerminus	= BONE_START;
+									} else if (distiSjE <= 1){
+										aCouplet.boneITerminus	= BONE_START;
+										aCouplet.boneJTerminus	= BONE_END;
+									}
+									
+									aCouplet.boneIIndex	= i;
+									aCouplet.boneJIndex	= j;
+									coupletsOfMergedBones.push_back(aCouplet);
 								}
 								
-								aCouplet.boneIIndex	= i;
-								aCouplet.boneJIndex	= j;
-								coupletsOfMergedBones.push_back(aCouplet);
 							}
-							
 						}
 					}
 				}
 			}
 		}
-	}
-	
-	/*
-	printf("--------------------\n");
-	for (int k=0; k<coupletsOfMergedBones.size(); k++){
-		BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
-		int i = kthCouplet.boneIIndex;
-		int j = kthCouplet.boneJIndex;
-		printf("%d	%d\n", i, j);
-	}
-	*/
-	
-	bonesRawMerged.clear();
-	for (int i=0; i<nRawBones; i++){
 		
-		// For every long-enough bone
-		ofPolyline ithBone = bonesRawTraced[i];
-		int ithBoneSize = ithBone.size();
-		if (ithBoneSize > tooShort){
+		/*
+		printf("--------------------\n");
+		for (int k=0; k<coupletsOfMergedBones.size(); k++){
+			BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
+			int i = kthCouplet.boneIIndex;
+			int j = kthCouplet.boneJIndex;
+			printf("%d	%d\n", i, j);
+		}
+		*/
+		
+		bonesRawMerged.clear();
+		for (int i=0; i<nRawBones; i++){
 			
-			// check to see if it appears in a couplet.
-			bool bIthBoneAppearsInACouplet = false;
-			for (int k=0; k<coupletsOfMergedBones.size(); k++){
-				BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
-				int iIndex = kthCouplet.boneIIndex;
-				if (i == iIndex){
-					bIthBoneAppearsInACouplet = true;
-				}
-			}
-			
-			if (bIthBoneAppearsInACouplet == false){
-				// If it does not appear in a couplet, simply add it to bonesRawMerged
-				bonesRawMerged.push_back(ithBone);
+			// For every long-enough bone
+			ofPolyline ithBone = bonesRawTraced[i];
+			int ithBoneSize = ithBone.size();
+			if (ithBoneSize > tooShort){
 				
-			} else {
-				// If it does appear in a couplet, construct a merged polyline, then add to bonesRawMerged
-				ofPolyline mergedBone;
-				mergedBone.clear();
-				bool bAddedIthBoneBulk = false;
-
-				// First handle the J to I-start, if any
+				// check to see if it appears in a couplet.
+				bool bIthBoneAppearsInACouplet = false;
 				for (int k=0; k<coupletsOfMergedBones.size(); k++){
 					BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
-					if ((kthCouplet.boneIIndex == i) && (kthCouplet.boneITerminus == BONE_START)){
-						int j = kthCouplet.boneJIndex;
-						ofPolyline jthBone = bonesRawTraced[j];
-						if (jthBone.size() >= 2) { // safety
-						
-							if (kthCouplet.boneJTerminus == BONE_START){
-								// Now add all the points of jthBone, backwards from the end
-								// Remember: the jthBone meets the ithBone at the jthBone's Start
-								for (int p=(jthBone.size()-1); p>=0; p--){
-									mergedBone.addVertex(jthBone[p]);
-								}
-							} else if (kthCouplet.boneJTerminus == BONE_END){
-								// Now add all the points of jthBone, in order from the start
-								// Remember: the jthBone meets the ithBone at the jthBone's End
-								for (int p=0; p<jthBone.size(); p++){
-									mergedBone.addVertex(jthBone[p]);
-								}
-							}
-						}
-						
-						// Now add all the points of ithBone, in order from the start
-						bAddedIthBoneBulk = true;
-						for (int p=0; p<ithBone.size(); p++){
-							mergedBone.addVertex(ithBone[p]);
-						}
-						break;
+					int iIndex = kthCouplet.boneIIndex;
+					if (i == iIndex){
+						bIthBoneAppearsInACouplet = true;
 					}
 				}
 				
-				// Now append the I-end to J, if any
-				for (int k=0; k<coupletsOfMergedBones.size(); k++){
-					BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
-					if ((kthCouplet.boneIIndex == i) && (kthCouplet.boneITerminus == BONE_END)){
-						
-						// Add all the points of ithBone, in order from the start, if we haven't already
-						if (bAddedIthBoneBulk == false){
+				if (bIthBoneAppearsInACouplet == false){
+					// If it does not appear in a couplet, simply add it to bonesRawMerged
+					bonesRawMerged.push_back(ithBone);
+					
+				} else {
+					// If it does appear in a couplet, construct a merged polyline, then add to bonesRawMerged
+					ofPolyline mergedBone;
+					mergedBone.clear();
+					bool bAddedIthBoneBulk = false;
+
+					// First handle the J to I-start, if any
+					for (int k=0; k<coupletsOfMergedBones.size(); k++){
+						BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
+						if ((kthCouplet.boneIIndex == i) && (kthCouplet.boneITerminus == BONE_START)){
+							int j = kthCouplet.boneJIndex;
+							ofPolyline jthBone = bonesRawTraced[j];
+							if (jthBone.size() >= 2) { // safety
+							
+								if (kthCouplet.boneJTerminus == BONE_START){
+									// Now add all the points of jthBone, backwards from the end
+									// Remember: the jthBone meets the ithBone at the jthBone's Start
+									for (int p=(jthBone.size()-1); p>=0; p--){
+										mergedBone.addVertex(jthBone[p]);
+									}
+								} else if (kthCouplet.boneJTerminus == BONE_END){
+									// Now add all the points of jthBone, in order from the start
+									// Remember: the jthBone meets the ithBone at the jthBone's End
+									for (int p=0; p<jthBone.size(); p++){
+										mergedBone.addVertex(jthBone[p]);
+									}
+								}
+							}
+							
+							// Now add all the points of ithBone, in order from the start
+							bAddedIthBoneBulk = true;
 							for (int p=0; p<ithBone.size(); p++){
 								mergedBone.addVertex(ithBone[p]);
 							}
+							break;
 						}
-						
-						int j = kthCouplet.boneJIndex;
-						ofPolyline jthBone = bonesRawTraced[j];
-						if (jthBone.size() >= 2) { // safety
-							if (kthCouplet.boneJTerminus == BONE_START){
-								// Now add all the points of jthBone, backwards from the end
-								// Remember: the jthBone meets the ithBone at the jthBone's Start
-								for (int p=(jthBone.size()-1); p>=0; p--){
-									mergedBone.addVertex(jthBone[p]);
-								}
-							} else if (kthCouplet.boneJTerminus == BONE_END){
-								// Now add all the points of jthBone, in order from the start
-								// Remember: the jthBone meets the ithBone at the jthBone's End
-								for (int p=0; p<jthBone.size(); p++){
-									mergedBone.addVertex(jthBone[p]);
+					}
+					
+					// Now append the I-end to J, if any
+					for (int k=0; k<coupletsOfMergedBones.size(); k++){
+						BoneMergeCouplet kthCouplet = coupletsOfMergedBones[k];
+						if ((kthCouplet.boneIIndex == i) && (kthCouplet.boneITerminus == BONE_END)){
+							
+							// Add all the points of ithBone, in order from the start, if we haven't already
+							if (bAddedIthBoneBulk == false){
+								for (int p=0; p<ithBone.size(); p++){
+									mergedBone.addVertex(ithBone[p]);
 								}
 							}
+							
+							int j = kthCouplet.boneJIndex;
+							ofPolyline jthBone = bonesRawTraced[j];
+							if (jthBone.size() >= 2) { // safety
+								if (kthCouplet.boneJTerminus == BONE_START){
+									// Now add all the points of jthBone, backwards from the end
+									// Remember: the jthBone meets the ithBone at the jthBone's Start
+									for (int p=(jthBone.size()-1); p>=0; p--){
+										mergedBone.addVertex(jthBone[p]);
+									}
+								} else if (kthCouplet.boneJTerminus == BONE_END){
+									// Now add all the points of jthBone, in order from the start
+									// Remember: the jthBone meets the ithBone at the jthBone's End
+									for (int p=0; p<jthBone.size(); p++){
+										mergedBone.addVertex(jthBone[p]);
+									}
+								}
+							}
+							break;
 						}
-						break;
 					}
+					
+					bonesRawMerged.push_back(mergedBone);
+					mergedBone.clear();
+					
 				}
-				
-				bonesRawMerged.push_back(mergedBone);
-				mergedBone.clear();
-				
 			}
 		}
-	}
 
-	coupletsOfMergedBones.clear();
+		coupletsOfMergedBones.clear();
+	}
 }
 
 
