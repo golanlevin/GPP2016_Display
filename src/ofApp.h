@@ -6,7 +6,7 @@
 #include "ofxGui.h"
 
 #include "SkeletonTracer.h"
-
+#include "LaserMain.h"
 
 class ofApp : public ofBaseApp{
 
@@ -48,6 +48,7 @@ class ofApp : public ofBaseApp{
 
 	bool	bProxyVideoPlayerPaused;
 	bool	bUseProxyVideoInsteadOfOSC;
+	void	captureProxyVideo(); 
 	void	computeContoursFromProxyVideo();
 	
 	//-----------------------------------------------
@@ -88,6 +89,9 @@ class ofApp : public ofBaseApp{
 	//-----------------------------------------------
 	// GUI Sliders and other controls
 	//
+	void			initializeGui();
+	void			propagateGui();
+	
 	ofxPanel		inputGuiPanel;
 	ofxIntSlider	proxyThreshold;
 	ofxFloatSlider	inputLineSmoothing;
@@ -95,14 +99,18 @@ class ofApp : public ofBaseApp{
 	ofxIntSlider	contourThickness;
 	ofxToggle		bSmoothHolesToo;
 	
-	/*
 	ofxFloatSlider	boneResampling;
-	ofxFloatSlider	boneSmoothing;
-	 */
+	ofxFloatSlider	boneSmoothSigma;
+	ofxIntSlider	boneSmoothKernW;
+	ofxToggle		bDoMergeBones; 
+	ofxToggle		bDoOptimizeTSP;
+
 	
 	//-----------------------------------------------
 	// Skeleton tracing produces ofPolylines.
 	//
-	SkeletonTracer	mySkeletonTracer;
+	SkeletonTracer	*mySkeletonTracer;
+	bool bGotAProxyFrame;
+
 
 };

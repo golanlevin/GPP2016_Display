@@ -10,7 +10,7 @@
  * Written by Bryce Summers on 11/18/2016.
  */
 
-namespace laser
+namespace bryce_tsp
 {
 
     class RouteOptimizer
@@ -18,16 +18,23 @@ namespace laser
 
     private:
         Route * route;
+        bool closed;
+
+        // Represents the index of the start of the linked list.
+        // This is important for non closed solutions, so that they can align the permutation correctly.
+        // This is changed when a route is returned to a user.
+        int start_index;
 
     public:
-        RouteOptimizer(Route * route);
+        RouteOptimizer(Route * route, bool closed = true);
         ~RouteOptimizer();
 
         // Returns a heuristically optimized route.
         // This is guranteed to be a new route in memory.
         Route * optimize(int passes);
 
-        void populatePermutation(std::vector<int> &permutation);
+        // Permutes the given permutation by the permutation constructed by this RouteOptimizer.
+        void permute(std::vector<int> &permutation);
 
     private:
         // A local allocation of memory for all of the route nodes,
@@ -52,10 +59,15 @@ namespace laser
         // Returns a consistent heuristic for the length of a path from points[id1] to points[id2].
         float metric(int id1, int id2);
 
+        // returns the index of the node where the longest edge points finishes in the forward ordering.
+        // The return value will indicate the proper start_index for open problems.
+        int getLongestEdgeIndex(std::vector<RouteNode> nodes);
+
         // Returns a consistent heuristic for the length of a path, with a penalty for sharp angles.
         // float metric(int id1_p, int id1, int id2, int id2_p);
 
         // Converts from this RouteOptimizer's internal structures back to a route representation.
+        // User is responsible for managing the returned memory.
         Route * toRoute();
 
     };

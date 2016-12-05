@@ -11,26 +11,32 @@ void ofApp::setup(){
 	displayScale = 1.0;
 	displayW = proxyCaptureW * displayScale;
 	displayH = proxyCaptureH * displayScale;
-	displayM = 10; 
+	displayM = 10;
+	
+	initializeGui();
 	
 	/*
-	1_Fernanda-Cascada_Input.mov
-	2_Lewis-Cascada_Input.mov
-	3_Group-Cascada_Input.mov
+	"proxy/1_Fernanda-Cascada_Input.mov"
+	"proxy/2_Lewis-Cascada_Input.mov"
+	"proxy/3_Group-Cascada_Input.mov"
 	*/
-
-	bUseProxyVideoInsteadOfOSC	= true;
-	bProxyVideoPlayerPaused		= false;
 	proxyVideoPlayer.load("proxy/3_Group-Cascada_Input.mov");
 	proxyVideoPlayer.play();
 	proxyVideoPlayer.setLoopState(OF_LOOP_NORMAL);
 	proxyColorImage.allocate (proxyCaptureW,proxyCaptureH);
 	proxyColorImage.set(0);
 	
+	bUseProxyVideoInsteadOfOSC	= true;
+	bProxyVideoPlayerPaused		= false;
+	bGotAProxyFrame				= false;
+	
 	minBlobSize			= 20;
 	maxBlobSize			= (proxyCaptureW*proxyCaptureH)/3;
 	maxNBlobs			= 8;
 	bGetHoles			= true;
+	
+	myOfxCvContourFinder.setMinArea(minBlobSize);
+	myOfxCvContourFinder.setMaxArea(maxBlobSize);
 	
 	skeletonBufW		= 320; // Note: the Kinectv2 depth image is 512 x 424.
 	skeletonBufH		= 240; // 320x265 would preserve the aspect ratio of Kinectv2 depth image.
@@ -41,7 +47,9 @@ void ofApp::setup(){
 	filledContourMat.create    (skeletonBufH, skeletonBufW, CV_8UC(1));
 	filledContourImage.allocate(skeletonBufW, skeletonBufH, OF_IMAGE_GRAYSCALE);
 	skeletonImage.allocate     (skeletonBufW, skeletonBufH, OF_IMAGE_GRAYSCALE);
-	mySkeletonTracer.initialize(skeletonBufW, skeletonBufH);
+	
+	mySkeletonTracer = new SkeletonTracer();
+	mySkeletonTracer->initialize(skeletonBufW, skeletonBufH);
 	
 	bufW = skeletonBufW;
 	bufH = skeletonBufH;
@@ -52,49 +60,96 @@ void ofApp::setup(){
 	skeletonBuffer	= new unsigned char[bufW * bufH];
 	tmpBuffer		= new unsigned char[bufW * bufH];
 	inputBuff		= skeletonBuffer;
+}
 
+
+
+//--------------------------------------------------------------
+void ofApp::initializeGui(){
 	
-	
-	myOfxCvContourFinder.setMinArea(minBlobSize);
-	myOfxCvContourFinder.setMaxArea(maxBlobSize);
-	
+	ofxGuiSetDefaultWidth(320);
 	inputGuiPanel.setup("Settings", "settings/GPPSettings.xml", displayM, (displayM*3)+(displayH*2));
+	
 	inputGuiPanel.add(proxyThreshold.setup		("proxyThreshold",		80, 0,254));
 	inputGuiPanel.add(inputLineSmoothing.setup	("inputLineSmoothing",	5.0, 0.0, 16.0));
 	inputGuiPanel.add(inputLineResample.setup	("inputLineResample",	3.0, 1.0, 11.0));
 	inputGuiPanel.add(contourThickness.setup	("contourThickness",	2, 0,8));
 	inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
-
-	inputGuiPanel.add(mySkeletonTracer.boneResampling.setup		("boneResampling",		2.5, 1.0, 11.0));
-	inputGuiPanel.add(mySkeletonTracer.boneSmoothSigma.setup	("boneSmoothSigma",		0.9, 0.0, 3.0));
-	inputGuiPanel.add(mySkeletonTracer.boneSmoothKernW.setup	("boneSmoothKernW",		2, 1, 7));
 	
+	inputGuiPanel.add(boneResampling.setup		("boneResampling",		3.0, 1.0, 11.0));
+	inputGuiPanel.add(boneSmoothSigma.setup		("boneSmoothSigma",		0.9, 0.0, 3.0));
+	inputGuiPanel.add(boneSmoothKernW.setup		("boneSmoothKernW",		2, 1, 7));
+	inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		false));
+	inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
+}
+
+
+//--------------------------------------------------------------
+void ofApp::propagateGui(){
+	mySkeletonTracer->boneResampling	= (float)	boneResampling;
+	mySkeletonTracer->boneSmoothSigma	= (float)	boneSmoothSigma;
+	mySkeletonTracer->boneSmoothKernW	= (int)		boneSmoothKernW;
+	mySkeletonTracer->bDoMergeBones		= (bool)	bDoMergeBones;
+	mySkeletonTracer->bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
+}
+
+
+//--------------------------------------------------------------
+void ofApp::captureProxyVideo(){
+	if (bUseProxyVideoInsteadOfOSC){
+		bool bNewFrame = false;
+		proxyVideoPlayer.update();
+		bNewFrame = proxyVideoPlayer.isFrameNew();
+		if (bNewFrame){
+			proxyColorImage.setFromPixels(proxyVideoPlayer.getPixels());
+			bGotAProxyFrame = true;
+		} else {
+			//
+		}
+	}
 }
 
 
 //--------------------------------------------------------------
 void ofApp::update(){
 	
+	propagateGui();
+	captureProxyVideo();
 	
 	// Fetch the raw contours, either from OSC or from a local test video.
 	vector<vector<cv::Point>> rawContours = obtainRawContours();
+	int nRawContours = rawContours.size();
+	if (nRawContours > 0){
 	
-	// Filter the contours, smoothing them to produce better skeletons.
-	filterContoursBeforeReconstitution (rawContours);
-	
-	// Prepare a blob image, the input to thinning-based skeletonization.
-	reconstituteBlobsFromContours (theContoursi, skeletonBufW,skeletonBufH);
-	computeSkeletonImageFromBlobs (theContoursi, skeletonBufW,skeletonBufH);
-	
-	mySkeletonTracer.computeVectorSkeleton (skeletonBuffer);
-	
-	// Trace skeleton bones
-	// Use ofxCv RectTracker to determine bone identity over time
-	// Blur current bones over time
-	// Record  bones & play back; add to overall collection of bones (new + old)
-	// Perspectival quad warp coordinates
-	// Compute order with which to render bones
-	// Send bones to laser
+		// Filter the contours, smoothing them to produce better skeletons.
+		filterContoursBeforeReconstitution (rawContours);
+		
+		// Prepare a blob image, the input to thinning-based skeletonization.
+		reconstituteBlobsFromContours (theContoursi, skeletonBufW,skeletonBufH);
+		computeSkeletonImageFromBlobs (theContoursi, skeletonBufW,skeletonBufH);
+		mySkeletonTracer->computeVectorSkeleton (skeletonBuffer, nRawContours);
+		
+		// Trace skeleton bones
+		// Use ofxCv RectTracker to determine bone identity over time
+		// Blur current bones over time
+		// Record  bones & play back; add to overall collection of bones (new + old)
+		// Perspectival quad warp coordinates
+		// Compute order with which to render bones
+		// Send bones to laser
+	} else {
+		
+		int nPixels = skeletonBufW*skeletonBufH;
+		memset(skeletonBuffer, (unsigned char)0, nPixels);
+		filledContourMat.setTo(0);
+		filledContourImage.setFromPixels(filledContourMat.data, skeletonBufW,skeletonBufH, OF_IMAGE_GRAYSCALE);
+		skeletonImage.setFromPixels(skeletonBuffer, skeletonBufW,skeletonBufH, OF_IMAGE_GRAYSCALE);
+		roiMinX = 0;
+		roiMaxX = 1;
+		roiMinY = 0;
+		roiMaxY = 1;
+		
+		mySkeletonTracer->computeVectorSkeleton (skeletonBuffer, nRawContours);
+	}
 
 }
 
@@ -106,7 +161,7 @@ vector<vector<cv::Point>> ofApp::obtainRawContours(){
 		computeContoursFromProxyVideo();
 		rawContours = myOfxCvContourFinder.getContours();
 	} else {
-		// rawContours = something fetched from OSC
+		// rawContours = something something fetched from OSC
 		// Note that it will be necessary for these to match ofxCv contours,
 		// For example, indication about whether a contour is a hole or not.
 	}
@@ -147,9 +202,11 @@ void ofApp::reconstituteBlobsFromContours (vector<vector<cv::Point>> contours, i
 	filledContourImage.setFromPixels(filledContourMatPixels, w,h, OF_IMAGE_GRAYSCALE);
 }
 
+
+
 //--------------------------------------------------------------
 void ofApp::computeSkeletonImageFromBlobs(vector<vector<cv::Point>> contours, int w, int h){
-	
+
 	//------------------------
 	// Copy the blob pixels from filledContourMat into skeletonBuffer
 	int nPixels = w * h;
@@ -202,6 +259,9 @@ void ofApp::computeSkeletonImageFromBlobs(vector<vector<cv::Point>> contours, in
 	
 	skeletonImage.setFromPixels(skeletonBuffer, w,h, OF_IMAGE_GRAYSCALE);
 }
+
+
+
 
 //=============================================
 void ofApp::skeletonize() {
@@ -313,90 +373,90 @@ inline int ofApp::thin (int pass, unsigned char *table) {
 
 //--------------------------------------------------------------
 void ofApp::filterContoursBeforeReconstitution(vector<vector<cv::Point>> rawContours){
-	int nContours = rawContours.size();
-	
-	// Count the positive contours: presumably, bodies.
-	nCurrentPositiveContours = 0;
-	for (int i=0; i<nContours; i++){ // Fill the positive contours
-		if (myOfxCvContourFinder.getHole(i) == false) {
-			nCurrentPositiveContours++;
-		}
-	}
-	
-	//----------------------
-	// Copy the raw (int) contours into temp (float / ofPolyline) versions.
-	vector<ofPolyline> tempPolylines;
-	tempPolylines.clear();
-	for (int i=0; i<nContours; i++){
-		vector<cv::Point> ithRawContour = rawContours[i];
-		ofPolyline ithNewPolyline;
-		int nPoints = ithRawContour.size();
-		for (int j=0; j<nPoints; j++){
-			cv::Point jthRawPoint = ithRawContour[j];
-			float jxf = (float)jthRawPoint.x;
-			float jyf = (float)jthRawPoint.y;
-			if (bScaleProxyToKinect){
-				jxf *= skeletonScale;
-				jyf *= skeletonScale;
-			}
-
-			ithNewPolyline.addVertex(jxf, jyf);
-		}
-		tempPolylines.push_back(ithNewPolyline);
-	}
-	
-	//----------------------
-	// Filter the input polylines to optimize later skeletonization: simplify, resample, smooth
 	theContoursf.clear();
-	bool bSimplifyInputPolylines = true;
-	for (int i=0; i<nContours; i++){
-		ofPolyline ithTempPolyline = tempPolylines[i];
-		ithTempPolyline.setClosed(true);
-		if (bSimplifyInputPolylines) {
-			ithTempPolyline.simplify(); }
-		if (inputLineResample > 1.0) {
-			ithTempPolyline = ithTempPolyline.getResampledBySpacing(inputLineResample); }
-		if (bSmoothHolesToo || (myOfxCvContourFinder.getHole(i) == false)){
-			if (inputLineSmoothing > 0){
-				ithTempPolyline = ithTempPolyline.getSmoothed(inputLineSmoothing); }
-		}
-		theContoursf.push_back(ithTempPolyline);
-	}
-	
-	//----------------------
-	// Copy the modified (float) contours into new (int) contours.
-	tempPolylines.clear();
 	theContoursi.clear();
-	for (int i=0; i<nContours; i++){
-		ofPolyline ithNewPolyline = theContoursf[i];
-		vector<cv::Point> ithNewContour;
-		int nPoints = ithNewPolyline.size();
-		for (int j=0; j<nPoints; j++){
-			ofVec2f jthNewPoint = ithNewPolyline[j];
-			int jxi = (int)round(jthNewPoint.x);
-			int jyi = (int)round(jthNewPoint.y);
-			ithNewContour.push_back(cv::Point(jxi,jyi));
+	
+	int nContours = rawContours.size();
+	if (nContours > 0){
+	
+		// Count the positive contours: presumably, bodies.
+		nCurrentPositiveContours = 0;
+		for (int i=0; i<nContours; i++){ // Fill the positive contours
+			if (myOfxCvContourFinder.getHole(i) == false) {
+				nCurrentPositiveContours++;
+			}
 		}
-		theContoursi.push_back(ithNewContour);
+		
+		//----------------------
+		// Copy the raw (int) contours into temp (float / ofPolyline) versions.
+		vector<ofPolyline> tempPolylines;
+		tempPolylines.clear();
+		for (int i=0; i<nContours; i++){
+			vector<cv::Point> ithRawContour = rawContours[i];
+			ofPolyline ithNewPolyline;
+			int nPoints = ithRawContour.size();
+			for (int j=0; j<nPoints; j++){
+				cv::Point jthRawPoint = ithRawContour[j];
+				float jxf = (float)jthRawPoint.x;
+				float jyf = (float)jthRawPoint.y;
+				if (bScaleProxyToKinect){
+					jxf *= skeletonScale;
+					jyf *= skeletonScale;
+				}
+
+				ithNewPolyline.addVertex(jxf, jyf);
+			}
+			tempPolylines.push_back(ithNewPolyline);
+		}
+		
+		//----------------------
+		// Filter the input polylines to optimize later skeletonization: simplify, resample, smooth
+		// theContoursf.clear();
+		bool bSimplifyInputPolylines = true;
+		for (int i=0; i<nContours; i++){
+			ofPolyline ithTempPolyline = tempPolylines[i];
+			ithTempPolyline.setClosed(true);
+			if (bSimplifyInputPolylines) {
+				ithTempPolyline.simplify(); }
+			if (inputLineResample > 1.0) {
+				ithTempPolyline = ithTempPolyline.getResampledBySpacing(inputLineResample); }
+			if (bSmoothHolesToo || (myOfxCvContourFinder.getHole(i) == false)){
+				if (inputLineSmoothing > 0){
+					ithTempPolyline = ithTempPolyline.getSmoothed(inputLineSmoothing); }
+			}
+			theContoursf.push_back(ithTempPolyline);
+		}
+		
+		//----------------------
+		// Copy the modified (float) contours into new (int) contours.
+		// theContoursi.clear();
+		tempPolylines.clear();
+		for (int i=0; i<nContours; i++){
+			ofPolyline ithNewPolyline = theContoursf[i];
+			vector<cv::Point> ithNewContour;
+			int nPoints = ithNewPolyline.size();
+			for (int j=0; j<nPoints; j++){
+				ofVec2f jthNewPoint = ithNewPolyline[j];
+				int jxi = (int)round(jthNewPoint.x);
+				int jyi = (int)round(jthNewPoint.y);
+				ithNewContour.push_back(cv::Point(jxi,jyi));
+			}
+			theContoursi.push_back(ithNewContour);
+		}
 	}
 }
 
 //--------------------------------------------------------------
 void ofApp::computeContoursFromProxyVideo(){
-	bool bNewFrame = false;
-	proxyVideoPlayer.update();
-	bNewFrame = proxyVideoPlayer.isFrameNew();
-	if (bNewFrame){
-		proxyColorImage.setFromPixels(proxyVideoPlayer.getPixels());
+
+	if (bGotAProxyFrame){
+		ofColor contourFinderTargetColor = ofColor(255,255,255);
+		myOfxCvContourFinder.setTargetColor(contourFinderTargetColor, TRACK_COLOR_RGB);
+		myOfxCvContourFinder.setThreshold(proxyThreshold);
+		myOfxCvContourFinder.setSortBySize(true);
+		myOfxCvContourFinder.setFindHoles(bGetHoles);
+		myOfxCvContourFinder.findContours(proxyColorImage);
 	}
-	
-	ofColor contourFinderTargetColor = ofColor(255,255,255);
-	myOfxCvContourFinder.setTargetColor(contourFinderTargetColor, TRACK_COLOR_RGB);
-	myOfxCvContourFinder.setThreshold(proxyThreshold);
-	myOfxCvContourFinder.setSortBySize(true);
-	myOfxCvContourFinder.setFindHoles(bGetHoles);
-	myOfxCvContourFinder.findContours(proxyColorImage);
-	
 }
 
 //--------------------------------------------------------------
@@ -424,7 +484,7 @@ void ofApp::draw(){
 	myOfxCvContourFinder.draw();
 	ofPopMatrix();
 	
-	// 3. Draw the blobs reconstituted from the contours, and their combined bbox.
+	// 3. Draw the blobs reconstituted from the contours, and their combined bounding box.
 	ofSetHexColor(0xffffff);
 	displayX = 1*displayW + 2*displayM;
 	displayY = 0*displayH + 1*displayM;
@@ -450,8 +510,9 @@ void ofApp::draw(){
 	displayY = 2*displayH + 3*displayM;
 	ofPushMatrix();
 	ofTranslate(displayX,displayY);
-	mySkeletonTracer.drawStateImage();
+	mySkeletonTracer->drawStateImage();
 	ofPopMatrix();
+	
 	
 	// 6. Draw the bones.
 	ofPushMatrix();
@@ -461,17 +522,8 @@ void ofApp::draw(){
 	ofScale(3.0,3.0);
 	ofSetHexColor(0x202020);
 	proxyColorImage.draw(0,0, displayW,displayH);
-	mySkeletonTracer.drawBones();
+	mySkeletonTracer->drawBones();
 	ofPopMatrix();
-	
-	
-	/*
-	// finally, a report:
-	ofSetHexColor(0xffffff);
-	stringstream reportStr;
-	reportStr << "fps: " << ofGetFrameRate();
-	ofDrawBitmapString(reportStr.str(), 20, 600);
-	*/
 	
 
 	inputGuiPanel.draw();
@@ -501,7 +553,7 @@ void ofApp::keyPressed(int key){
 			inputGuiPanel.loadFromFile("settings/GPPSettings.xml");
 			break;
 		case 'E':
-			mySkeletonTracer.exportVectorGraphics();
+			mySkeletonTracer->exportVectorGraphics();
 			break;
 	}
 }

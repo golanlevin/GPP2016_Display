@@ -6,15 +6,17 @@
 //
 //
 
-#ifndef __GPP2016_Display__SkeletonTracer__
-#define __GPP2016_Display__SkeletonTracer__
+#pragma once
+
 
 #include "ofMain.h"
+#include "LaserMain.h"
+#include "LaserDefs.h"
+
 #include "ofxCv.h" // for Tracker
 #include "ofxGui.h"
 #include "ofxVectorGraphics.h"
 
-#include "LaserMain.h" // for Bryce's laser-TSP optimization
 
 //---------------------------------------------
 #define SKEL_INVALID						-1
@@ -49,32 +51,36 @@ struct BoneMergeCouplet {
 	BoneTerminus	boneJTerminus;
 };
 
+struct PolylinePlus {
+	ofPolyline polyline; // assume there will always be a field called 'polyline'
+	float r;
+	float g;
+	float b;
+};
+
+
 
 class SkeletonTracer {
 	
 	public:
 	
 	void	initialize (int w, int h);
-	void	computeVectorSkeleton (unsigned char* skeletonPixelBuffer);
+	void	computeVectorSkeleton (unsigned char* skeletonPixelBuffer, int nRawContours);
 	void	traceVectorSkeletonFromSkeletonImage();
 	void	trackBones();
 	void	mergeBones(); 
 	void	smoothBones();
-	void	optimallyReorderBones();
+	void	optimallyReorderBones(int nPasses);
 	void	drawStateImage();
 	void	drawBones();
 	ofPolyline getSmoothed (ofPolyline inputBone);
 	
 	ofPolyline			tempBone;
 	ofPolyline			currentBone;
-	vector<ofPolyline>	bonesRawTraced;		// 1. The raw traced bones
+	vector<ofPolyline>	bonesRawTraced;		// 1. The raw traced bones.
 	vector<ofPolyline>	bonesRawMerged;		// 2. Ultra-short bones appended to neighbors.
 	vector<ofPolyline>	bonesRawSmooth;		// 3. Visually filtered bones (resampled, smoothed).
-	vector<ofPolyline>	bonesPrev;			// Yesterframe's raw traced bones
-	
-	ofxFloatSlider	boneResampling;
-	ofxFloatSlider	boneSmoothSigma;
-	ofxIntSlider	boneSmoothKernW;
+	vector<ofPolyline>	bonesReordered;		// 4. Bones optimized for minimum cumulative length.
 	
 	int				buffer_w;
 	int				buffer_h;
@@ -101,15 +107,32 @@ class SkeletonTracer {
 	ofxVectorGraphics	myVectorGraphics;
 	void			exportVectorGraphics(); 
 	
-	//--------------------------------
-	// TSP-based optimizer by Bryce Summers.
-	laser::LaserProgram	*program;
-	laser::Route		*route;
-	laser::Program		*commands;
 	
-	bool				bDoMergeBones;
+
+	bool			bDoMergeBones;
+	float			boneResampling;
+	float			boneSmoothSigma;
+	int				boneSmoothKernW;
+	bool			bDoOptimizeTSP;
+	
+	//-----------------
+	vector<PolylinePlus>	theRawDrawing;
+	vector<PolylinePlus>	tempDrawing;
+	vector<PolylinePlus>	theOptimizedDrawing;
+	
+	float	drawingLength;
+	bool	bClosedTSP;
+	float	computeLengthOfDrawing(vector<PolylinePlus> aDrawing);
+	// Conversion functions between Polyline Plus vectors and the Routes used in bryce_tsp.
+	void	convert_polyline_plus_to_route(vector<PolylinePlus> * path_list, bryce_tsp::Route * route);
+	void	convert_route_to_polyline_plus(vector<PolylinePlus>    * path_in,
+										bryce_tsp::Route        * route_in,
+										bryce_tsp::LaserProgram * permuter,
+										vector<PolylinePlus>    * path_out);
+	
+	// Copies all of the polyline plus data, except for the ofPolyline data.
+	void copy_extra_polyline_plus_data(PolylinePlus & src, PolylinePlus & dest);
+	
 	
 };
 
-
-#endif /* defined(__GPP2016_Display__SkeletonTracer__) */

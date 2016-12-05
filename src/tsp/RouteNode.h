@@ -1,6 +1,6 @@
 #pragma once
 
-namespace laser
+namespace bryce_tsp
 {
     class RouteNode
     {
@@ -10,7 +10,7 @@ namespace laser
 
         bool marked = false;
 
-                // A route is assumed to consist of "domino" nodes linked between each other.
+        // A route is assumed to consist of "domino" nodes linked between each other.
         // These nodes contain indices into point data arrays.
         // Consider the route A -> B -> C
         // The polylines would be:

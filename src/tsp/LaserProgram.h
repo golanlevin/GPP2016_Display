@@ -1,12 +1,13 @@
 #pragma once
 
-#include "ofMain.h"
-#include "LaserDefs.h"
-#include "RouteOptimizer.h"
-#include "RouteNode.h"
-#include <vector>
+#include "ofMain.h";
+#include "LaserDefs.h";
+#include "RouteOptimizer.h";
+#include "RouteNode.h";
 
-namespace laser
+#include <vector>;
+
+namespace bryce_tsp
 {
 
     // Laser Commands tell the robot to turn on the laser, turn off the laser,
@@ -40,6 +41,7 @@ namespace laser
     private:
         // Private Route object.
         Route * route;
+        bool closed;
 
         // path_permutations[route[id]] = id of route in original input.
         std::vector<int> path_permutation;
@@ -47,7 +49,7 @@ namespace laser
     public:
         // ASSUMES: route allocated via new. The Laser Program now owns the input route and will deal with deallocation.
         // ASSUMES: every route contains at least 2 points.
-        LaserProgram(Route * route);
+        LaserProgram(Route * route, bool closed = true);
         ~LaserProgram();
 
         // -- Instructs the LaserProgram to Optimize its route.
@@ -63,6 +65,9 @@ namespace laser
 
         // Converts the current route into a command list form.
         Program * getCommandList();
+
+        // Determines the index of the given index in the original data after the optimization permutation has been applied.
+        int lookup_original_index(int current_index);
 
     // Optimization functions.
     private:

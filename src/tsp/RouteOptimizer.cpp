@@ -1,18 +1,20 @@
 #include "RouteOptimizer.h"
 #include <stdexcept>
 
-namespace laser
+namespace bryce_tsp
 {
 
-    RouteOptimizer::RouteOptimizer(Route * route)
+    RouteOptimizer::RouteOptimizer(Route * route, bool closed)
     {
         this -> route = route;
+        this -> closed = closed;
+        int start_index = 0;
 
         nodes.clear();
         points.clear();
 
         int id  = 0; // next Route ID.
-        int pid = 0;// next Point ID.
+        int pid = 0; // next Point ID.
 
         // Allocate all of the Route Nodes and Points.
         for (auto iter = route -> cbegin(); iter != route -> cend(); ++iter)
@@ -48,9 +50,9 @@ namespace laser
     Route * RouteOptimizer::optimize(int passes)
     {
 
-        cout << "Metric Before Optimization = " << metric(nodes) << endl;
+        //cout << "Metric Before Optimization = " << metric(nodes) << endl;
         aplyOptimizationPasses(passes);
-        cout << "Metric After Optimization = " << metric(nodes) << endl;
+        //cout << "Metric After Optimization = " << metric(nodes) << endl;
 
         return toRoute();
     }
@@ -60,7 +62,8 @@ namespace laser
         // Do some optimization here...
         int len = nodes.size();
 
-        float score = std::numeric_limits<float>::max();
+        // Original Metric.
+        float score = metric(nodes);
 
         // Optimize through routeNode flipping.
         // O(n).
@@ -96,8 +99,10 @@ namespace laser
 
             }
 
-            cout << "Metric After Pass " << pass << " = " << metric(nodes) << endl;
+            //cout << "Metric After Pass " << pass << " = " << metric(nodes) << endl;
         }
+
+        //cout << "Metric After Pass " << passes << " = " << metric(nodes) << endl;
 
         return;
     }
@@ -107,22 +112,33 @@ namespace laser
         Route * output = new Route();
 
         // Convert RouteOptimizer Structures back to a route representation.
-        for (auto iter = nodes.begin(); iter != nodes.end(); ++iter)
+
+        // retrive the start index, such that we start after the most distant edge.
+        this -> start_index = getLongestEdgeIndex(nodes);
+
+        RouteNode * first   = &nodes[this -> start_index];
+        RouteNode * current = first;
+        do
         {
-            RouteNode & node = *iter;
-            int ID = node.id;
+            int ID = current -> id;
             Polyline * polyline = this -> route -> at(ID);
-            if (node.flipped)
-            {
-                polyline = reverse(polyline);
+            
+            // NOTE: We could easily make an output format that gives the users the flipped bools, instead of flipped lists.
+            // I like the lists, because we could potentially chop up paths in the future for other applications.
+            if (current -> flipped) 
+            { 
+                polyline = reverse_polyline(polyline);
             }
             else
             {
-                polyline = copy(polyline);
+                polyline = copy_polyline(polyline);
             }
 
             output -> push_back(polyline);
-        }
+
+            // Iterate.
+            current = current -> next;
+        }while(current != first);
 
         return output;
     }
@@ -211,10 +227,13 @@ namespace laser
     // global metric.
     // Returns a consistent for how long the path is.
     // We wish to minimize this value.
+    // We use this metric for open and closed problems, then simply remove the longest edge afterwards.
     float RouteOptimizer::metric(std::vector<RouteNode> nodes)
     {
         // Accumulator.
         float accum = 0.0f;
+        // Warning, this is going in arbitrary original order, because the order that we add the segments up doesn't matter.
+        // If you change this to rely on the permuted ordering of nodes, transverse this using next pointers.
         for (auto iter = nodes.begin(); iter != nodes.end(); ++iter)
         {
             RouteNode * node = &(*iter);
@@ -222,10 +241,42 @@ namespace laser
             // Point Indices.
             int p0 = node -> index_end;
             int p1 = node -> next -> index_start;
+
             accum += metric(p0, p1);
         }
 
         return accum;
+    }
+
+    int RouteOptimizer::getLongestEdgeIndex(std::vector<RouteNode> nodes)
+    {
+        int index = -1;
+        float max = std::numeric_limits<float>::min();
+        int len = nodes.size();
+        for (int i = 0; i < len; i++)
+        {
+            RouteNode * node = &nodes[i];
+            RouteNode * next = node -> next;
+
+            // Point Indices.
+            int p0 = node -> index_end;
+            int p1 = next -> index_start;
+
+            float dist = metric(p0, p1);
+
+            if (dist > max)
+            {
+                index = next -> id;
+                max = dist;
+            }
+        }
+
+        if (index < 0)
+        {
+			throw new std::runtime_error("No maximum edge distance was found.");
+        }
+
+        return index;
     }
 
     // Returns a consistent heuristic for the length of a path from id1 to id2.
@@ -235,21 +286,40 @@ namespace laser
         ofPoint p2 = points[id2];
         
         // FIXME: Square distance would be faster.
-        return p1.distance(p2);
+        return ofDist(p1.x, p1.y, p2.x, p2.y);
     }
 
-    void RouteOptimizer::populatePermutation(std::vector<int> &permutation)
+    void RouteOptimizer::permute(std::vector<int> & permutation_in_out)
     {
-        permutation.clear();
+        
+        std::vector<int> permutation;
+        std::vector<int> permutation_out;
 
+        // First compute the relative permutation from the input route to this optimizer to the present route.
         // ASSERTION( This loop goes n times, where n = nodes.length;
-        RouteNode * start = &nodes[0];
+        RouteNode * start = &nodes[this -> start_index];
         RouteNode * current = start;
         do
         {
             permutation.push_back(current -> id);
             current = current -> next;
         } while (current != start);
+
+        // Next permute the input permutation by the relative permutation.
+        // i is the local index -> relative index -> global index.
+        int len = permutation_in_out.size();
+        for (int i = 0; i < len; i++)
+        {
+            int relative_index = permutation[i];
+            int global_index   = permutation_in_out[relative_index];
+            permutation_out.push_back(global_index);
+        }
+
+        // Finnally copy the resultant global permutation onto the input_output buffer.
+        for (int i = 0; i < len; i++)
+        {
+            permutation_in_out[i] = permutation_out[i];
+        }
 
         return;
     }

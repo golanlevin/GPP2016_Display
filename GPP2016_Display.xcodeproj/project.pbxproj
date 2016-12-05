@@ -18,6 +18,10 @@
 		250A95BA26587BE85DB0A353 /* ofxCvColorImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CE9C7160245B19131DAE6128 /* ofxCvColorImage.cpp */; };
 		255A7B680DC81E543C875794 /* usb_libusb10.c in Sources */ = {isa = PBXBuildFile; fileRef = 28F9707464BA3FF98E05096C /* usb_libusb10.c */; };
 		311DF864378748129984EA1D /* Kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 77A1A692522820F935B58762 /* Kalman.cpp */; };
+		3B0E63AC1DF554B6009F5702 /* LaserDefs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63A31DF554B6009F5702 /* LaserDefs.cpp */; };
+		3B0E63AD1DF554B6009F5702 /* LaserProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63A61DF554B6009F5702 /* LaserProgram.cpp */; };
+		3B0E63AE1DF554B6009F5702 /* RouteNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63A81DF554B6009F5702 /* RouteNode.cpp */; };
+		3B0E63AF1DF554B6009F5702 /* RouteOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63AA1DF554B6009F5702 /* RouteOptimizer.cpp */; };
 		3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B67E7341DEACF930053090C /* SkeletonTracer.cpp */; };
 		45CC483A999BF1065A6B926C /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DBD717072C35D324E101669 /* Distance.cpp */; };
 		483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D67A00EB899FAC09430597 /* ofxLabel.cpp */; };
@@ -162,20 +166,20 @@
 		36F0FF7F8D7342D220CC6319 /* dummy.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = dummy.h; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/flann/dummy.h; sourceTree = SOURCE_ROOT; };
 		37D155721DCC51F3D1DC2E02 /* color_detail.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = color_detail.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/gpu/device/detail/color_detail.hpp; sourceTree = SOURCE_ROOT; };
 		3ADB4E06C4EDB97E020A778D /* functional.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = functional.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/gpu/device/functional.hpp; sourceTree = SOURCE_ROOT; };
+		3B0E63A31DF554B6009F5702 /* LaserDefs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LaserDefs.cpp; sourceTree = "<group>"; };
+		3B0E63A41DF554B6009F5702 /* LaserDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaserDefs.h; sourceTree = "<group>"; };
+		3B0E63A51DF554B6009F5702 /* LaserMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaserMain.h; sourceTree = "<group>"; };
+		3B0E63A61DF554B6009F5702 /* LaserProgram.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LaserProgram.cpp; sourceTree = "<group>"; };
+		3B0E63A71DF554B6009F5702 /* LaserProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LaserProgram.h; sourceTree = "<group>"; };
+		3B0E63A81DF554B6009F5702 /* RouteNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RouteNode.cpp; sourceTree = "<group>"; };
+		3B0E63A91DF554B6009F5702 /* RouteNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteNode.h; sourceTree = "<group>"; };
+		3B0E63AA1DF554B6009F5702 /* RouteOptimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RouteOptimizer.cpp; sourceTree = "<group>"; };
+		3B0E63AB1DF554B6009F5702 /* RouteOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteOptimizer.h; sourceTree = "<group>"; };
 		3B361208CD4107E479F04E7B /* NetworkingUtils.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = NetworkingUtils.cpp; path = ../../../addons/ofxOsc/libs/oscpack/src/ip/posix/NetworkingUtils.cpp; sourceTree = SOURCE_ROOT; };
 		3B67E7301DEACE120053090C /* GPP2016_DisplayDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPP2016_DisplayDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B67E7341DEACF930053090C /* SkeletonTracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonTracer.cpp; sourceTree = "<group>"; };
 		3B67E7351DEACF930053090C /* SkeletonTracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonTracer.h; sourceTree = "<group>"; };
 		3B67E7371DEB1C330053090C /* GPPSettings.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = GPPSettings.xml; path = bin/data/settings/GPPSettings.xml; sourceTree = SOURCE_ROOT; };
-		3BCB26291DEBDC6F00B78F58 /* LaserDefs.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LaserDefs.cpp; sourceTree = "<group>"; };
-		3BCB262A1DEBDC6F00B78F58 /* LaserDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LaserDefs.h; sourceTree = "<group>"; };
-		3BCB262B1DEBDC6F00B78F58 /* LaserMain.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LaserMain.h; sourceTree = "<group>"; };
-		3BCB262C1DEBDC6F00B78F58 /* LaserProgram.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = LaserProgram.cpp; sourceTree = "<group>"; };
-		3BCB262D1DEBDC6F00B78F58 /* LaserProgram.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LaserProgram.h; sourceTree = "<group>"; };
-		3BCB262E1DEBDC6F00B78F58 /* RouteNode.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RouteNode.cpp; sourceTree = "<group>"; };
-		3BCB262F1DEBDC6F00B78F58 /* RouteNode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RouteNode.h; sourceTree = "<group>"; };
-		3BCB26301DEBDC6F00B78F58 /* RouteOptimizer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = RouteOptimizer.cpp; sourceTree = "<group>"; };
-		3BCB26311DEBDC6F00B78F58 /* RouteOptimizer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RouteOptimizer.h; sourceTree = "<group>"; };
 		3CABCA8EA52D11C95F7A1309 /* registration.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = registration.h; path = ../../../addons/ofxKinect/libs/libfreenect/src/registration.h; sourceTree = SOURCE_ROOT; };
 		3DBD37876A11E46E4D7069B3 /* cameras.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 30; name = cameras.c; path = ../../../addons/ofxKinect/libs/libfreenect/src/cameras.c; sourceTree = SOURCE_ROOT; };
 		402C8F4015542356D362AC88 /* Calibration.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Calibration.cpp; path = ../../../addons/ofxCv/libs/ofxCv/src/Calibration.cpp; sourceTree = SOURCE_ROOT; };
@@ -659,6 +663,22 @@
 			name = videostab;
 			sourceTree = "<group>";
 		};
+		3B0E63A21DF554B6009F5702 /* tsp */ = {
+			isa = PBXGroup;
+			children = (
+				3B0E63A31DF554B6009F5702 /* LaserDefs.cpp */,
+				3B0E63A41DF554B6009F5702 /* LaserDefs.h */,
+				3B0E63A51DF554B6009F5702 /* LaserMain.h */,
+				3B0E63A61DF554B6009F5702 /* LaserProgram.cpp */,
+				3B0E63A71DF554B6009F5702 /* LaserProgram.h */,
+				3B0E63A81DF554B6009F5702 /* RouteNode.cpp */,
+				3B0E63A91DF554B6009F5702 /* RouteNode.h */,
+				3B0E63AA1DF554B6009F5702 /* RouteOptimizer.cpp */,
+				3B0E63AB1DF554B6009F5702 /* RouteOptimizer.h */,
+			);
+			path = tsp;
+			sourceTree = "<group>";
+		};
 		3B8F70BFDA30BBA2A5A060FC /* photo */ = {
 			isa = PBXGroup;
 			children = (
@@ -666,31 +686,6 @@
 				56ED74AD5FC73867F5E046F0 /* photo_c.h */,
 			);
 			name = photo;
-			sourceTree = "<group>";
-		};
-		3BCB261E1DEBDC6F00B78F58 /* ofxLaserTSP */ = {
-			isa = PBXGroup;
-			children = (
-				3BCB26281DEBDC6F00B78F58 /* src */,
-			);
-			name = ofxLaserTSP;
-			path = src/ofxLaserTSP;
-			sourceTree = "<group>";
-		};
-		3BCB26281DEBDC6F00B78F58 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				3BCB26291DEBDC6F00B78F58 /* LaserDefs.cpp */,
-				3BCB262A1DEBDC6F00B78F58 /* LaserDefs.h */,
-				3BCB262B1DEBDC6F00B78F58 /* LaserMain.h */,
-				3BCB262C1DEBDC6F00B78F58 /* LaserProgram.cpp */,
-				3BCB262D1DEBDC6F00B78F58 /* LaserProgram.h */,
-				3BCB262E1DEBDC6F00B78F58 /* RouteNode.cpp */,
-				3BCB262F1DEBDC6F00B78F58 /* RouteNode.h */,
-				3BCB26301DEBDC6F00B78F58 /* RouteOptimizer.cpp */,
-				3BCB26311DEBDC6F00B78F58 /* RouteOptimizer.h */,
-			);
-			path = src;
 			sourceTree = "<group>";
 		};
 		3E44059DCBC2444D65660B9C /* imgproc */ = {
@@ -786,7 +781,6 @@
 		6948EE371B920CB800B5AC1A /* local_addons */ = {
 			isa = PBXGroup;
 			children = (
-				3BCB261E1DEBDC6F00B78F58 /* ofxLaserTSP */,
 			);
 			name = local_addons;
 			sourceTree = "<group>";
@@ -1209,6 +1203,7 @@
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
 				3B67E7341DEACF930053090C /* SkeletonTracer.cpp */,
 				3B67E7351DEACF930053090C /* SkeletonTracer.h */,
+				3B0E63A21DF554B6009F5702 /* tsp */,
 			);
 			path = src;
 			sourceTree = SOURCE_ROOT;
@@ -1425,6 +1420,7 @@
 				483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */,
 				F285EB3169F1566CA3D93C20 /* ofxPanel.cpp in Sources */,
 				837220E80EB56CD44AD27F2A /* ofxSlider.cpp in Sources */,
+				3B0E63AF1DF554B6009F5702 /* RouteOptimizer.cpp in Sources */,
 				B56FE57CC35806596D38118C /* ofxSliderGroup.cpp in Sources */,
 				1CD33E884D9E3358252E82A1 /* ofxToggle.cpp in Sources */,
 				7ADB04AF67C568EAFAEBA546 /* ofxKinectExtras.cpp in Sources */,
@@ -1435,14 +1431,17 @@
 				E55DEEF784A10419E444669E /* flags.c in Sources */,
 				21A059755481CC0BF969FD2D /* keep_alive.c in Sources */,
 				FCC16AB16073FF0581F50ED7 /* loader.c in Sources */,
+				3B0E63AC1DF554B6009F5702 /* LaserDefs.cpp in Sources */,
 				D31F5C1B140C59B2AF1533A8 /* registration.c in Sources */,
 				49BEEB2DFA5319D55AA6899F /* tilt.c in Sources */,
+				3B0E63AD1DF554B6009F5702 /* LaserProgram.cpp in Sources */,
 				255A7B680DC81E543C875794 /* usb_libusb10.c in Sources */,
 				250A95BA26587BE85DB0A353 /* ofxCvColorImage.cpp in Sources */,
 				1D5F3298C2FA073628012944 /* ofxCvContourFinder.cpp in Sources */,
 				169D3C72FDE6C5590A1616F5 /* ofxCvFloatImage.cpp in Sources */,
 				3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */,
 				FB09C6B2A1DA0EA217240CB8 /* ofxCvGrayscaleImage.cpp in Sources */,
+				3B0E63AE1DF554B6009F5702 /* RouteNode.cpp in Sources */,
 				E212C821D1064B92DD953A42 /* ofxCvHaarFinder.cpp in Sources */,
 				63020F16C7E8DED980111241 /* ofxCvImage.cpp in Sources */,
 				D3301F6A0B43BB293ED97C1D /* ofxCvShortImage.cpp in Sources */,

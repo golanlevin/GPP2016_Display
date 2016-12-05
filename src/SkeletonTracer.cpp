@@ -8,12 +8,13 @@
 
 #include "SkeletonTracer.h"
 
+/*using namespace bryce_tsp;*/
 //------------------------------------------------------------
 void SkeletonTracer::initialize (int w, int h){
 	
 	buffer_w = w;
 	buffer_h = h;
-	tmpBuffer = new unsigned char[buffer_w * buffer_h];
+	tmpBuffer        = new unsigned char[buffer_w * buffer_h];
 	pixelStateBuffer = new unsigned char[buffer_w * buffer_h];
 	pixelStateImage.allocate(buffer_w, buffer_h, OF_IMAGE_GRAYSCALE);
 	
@@ -23,7 +24,7 @@ void SkeletonTracer::initialize (int w, int h){
 	bonesRawTraced.clear();
 	bonesRawMerged.clear();
 	bonesRawSmooth.clear();
-	bonesPrev.clear();
+	bonesReordered.clear();
 	
 	nBranchPointIndices = 0;
 	branchPointIndices = new int[SKEL_MAX_N_BRANCH_POINTS];
@@ -31,9 +32,12 @@ void SkeletonTracer::initialize (int w, int h){
 		branchPointIndices[i] = SKEL_INVALID;
 	}
 	
+	boneResampling = 2.5;
 	boneSmoothSigma = 0.9;
 	boneSmoothKernW = 2;
-	bDoMergeBones = false;
+	bDoMergeBones	= true;
+	bDoOptimizeTSP	= true;
+	bClosedTSP		= false;
 }
 
 //------------------------------------------------------------
@@ -79,17 +83,29 @@ void SkeletonTracer::exportVectorGraphics(){
 
 
 //------------------------------------------------------------
-void SkeletonTracer::computeVectorSkeleton (unsigned char* skeletonPixelBuffer){
-	
+void SkeletonTracer::computeVectorSkeleton (unsigned char* skeletonPixelBuffer, int nRawContours){
 	int nPixels = buffer_w * buffer_h;
-	memcpy(pixelStateBuffer, skeletonPixelBuffer, nPixels);
 	
-	traceVectorSkeletonFromSkeletonImage();
-
-	mergeBones();
-	smoothBones();
-	trackBones();
-	optimallyReorderBones();
+	if (nRawContours > 0){
+		memcpy(pixelStateBuffer, skeletonPixelBuffer, nPixels);
+		
+		traceVectorSkeletonFromSkeletonImage();
+		mergeBones();
+		smoothBones();
+		trackBones();
+		optimallyReorderBones(4);
+		
+	} else {
+		
+		memset(pixelStateBuffer, 0, nPixels);
+		bonesRawTraced.clear();
+		bonesRawMerged.clear();
+		bonesRawSmooth.clear();
+		bonesReordered.clear();
+		theRawDrawing.clear();
+		theOptimizedDrawing.clear();
+		currentBone.clear();
+	}
 }
 
 //------------------------------------------------------------
@@ -212,7 +228,6 @@ void SkeletonTracer::mergeBones(){
 			ofPolyline ithBone = bonesRawTraced[i];
 			bonesRawMerged.push_back(ithBone);
 		}
-
 	
 	} else {
 	
@@ -404,7 +419,7 @@ void SkeletonTracer::mergeBones(){
 
 //------------------------------------------------------------
 void SkeletonTracer::smoothBones(){
-	
+
 	float small	= 12.0; //px or npts
 
 	bonesRawSmooth.clear();
@@ -429,10 +444,7 @@ void SkeletonTracer::smoothBones(){
 		} else {
 			bonesRawSmooth.push_back(rawBone);
 		}
-		
-		
 	}
-	//
 }
 
 //------------------------------------------------------------
@@ -493,11 +505,162 @@ void SkeletonTracer::trackBones(){
 
 
 //------------------------------------------------------------
-void SkeletonTracer::optimallyReorderBones(){
+void SkeletonTracer::optimallyReorderBones(int nPasses){
 	// Optimally reorder the bones for display with a laser,
 	// using a variant of the Traveling Salesman Problem
 	
+	theOptimizedDrawing.clear();
+	if (bDoOptimizeTSP){
+		
+		// Copy smoothed into theRawDrawing
+		theRawDrawing.clear();
+		int nPolylines = bonesRawSmooth.size();
+		for (int i=0; i<nPolylines; i++){
+			ofPolyline aPolyline = bonesRawSmooth[i];
+			if (aPolyline.size() > 1){
+				PolylinePlus aPolylinePlus;
+				aPolylinePlus.polyline = aPolyline;
+				aPolylinePlus.r = 255;
+				aPolylinePlus.g = 0;
+				aPolylinePlus.b = 0;
+				theRawDrawing.push_back(aPolylinePlus);
+			}
+		}
+		
+		if (theRawDrawing.size() > 0){
+			float initialLength = computeLengthOfDrawing(theRawDrawing);
+			bryce_tsp::Route *route_in = new bryce_tsp::Route();
+			convert_polyline_plus_to_route (&theRawDrawing, route_in);
+			
+			if (route_in->size() > 0){
+				bryce_tsp::LaserProgram program(route_in, this->bClosedTSP);
+				bryce_tsp::free_route(route_in);
+				
+				long then = ofGetElapsedTimeMicros();
+				for (int i = 0; i <= nPasses; i++){
+					program.optimize(i);
+					bryce_tsp::Route * route_out = program.getRoute();
+					theOptimizedDrawing.clear();
+					convert_route_to_polyline_plus(&theRawDrawing, route_out, &program, &theOptimizedDrawing);
+					bryce_tsp::free_route(route_out);
+					drawingLength = computeLengthOfDrawing(theOptimizedDrawing);
+				}
+				
+				float frac = (drawingLength/initialLength);
+				
+				// long now =  ofGetElapsedTimeMicros();
+				// int elapsed = (int)(now-then);
+				// int nPolylines = theRawDrawing.size();
+				// printf ("%f	%d	%d\n", frac, elapsed, nPolylines);
+				
+				if (frac > 1.00){ // weirdly, it sometimes happens.
+					// Copy smoothed into theOptimizedDrawing instead
+					theOptimizedDrawing.clear();
+					int nPolylines = bonesRawSmooth.size();
+					for (int i=0; i<nPolylines; i++){
+						ofPolyline aPolyline = bonesRawSmooth[i];
+						if (aPolyline.size() > 1){
+							PolylinePlus aPolylinePlus;
+							aPolylinePlus.polyline = aPolyline;
+							aPolylinePlus.r = 255;
+							aPolylinePlus.g = 200;
+							aPolylinePlus.b = 0;
+							theOptimizedDrawing.push_back(aPolylinePlus);
+						}
+					}
+				}
+
+				
+			}
+		}
+		
+	} else {
+		
+		// Copy smoothed into theOptimizedDrawing instead
+		theRawDrawing.clear();
+		int nPolylines = bonesRawSmooth.size();
+		for (int i=0; i<nPolylines; i++){
+			ofPolyline aPolyline = bonesRawSmooth[i];
+			if (aPolyline.size() > 1){
+				PolylinePlus aPolylinePlus;
+				aPolylinePlus.polyline = aPolyline;
+				aPolylinePlus.r = 0;
+				aPolylinePlus.g = 255;
+				aPolylinePlus.b = 0;
+				theOptimizedDrawing.push_back(aPolylinePlus);
+			}
+		}
+	}
 }
+
+
+//--------------------------------------------------------------
+float SkeletonTracer::computeLengthOfDrawing(vector<PolylinePlus> aDrawing) {
+	
+	float len = 0;
+	int nPolylinePlusses = aDrawing.size();
+	
+	for (int i = 0; i < nPolylinePlusses; i++) {
+		PolylinePlus aPolylinePlus = aDrawing[i];
+		ofPolyline aPolyline = aPolylinePlus.polyline;
+		len += aPolyline.getPerimeter();
+		
+		if (bClosedTSP || (i < nPolylinePlusses - 1)){
+			ofPoint lastOfThis  = aPolyline[aPolyline.size() - 1];
+			ofPolyline nextPolyline = aDrawing[(i + 1) % nPolylinePlusses].polyline;
+			ofPoint firstOfNext = nextPolyline[0];
+			float dist = ofDist(lastOfThis.x, lastOfThis.y, firstOfNext.x, firstOfNext.y);
+			len += dist;
+		}
+	}
+	return len;
+}
+
+
+//------------------------------------------------------------
+void SkeletonTracer::convert_polyline_plus_to_route(vector<PolylinePlus> * path_list, bryce_tsp::Route * route){
+	for (auto iter = path_list -> begin(); iter != path_list -> end(); ++iter){
+		ofPolyline * polyline_in = &(iter -> polyline);
+		if (polyline_in->size() > 1){
+			bryce_tsp::Polyline * polyline_out = bryce_tsp::of_polyline_to_polyline(polyline_in);
+			route -> push_back(polyline_out);
+		}
+	}
+}
+
+//------------------------------------------------------------
+void SkeletonTracer::convert_route_to_polyline_plus(vector<PolylinePlus>    * path_in,
+													bryce_tsp::Route        * route_in,
+													bryce_tsp::LaserProgram * permuter,
+													vector<PolylinePlus>    * path_out){
+	// Transcribe each of the input Polyline Plus paths into output Polyline Plus paths.
+	// using information from the optimizer.
+	int len = route_in->size();
+	for (int new_index = 0; new_index < len; new_index++) {
+		bryce_tsp::Polyline *polyline = route_in->at(new_index);
+		path_out->push_back(PolylinePlus());
+		PolylinePlus &out = path_out->back();
+		out.polyline.clear();
+		
+		// Copy over the polyline.
+		for (auto pt = polyline -> cbegin(); pt != polyline -> cend(); ++pt){
+			out.polyline.addVertex(*pt);
+		}
+		
+		int original_index = permuter -> lookup_original_index(new_index);
+		PolylinePlus & in  = path_in  -> at(original_index);
+		copy_extra_polyline_plus_data(in, out);
+	}
+}
+
+//------------------------------------------------------------
+void SkeletonTracer::copy_extra_polyline_plus_data(PolylinePlus & src, PolylinePlus & dest){
+	// Simply copy over the data fields from the source to the destination.
+	dest.r = src.r;
+	dest.g = src.g;
+	dest.b = src.b;
+}
+
 
 //------------------------------------------------------------
 void SkeletonTracer::drawStateImage(){
@@ -508,19 +671,13 @@ void SkeletonTracer::drawStateImage(){
 //------------------------------------------------------------
 void SkeletonTracer::drawBones(){
 	
-	int nColors = 12;
-	int colors[] = {0xFF6666,0x66FF66,0x6666FF, 0xFFFF33,0x33FFFF,0xFF33FF,
-					0xFF9900,0x0099FF,0xFF0099, 0x99FF00,0x00FF99,0x9900FF };
-	
-	//ofFill();
-	//ofSetHexColor(0x000000);
-	//ofDrawRectangle(0,0, buffer_w, buffer_h);
-	
-	int nBones = bonesRawSmooth.size(); ////bonesRawMerged.size(); //bonesRawTraced.size();
-	for (int i=0; i<nBones; i++){
-		ofPolyline aBone = bonesRawSmooth[i]; ///bonesRawMerged[i]; //bonesRawTraced[i];
-		if (aBone.size() > 2){
-			ofSetHexColor(0xFFFFFF);// colors[i%nColors] );
+	int nPolylinePlusses = theOptimizedDrawing.size();
+	for (int i=0; i<nPolylinePlusses; i++){
+		PolylinePlus aPP = theOptimizedDrawing[i];
+		ofPolyline aBone = aPP.polyline;
+		if (aBone.size() >= 2){
+			ofSetLineWidth(2.0);
+			ofSetColor(aPP.r, aPP.g, aPP.b);
 			aBone.draw();
 		}
 	}
@@ -642,5 +799,4 @@ void SkeletonTracer::addPointToCurrentBoneAtPixelIndex(int currentLoc){
 	float py = (float) (currentLoc / buffer_w);
 	currentBone.addVertex(px, py);
 }
-
 

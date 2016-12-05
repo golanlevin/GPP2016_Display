@@ -3,6 +3,7 @@
 	<inputLineSmoothing>5</inputLineSmoothing>
 	<inputLineResample>3</inputLineResample>
 	<contourThickness>2</contourThickness>
+	<boneResampling>3</boneResampling>
 <Input_Settings/>
 <bSmoothHolesToo>0</bSmoothHolesToo>
 </Input_Settings>
