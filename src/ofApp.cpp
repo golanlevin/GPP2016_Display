@@ -81,6 +81,7 @@ void ofApp::initializeGui(){
 	inputGuiPanel.add(boneSmoothKernW.setup		("boneSmoothKernW",		2, 1, 7));
 	inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		false));
 	inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
+	inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		50, 20,100));
 }
 
 
@@ -91,6 +92,7 @@ void ofApp::propagateGui(){
 	mySkeletonTracer->boneSmoothKernW	= (int)		boneSmoothKernW;
 	mySkeletonTracer->bDoMergeBones		= (bool)	bDoMergeBones;
 	mySkeletonTracer->bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
+	mySkeletonTracer->maxNBonesForTSP	= (int)		maxNBonesForTSP;
 }
 
 
@@ -104,7 +106,7 @@ void ofApp::captureProxyVideo(){
 			proxyColorImage.setFromPixels(proxyVideoPlayer.getPixels());
 			bGotAProxyFrame = true;
 		} else {
-			//
+			//;
 		}
 	}
 }
@@ -127,15 +129,18 @@ void ofApp::update(){
 		// Prepare a blob image, the input to thinning-based skeletonization.
 		reconstituteBlobsFromContours (theContoursi, skeletonBufW,skeletonBufH);
 		computeSkeletonImageFromBlobs (theContoursi, skeletonBufW,skeletonBufH);
+		
+		// Trace the skeleton bones
 		mySkeletonTracer->computeVectorSkeleton (skeletonBuffer, nRawContours);
 		
-		// Trace skeleton bones
+		
 		// Use ofxCv RectTracker to determine bone identity over time
 		// Blur current bones over time
 		// Record  bones & play back; add to overall collection of bones (new + old)
 		// Perspectival quad warp coordinates
 		// Compute order with which to render bones
 		// Send bones to laser
+		
 	} else {
 		
 		int nPixels = skeletonBufW*skeletonBufH;
@@ -143,11 +148,8 @@ void ofApp::update(){
 		filledContourMat.setTo(0);
 		filledContourImage.setFromPixels(filledContourMat.data, skeletonBufW,skeletonBufH, OF_IMAGE_GRAYSCALE);
 		skeletonImage.setFromPixels(skeletonBuffer, skeletonBufW,skeletonBufH, OF_IMAGE_GRAYSCALE);
-		roiMinX = 0;
-		roiMaxX = 1;
-		roiMinY = 0;
-		roiMaxY = 1;
-		
+		roiMinX = 0; roiMaxX = 1;
+		roiMinY = 0; roiMaxY = 1;
 		mySkeletonTracer->computeVectorSkeleton (skeletonBuffer, nRawContours);
 	}
 

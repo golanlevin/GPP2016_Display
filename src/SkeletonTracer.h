@@ -114,8 +114,12 @@ class SkeletonTracer {
 	float			boneSmoothSigma;
 	int				boneSmoothKernW;
 	bool			bDoOptimizeTSP;
+	int				maxNBonesForTSP;
 	
 	//-----------------
+	int						liveColor;
+	int						replayColor;
+	
 	vector<PolylinePlus>	theRawDrawing;
 	vector<PolylinePlus>	tempDrawing;
 	vector<PolylinePlus>	theOptimizedDrawing;

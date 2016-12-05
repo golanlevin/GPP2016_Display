@@ -35,9 +35,13 @@ void SkeletonTracer::initialize (int w, int h){
 	boneResampling = 2.5;
 	boneSmoothSigma = 0.9;
 	boneSmoothKernW = 2;
+	maxNBonesForTSP	= 50; 
 	bDoMergeBones	= true;
 	bDoOptimizeTSP	= true;
 	bClosedTSP		= false;
+	
+	replayColor		= 0x0000FF;
+	liveColor		= 0xFF0000;
 }
 
 //------------------------------------------------------------
@@ -510,19 +514,19 @@ void SkeletonTracer::optimallyReorderBones(int nPasses){
 	// using a variant of the Traveling Salesman Problem
 	
 	theOptimizedDrawing.clear();
-	if (bDoOptimizeTSP){
+	int nRawPolylines = bonesRawSmooth.size();
+	if (bDoOptimizeTSP && (nRawPolylines < maxNBonesForTSP)){
 		
 		// Copy smoothed into theRawDrawing
 		theRawDrawing.clear();
-		int nPolylines = bonesRawSmooth.size();
-		for (int i=0; i<nPolylines; i++){
+		for (int i=0; i<nRawPolylines; i++){
 			ofPolyline aPolyline = bonesRawSmooth[i];
 			if (aPolyline.size() > 1){
 				PolylinePlus aPolylinePlus;
 				aPolylinePlus.polyline = aPolyline;
-				aPolylinePlus.r = 255;
-				aPolylinePlus.g = 0;
-				aPolylinePlus.b = 0;
+				aPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
+				aPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
+				aPolylinePlus.b = (liveColor & 0x0000FF)      ;
 				theRawDrawing.push_back(aPolylinePlus);
 			}
 		}
@@ -547,24 +551,21 @@ void SkeletonTracer::optimallyReorderBones(int nPasses){
 				}
 				
 				float frac = (drawingLength/initialLength);
-				
 				// long now =  ofGetElapsedTimeMicros();
 				// int elapsed = (int)(now-then);
-				// int nPolylines = theRawDrawing.size();
-				// printf ("%f	%d	%d\n", frac, elapsed, nPolylines);
+				// printf ("%f	%d	%d\n", frac, elapsed, nRawPolylines);
 				
 				if (frac > 1.00){ // weirdly, it sometimes happens.
 					// Copy smoothed into theOptimizedDrawing instead
 					theOptimizedDrawing.clear();
-					int nPolylines = bonesRawSmooth.size();
-					for (int i=0; i<nPolylines; i++){
+					for (int i=0; i<nRawPolylines; i++){
 						ofPolyline aPolyline = bonesRawSmooth[i];
 						if (aPolyline.size() > 1){
 							PolylinePlus aPolylinePlus;
 							aPolylinePlus.polyline = aPolyline;
-							aPolylinePlus.r = 255;
-							aPolylinePlus.g = 200;
-							aPolylinePlus.b = 0;
+							aPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
+							aPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
+							aPolylinePlus.b = (liveColor & 0x0000FF)      ;
 							theOptimizedDrawing.push_back(aPolylinePlus);
 						}
 					}
@@ -578,15 +579,14 @@ void SkeletonTracer::optimallyReorderBones(int nPasses){
 		
 		// Copy smoothed into theOptimizedDrawing instead
 		theRawDrawing.clear();
-		int nPolylines = bonesRawSmooth.size();
-		for (int i=0; i<nPolylines; i++){
+		for (int i=0; i<nRawPolylines; i++){
 			ofPolyline aPolyline = bonesRawSmooth[i];
 			if (aPolyline.size() > 1){
 				PolylinePlus aPolylinePlus;
 				aPolylinePlus.polyline = aPolyline;
-				aPolylinePlus.r = 0;
-				aPolylinePlus.g = 255;
-				aPolylinePlus.b = 0;
+				aPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
+				aPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
+				aPolylinePlus.b = (liveColor & 0x0000FF)      ;
 				theOptimizedDrawing.push_back(aPolylinePlus);
 			}
 		}
