@@ -97,7 +97,7 @@ void SkeletonTracer::computeVectorSkeleton (unsigned char* skeletonPixelBuffer, 
 		mergeBones();
 		smoothBones();
 		trackBones();
-		optimallyReorderBones(4);
+		optimallyReorderBones();
 		
 	} else {
 		
@@ -506,18 +506,15 @@ void SkeletonTracer::trackBones(){
 	
 }
 
-
-
 //------------------------------------------------------------
-void SkeletonTracer::optimallyReorderBones(int nPasses){
-	// Optimally reorder the bones for display with a laser,
-	// using a variant of the Traveling Salesman Problem
-	
+void SkeletonTracer::optimallyReorderBones(){
 	theOptimizedDrawing.clear();
+
 	int nRawPolylines = bonesRawSmooth.size();
 	if (bDoOptimizeTSP && (nRawPolylines < maxNBonesForTSP)){
 		
-		// Copy smoothed into theRawDrawing
+		// Copy bonesRawSmooth (vector of ofPolylines)
+		// into theRawDrawing (vector of PolylinePluses)
 		theRawDrawing.clear();
 		for (int i=0; i<nRawPolylines; i++){
 			ofPolyline aPolyline = bonesRawSmooth[i];
@@ -532,47 +529,12 @@ void SkeletonTracer::optimallyReorderBones(int nPasses){
 		}
 		
 		if (theRawDrawing.size() > 0){
-			float initialLength = computeLengthOfDrawing(theRawDrawing);
-			bryce_tsp::Route *route_in = new bryce_tsp::Route();
-			convert_polyline_plus_to_route (&theRawDrawing, route_in);
-			
-			if (route_in->size() > 0){
-				bryce_tsp::LaserProgram program(route_in, this->bClosedTSP);
-				bryce_tsp::free_route(route_in);
-				
-				long then = ofGetElapsedTimeMicros();
-				for (int i = 0; i <= nPasses; i++){
-					program.optimize(i);
-					bryce_tsp::Route * route_out = program.getRoute();
-					theOptimizedDrawing.clear();
-					convert_route_to_polyline_plus(&theRawDrawing, route_out, &program, &theOptimizedDrawing);
-					bryce_tsp::free_route(route_out);
-					drawingLength = computeLengthOfDrawing(theOptimizedDrawing);
-				}
-				
-				float frac = (drawingLength/initialLength);
-				// long now =  ofGetElapsedTimeMicros();
-				// int elapsed = (int)(now-then);
-				// printf ("%f	%d	%d\n", frac, elapsed, nRawPolylines);
-				
-				if (frac > 1.00){ // weirdly, it sometimes happens.
-					// Copy smoothed into theOptimizedDrawing instead
-					theOptimizedDrawing.clear();
-					for (int i=0; i<nRawPolylines; i++){
-						ofPolyline aPolyline = bonesRawSmooth[i];
-						if (aPolyline.size() > 1){
-							PolylinePlus aPolylinePlus;
-							aPolylinePlus.polyline = aPolyline;
-							aPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
-							aPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
-							aPolylinePlus.b = (liveColor & 0x0000FF)      ;
-							theOptimizedDrawing.push_back(aPolylinePlus);
-						}
-					}
-				}
-
-				
-			}
+			int nPasses = 4;
+			long then = ofGetElapsedTimeMicros();
+			mySkeletonOptimizer.optimallyReorderBones(theRawDrawing, nPasses, bClosedTSP);
+			long now = ofGetElapsedTimeMicros();
+			printf("Elapsed = %d\n", (int)(now-then)); 
+			theOptimizedDrawing = mySkeletonOptimizer.theOptimizedDrawing;
 		}
 		
 	} else {
@@ -593,73 +555,6 @@ void SkeletonTracer::optimallyReorderBones(int nPasses){
 	}
 }
 
-
-//--------------------------------------------------------------
-float SkeletonTracer::computeLengthOfDrawing(vector<PolylinePlus> aDrawing) {
-	
-	float len = 0;
-	int nPolylinePlusses = aDrawing.size();
-	
-	for (int i = 0; i < nPolylinePlusses; i++) {
-		PolylinePlus aPolylinePlus = aDrawing[i];
-		ofPolyline aPolyline = aPolylinePlus.polyline;
-		len += aPolyline.getPerimeter();
-		
-		if (bClosedTSP || (i < nPolylinePlusses - 1)){
-			ofPoint lastOfThis  = aPolyline[aPolyline.size() - 1];
-			ofPolyline nextPolyline = aDrawing[(i + 1) % nPolylinePlusses].polyline;
-			ofPoint firstOfNext = nextPolyline[0];
-			float dist = ofDist(lastOfThis.x, lastOfThis.y, firstOfNext.x, firstOfNext.y);
-			len += dist;
-		}
-	}
-	return len;
-}
-
-
-//------------------------------------------------------------
-void SkeletonTracer::convert_polyline_plus_to_route(vector<PolylinePlus> * path_list, bryce_tsp::Route * route){
-	for (auto iter = path_list -> begin(); iter != path_list -> end(); ++iter){
-		ofPolyline * polyline_in = &(iter -> polyline);
-		if (polyline_in->size() > 1){
-			bryce_tsp::Polyline * polyline_out = bryce_tsp::of_polyline_to_polyline(polyline_in);
-			route -> push_back(polyline_out);
-		}
-	}
-}
-
-//------------------------------------------------------------
-void SkeletonTracer::convert_route_to_polyline_plus(vector<PolylinePlus>    * path_in,
-													bryce_tsp::Route        * route_in,
-													bryce_tsp::LaserProgram * permuter,
-													vector<PolylinePlus>    * path_out){
-	// Transcribe each of the input Polyline Plus paths into output Polyline Plus paths.
-	// using information from the optimizer.
-	int len = route_in->size();
-	for (int new_index = 0; new_index < len; new_index++) {
-		bryce_tsp::Polyline *polyline = route_in->at(new_index);
-		path_out->push_back(PolylinePlus());
-		PolylinePlus &out = path_out->back();
-		out.polyline.clear();
-		
-		// Copy over the polyline.
-		for (auto pt = polyline -> cbegin(); pt != polyline -> cend(); ++pt){
-			out.polyline.addVertex(*pt);
-		}
-		
-		int original_index = permuter -> lookup_original_index(new_index);
-		PolylinePlus & in  = path_in  -> at(original_index);
-		copy_extra_polyline_plus_data(in, out);
-	}
-}
-
-//------------------------------------------------------------
-void SkeletonTracer::copy_extra_polyline_plus_data(PolylinePlus & src, PolylinePlus & dest){
-	// Simply copy over the data fields from the source to the destination.
-	dest.r = src.r;
-	dest.g = src.g;
-	dest.b = src.b;
-}
 
 
 //------------------------------------------------------------

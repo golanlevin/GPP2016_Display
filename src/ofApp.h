@@ -105,7 +105,7 @@ class ofApp : public ofBaseApp{
 	ofxIntSlider	maxNBonesForTSP;
 	ofxToggle		bDoMergeBones; 
 	ofxToggle		bDoOptimizeTSP;
-
+	ofxToggle		bClosedTSP;
 	
 	//-----------------------------------------------
 	// Skeleton tracing produces ofPolylines.

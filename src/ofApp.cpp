@@ -79,8 +79,9 @@ void ofApp::initializeGui(){
 	inputGuiPanel.add(boneResampling.setup		("boneResampling",		3.0, 1.0, 11.0));
 	inputGuiPanel.add(boneSmoothSigma.setup		("boneSmoothSigma",		0.9, 0.0, 3.0));
 	inputGuiPanel.add(boneSmoothKernW.setup		("boneSmoothKernW",		2, 1, 7));
-	inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		false));
+	inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		true));
 	inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
+	inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			false));
 	inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		50, 20,100));
 }
 
@@ -92,6 +93,7 @@ void ofApp::propagateGui(){
 	mySkeletonTracer->boneSmoothKernW	= (int)		boneSmoothKernW;
 	mySkeletonTracer->bDoMergeBones		= (bool)	bDoMergeBones;
 	mySkeletonTracer->bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
+	mySkeletonTracer->bClosedTSP		= (bool)	bClosedTSP;
 	mySkeletonTracer->maxNBonesForTSP	= (int)		maxNBonesForTSP;
 }
 

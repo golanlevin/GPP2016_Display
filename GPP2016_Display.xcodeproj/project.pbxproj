@@ -22,6 +22,7 @@
 		3B0E63AD1DF554B6009F5702 /* LaserProgram.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63A61DF554B6009F5702 /* LaserProgram.cpp */; };
 		3B0E63AE1DF554B6009F5702 /* RouteNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63A81DF554B6009F5702 /* RouteNode.cpp */; };
 		3B0E63AF1DF554B6009F5702 /* RouteOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63AA1DF554B6009F5702 /* RouteOptimizer.cpp */; };
+		3B0E63B41DF6D578009F5702 /* SkeletonOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63B21DF6D578009F5702 /* SkeletonOptimizer.cpp */; };
 		3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B67E7341DEACF930053090C /* SkeletonTracer.cpp */; };
 		45CC483A999BF1065A6B926C /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DBD717072C35D324E101669 /* Distance.cpp */; };
 		483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D67A00EB899FAC09430597 /* ofxLabel.cpp */; };
@@ -175,6 +176,8 @@
 		3B0E63A91DF554B6009F5702 /* RouteNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteNode.h; sourceTree = "<group>"; };
 		3B0E63AA1DF554B6009F5702 /* RouteOptimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RouteOptimizer.cpp; sourceTree = "<group>"; };
 		3B0E63AB1DF554B6009F5702 /* RouteOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteOptimizer.h; sourceTree = "<group>"; };
+		3B0E63B21DF6D578009F5702 /* SkeletonOptimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonOptimizer.cpp; sourceTree = "<group>"; };
+		3B0E63B31DF6D578009F5702 /* SkeletonOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonOptimizer.h; sourceTree = "<group>"; };
 		3B361208CD4107E479F04E7B /* NetworkingUtils.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = NetworkingUtils.cpp; path = ../../../addons/ofxOsc/libs/oscpack/src/ip/posix/NetworkingUtils.cpp; sourceTree = SOURCE_ROOT; };
 		3B67E7301DEACE120053090C /* GPP2016_DisplayDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPP2016_DisplayDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B67E7341DEACF930053090C /* SkeletonTracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonTracer.cpp; sourceTree = "<group>"; };
@@ -1203,6 +1206,8 @@
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
 				3B67E7341DEACF930053090C /* SkeletonTracer.cpp */,
 				3B67E7351DEACF930053090C /* SkeletonTracer.h */,
+				3B0E63B21DF6D578009F5702 /* SkeletonOptimizer.cpp */,
+				3B0E63B31DF6D578009F5702 /* SkeletonOptimizer.h */,
 				3B0E63A21DF554B6009F5702 /* tsp */,
 			);
 			path = src;
@@ -1457,6 +1462,7 @@
 				C4782ECC372420ACE0615B74 /* OscPrintReceivedElements.cpp in Sources */,
 				0546D1A38E13BD319CC9755B /* OscReceivedElements.cpp in Sources */,
 				879A251454401BC0B6E4F238 /* OscTypes.cpp in Sources */,
+				3B0E63B41DF6D578009F5702 /* SkeletonOptimizer.cpp in Sources */,
 				603044E656EA8D499FCF7DEA /* ofxVectorGraphics.cpp in Sources */,
 				F01092BB147FA462845C38C7 /* CreEPS.cpp in Sources */,
 				63B57AC5BF4EF088491E0317 /* ofxXmlSettings.cpp in Sources */,
