@@ -530,10 +530,10 @@ void SkeletonTracer::optimallyReorderBones(){
 		
 		if (theRawDrawing.size() > 0){
 			int nPasses = 4;
-			long then = ofGetElapsedTimeMicros();
+			// long then = ofGetElapsedTimeMicros();
 			mySkeletonOptimizer.optimallyReorderBones(theRawDrawing, nPasses, bClosedTSP);
-			long now = ofGetElapsedTimeMicros();
-			printf("Elapsed = %d\n", (int)(now-then)); 
+			// long now = ofGetElapsedTimeMicros();
+			// printf("Elapsed = %d\n", (int)(now-then));
 			theOptimizedDrawing = mySkeletonOptimizer.theOptimizedDrawing;
 		}
 		
