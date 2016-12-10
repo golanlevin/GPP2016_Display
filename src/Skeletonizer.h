@@ -23,7 +23,7 @@ class Skeletonizer {
 		unsigned char* inputBuff;
 		unsigned char* tmpBuffer;
 		float	skeletonizationDuration;
-		int		bufW, bufH;
+
 		int		roiMinX, roiMaxX;
 		int		roiMinY, roiMaxY;
 		int		skeletonBufW;

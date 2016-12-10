@@ -11,15 +11,13 @@ void Skeletonizer::initialize(int w, int h){
 	skeletonBufH		= h;
 	nCurrentPositiveContours = 0;
 	
-	bufW = skeletonBufW;
-	bufH = skeletonBufH;
 	roiMinX = 0;
 	roiMaxX = skeletonBufW -1;
 	roiMinY = 0;
 	roiMaxY = skeletonBufH -1;
 	
-	skeletonBuffer	= new unsigned char[bufW * bufH];
-	tmpBuffer		= new unsigned char[bufW * bufH];
+	skeletonBuffer	= new unsigned char[skeletonBufW * skeletonBufH];
+	tmpBuffer		= new unsigned char[skeletonBufW * skeletonBufH];
 	inputBuff		= skeletonBuffer;
 	
 	skeletonImage.allocate     (skeletonBufW, skeletonBufH, OF_IMAGE_GRAYSCALE);
@@ -135,8 +133,8 @@ void Skeletonizer::skeletonize() {
 		2,3,0,1,0,0,0,1,0,0,0,0,0,0,0,0,3,3,0,1,0,0,0,0,2,2,0,0,2,0,0,0};
 	/* magic */
 	
-	int sw = bufW;
-	int sh = bufH;
+	int sw = skeletonBufW;
+	int sh = skeletonBufH;
 	int sn = sw*sh;
 	unsigned char* pixels = inputBuff;
 	
@@ -166,14 +164,14 @@ void Skeletonizer::skeletonize() {
 //=============================================
 inline int Skeletonizer::thin (int pass, unsigned char *table) {
 	
-	const int sw   = bufW;
-	const int sh   = bufH;
+	const int sw   = skeletonBufW;
+	const int sh   = skeletonBufH;
 	const int xMin = roiMinX;
 	const int xMax = roiMaxX;
 	const int yMin = roiMinY;
 	const int yMax = roiMaxY;
 	
-	memcpy (tmpBuffer, inputBuff, bufW*bufH);
+	memcpy (tmpBuffer, inputBuff, skeletonBufW*skeletonBufH);
 	
 	unsigned char*	pixels  = inputBuff;
 	unsigned char*	pixels2 = tmpBuffer;
