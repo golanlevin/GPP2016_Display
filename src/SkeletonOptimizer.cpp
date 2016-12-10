@@ -36,13 +36,17 @@ void SkeletonOptimizer::optimallyReorderBones(vector<PolylinePlus> &theRawDrawin
 			float frac = (drawingLength/initialLength);
 			if (frac > 1.00){ // weirdly, it sometimes happens.
 				// Clobber theOptimizedDrawing, and copy theRawDrawing into it instead
+				frac = 1.0;
 				theOptimizedDrawing.clear();
 				for (int i=0; i<theRawDrawing.size(); i++){
 					PolylinePlus aPolylinePlus = theRawDrawing[i];
 					theOptimizedDrawing.push_back(aPolylinePlus);
 				}
 			}
-		
+			
+			float A = 0.96; float B = 1.0-A;
+			optimizationAmount = A*optimizationAmount + B*(1.0-frac);
+			
 		}
 	}
 }
@@ -84,10 +88,10 @@ void SkeletonOptimizer::convert_polyline_plus_to_route(vector<PolylinePlus> * pa
 }
 
 //------------------------------------------------------------
-void SkeletonOptimizer::convert_route_to_polyline_plus(vector<PolylinePlus>    * path_in,
-													bryce_tsp::Route        * route_in,
-													bryce_tsp::LaserProgram * permuter,
-													vector<PolylinePlus>    * path_out){
+void SkeletonOptimizer::convert_route_to_polyline_plus(vector<PolylinePlus>		* path_in,
+													   bryce_tsp::Route			* route_in,
+													   bryce_tsp::LaserProgram	* permuter,
+													   vector<PolylinePlus>		* path_out){
 	// Transcribe each of the input Polyline Plus paths into output Polyline Plus paths.
 	// using information from the optimizer.
 	int len = route_in->size();
@@ -115,4 +119,3 @@ void SkeletonOptimizer::copy_extra_polyline_plus_data(PolylinePlus & src, Polyli
 	dest.g = src.g;
 	dest.b = src.b;
 }
-

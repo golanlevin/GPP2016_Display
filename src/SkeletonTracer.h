@@ -118,8 +118,10 @@ class SkeletonTracer {
 	int				boneSmoothKernW;
 	bool			bDoOptimizeTSP;
 	int				maxNBonesForTSP;
+	int				nOptimizePasses;
 	
 	//-----------------
+	// Use Bryce's TSP algorithm to reorder bones.
 	int						liveColor;
 	int						replayColor;
 	
@@ -128,6 +130,7 @@ class SkeletonTracer {
 	vector<PolylinePlus>	theRawDrawing;
 	vector<PolylinePlus>	theOptimizedDrawing;
 	bool					bClosedTSP;
+	float					tspElapsed;
 
 	
 };

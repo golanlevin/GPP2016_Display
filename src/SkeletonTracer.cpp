@@ -35,7 +35,8 @@ void SkeletonTracer::initialize (int w, int h){
 	boneResampling = 2.5;
 	boneSmoothSigma = 0.9;
 	boneSmoothKernW = 2;
-	maxNBonesForTSP	= 50; 
+	maxNBonesForTSP	= 50;
+	nOptimizePasses = 2;
 	bDoMergeBones	= true;
 	bDoOptimizeTSP	= true;
 	bClosedTSP		= false;
@@ -508,8 +509,9 @@ void SkeletonTracer::trackBones(){
 
 //------------------------------------------------------------
 void SkeletonTracer::optimallyReorderBones(){
+	long then = ofGetElapsedTimeMicros();
+	
 	theOptimizedDrawing.clear();
-
 	int nRawPolylines = bonesRawSmooth.size();
 	if (bDoOptimizeTSP && (nRawPolylines < maxNBonesForTSP)){
 		
@@ -529,16 +531,13 @@ void SkeletonTracer::optimallyReorderBones(){
 		}
 		
 		if (theRawDrawing.size() > 0){
-			int nPasses = 4;
-			// long then = ofGetElapsedTimeMicros();
-			mySkeletonOptimizer.optimallyReorderBones(theRawDrawing, nPasses, bClosedTSP);
-			// long now = ofGetElapsedTimeMicros();
-			// printf("Elapsed = %d\n", (int)(now-then));
+			mySkeletonOptimizer.optimallyReorderBones(theRawDrawing, nOptimizePasses, bClosedTSP);
 			theOptimizedDrawing = mySkeletonOptimizer.theOptimizedDrawing;
 		}
 		
 	} else {
 		
+		// TSP is disabled, or maxNBonesForTSP is exceeded.
 		// Copy smoothed into theOptimizedDrawing instead
 		theRawDrawing.clear();
 		for (int i=0; i<nRawPolylines; i++){
@@ -553,6 +552,12 @@ void SkeletonTracer::optimallyReorderBones(){
 			}
 		}
 	}
+	
+	long now = ofGetElapsedTimeMicros();
+	float A = 0.96; float B = 1.0-A;
+	tspElapsed = A*tspElapsed + B*(now-then);
+	float optimizationAmount = mySkeletonOptimizer.optimizationAmount;
+	printf("nP = %d	tspElapsed = %f		savings = %f \n", nRawPolylines, tspElapsed, optimizationAmount);
 }
 
 

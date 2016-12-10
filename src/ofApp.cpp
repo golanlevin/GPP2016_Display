@@ -83,6 +83,7 @@ void ofApp::initializeGui(){
 	inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
 	inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			false));
 	inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		50, 20,100));
+ // inputGuiPanel.add(nOptimizePasses.setup		("nOptimizePasses",		2, 1, 5));
 }
 
 
@@ -95,6 +96,7 @@ void ofApp::propagateGui(){
 	mySkeletonTracer->bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
 	mySkeletonTracer->bClosedTSP		= (bool)	bClosedTSP;
 	mySkeletonTracer->maxNBonesForTSP	= (int)		maxNBonesForTSP;
+ // mySkeletonTracer->nOptimizePasses	= (int)		nOptimizePasses;
 }
 
 

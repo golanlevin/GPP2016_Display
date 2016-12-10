@@ -103,6 +103,7 @@ class ofApp : public ofBaseApp{
 	ofxFloatSlider	boneSmoothSigma;
 	ofxIntSlider	boneSmoothKernW;
 	ofxIntSlider	maxNBonesForTSP;
+	ofxIntSlider	nOptimizePasses; 
 	ofxToggle		bDoMergeBones; 
 	ofxToggle		bDoOptimizeTSP;
 	ofxToggle		bClosedTSP;

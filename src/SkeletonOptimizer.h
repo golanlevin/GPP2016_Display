@@ -24,6 +24,7 @@ class SkeletonOptimizer {
 
 		float	drawingLength;
 		float	computeLengthOfDrawing(vector<PolylinePlus> aDrawing, bool bClosedTSP);
+		float	optimizationAmount = 0.0;
 
 		// Conversion functions between Polyline Plus vectors and the Routes used in bryce_tsp.
 		void	convert_polyline_plus_to_route(vector<PolylinePlus> * path_list, bryce_tsp::Route * route);
