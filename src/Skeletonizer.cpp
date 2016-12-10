@@ -1,10 +1,6 @@
 //
 //  Skeletonizer.cpp
 //  GPP2016_Display
-//
-//  Created by GL on 12/10/16.
-//
-//
 
 #include "Skeletonizer.h"
 
@@ -120,8 +116,6 @@ void Skeletonizer::computeSkeletonImageFromBlobs(cv::Mat &filledContourMat,
 }
 
 
-
-
 //=============================================
 void Skeletonizer::skeletonize() {
 	
@@ -138,7 +132,8 @@ void Skeletonizer::skeletonize() {
 		0,0,3,1,0,0,1,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1, \
 		3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
 		2,3,1,3,0,0,1,3,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0, \
-		2,3,0,1,0,0,0,1,0,0,0,0,0,0,0,0,3,3,0,1,0,0,0,0,2,2,0,0,2,0,0,0};  /* magic */
+		2,3,0,1,0,0,0,1,0,0,0,0,0,0,0,0,3,3,0,1,0,0,0,0,2,2,0,0,2,0,0,0};
+	/* magic */
 	
 	int sw = bufW;
 	int sh = bufH;
@@ -166,7 +161,6 @@ void Skeletonizer::skeletonize() {
 	float A = 0.95; float B = 1.0-A;
 	skeletonizationDuration = A*skeletonizationDuration + B*elapsed;
 }
-
 
 
 //=============================================
@@ -229,6 +223,3 @@ inline int Skeletonizer::thin (int pass, unsigned char *table) {
 	
 	return pixelsRemoved;
 }
-
-
-

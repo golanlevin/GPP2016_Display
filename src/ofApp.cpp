@@ -42,7 +42,6 @@ void ofApp::setup(){
 	skeletonBufH		= 240; // 320x265 would preserve the aspect ratio of Kinectv2 depth image.
 	skeletonScale		= (float)skeletonBufW/(float)proxyCaptureW;
 	bScaleProxyToKinect	= true;
-	skeletonizationDuration = 0;
 	
 	filledContourMat.create    (skeletonBufH, skeletonBufW, CV_8UC(1));
 	filledContourImage.allocate(skeletonBufW, skeletonBufH, OF_IMAGE_GRAYSCALE);
@@ -72,7 +71,7 @@ void ofApp::initializeGui(){
 	inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		true));
 	inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
 	inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			false));
-	inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		50, 20,100));
+	inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		50, 20,300));
  // inputGuiPanel.add(nOptimizePasses.setup		("nOptimizePasses",		2, 1, 5));
 }
 
@@ -129,7 +128,6 @@ void ofApp::update(){
 		mySkeletonizer.computeSkeletonImageFromBlobs(filledContourMat, theContoursi,
 													 nCurrentPositiveContours, contourThickness,
 													 skeletonBufW,skeletonBufH);
-		skeletonizationDuration = mySkeletonizer.skeletonizationDuration;
 		
 		// Trace the (polyline) skeleton bones from the (pixel) skeleton image.
 		mySkeletonTracer->computeVectorSkeleton (mySkeletonizer.skeletonBuffer, nRawContours);
@@ -153,9 +151,12 @@ vector<vector<cv::Point>> ofApp::obtainRawContours(){
 		computeContoursFromProxyVideo();
 		rawContours = myOfxCvContourFinder.getContours();
 	} else {
+		
+		// DAN MOORE CODE GOES HERE
 		// rawContours = something something fetched from OSC
 		// Note that it will be necessary for these to match ofxCv contours,
-		// For example, indication about whether a contour is a hole or not.
+		// For example: indicating whether a contour is a hole or not.
+		
 	}
 	return rawContours;
 }
@@ -333,6 +334,9 @@ void ofApp::draw(){
 	ofTranslate(displayX,displayY);
 	mySkeletonizer.draw();
 	ofPopMatrix();
+	int durMicros = (int)(mySkeletonizer.skeletonizationDuration);
+	ofSetColor(255,255,0);
+	ofDrawBitmapString( ofToString(durMicros) + " us", displayX+5,displayY+16);
 	
 	// 5. Draw the skeleton-tracer state image.
 	ofSetHexColor(0xffffff);
@@ -342,6 +346,10 @@ void ofApp::draw(){
 	ofTranslate(displayX,displayY);
 	mySkeletonTracer->drawStateImage();
 	ofPopMatrix();
+	int tspMicros = (int)(mySkeletonTracer->tspElapsed);
+	ofSetColor(255,255,0);
+	ofDrawBitmapString( ofToString(tspMicros) + " us", displayX+5,displayY+16);
+	
 	
 	
 	// 6. Draw the bones.

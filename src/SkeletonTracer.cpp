@@ -563,7 +563,7 @@ void SkeletonTracer::optimallyReorderRawDrawing(){
 	}
 	
 	long now = ofGetElapsedTimeMicros();
-	float A = 0.96; float B = 1.0-A;
+	float A = 0.95; float B = 1.0-A;
 	tspElapsed = A*tspElapsed + B*(now-then);
 	float optimizationAmount = mySkeletonOptimizer.optimizationAmount;
 }

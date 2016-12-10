@@ -77,7 +77,6 @@ class ofApp : public ofBaseApp{
 	int		skeletonBufH;
 	float	skeletonScale;
 	bool	bScaleProxyToKinect;
-	float	skeletonizationDuration;
 	
 	
 	//-----------------------------------------------
