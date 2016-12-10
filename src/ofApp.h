@@ -40,6 +40,7 @@ class ofApp : public ofBaseApp{
 	//
 	ofVideoPlayer			proxyVideoPlayer;
 	ofxCvColorImage			proxyColorImage;
+	string *proxyVideoFilenames;
 	int		proxyCaptureW;
 	int		proxyCaptureH;
 	int		minBlobSize;

@@ -15,12 +15,12 @@ void ofApp::setup(){
 	
 	initializeGui();
 	
-	/*
-	"proxy/1_Fernanda-Cascada_Input.mov"
-	"proxy/2_Lewis-Cascada_Input.mov"
-	"proxy/3_Group-Cascada_Input.mov"
-	*/
-	proxyVideoPlayer.load("proxy/3_Group-Cascada_Input.mov");
+	proxyVideoFilenames = new string[3];
+	proxyVideoFilenames[0] = "proxy/1_Fernanda-Cascada_Input.mov";
+	proxyVideoFilenames[1] = "proxy/2_Lewis-Cascada_Input.mov";
+	proxyVideoFilenames[2] = "proxy/3_Group-Cascada_Input.mov";
+
+	proxyVideoPlayer.load(proxyVideoFilenames[2]);
 	proxyVideoPlayer.play();
 	proxyVideoPlayer.setLoopState(OF_LOOP_NORMAL);
 	proxyColorImage.allocate (proxyCaptureW,proxyCaptureH);
@@ -392,6 +392,19 @@ void ofApp::keyPressed(int key){
 			break;
 		case 'E':
 			mySkeletonTracer->exportVectorGraphics();
+			break;
+			
+		case '1':
+			proxyVideoPlayer.load(proxyVideoFilenames[0]);
+			proxyVideoPlayer.play();
+			break;
+		case '2':
+			proxyVideoPlayer.load(proxyVideoFilenames[1]);
+			proxyVideoPlayer.play();
+			break;
+		case '3':
+			proxyVideoPlayer.load(proxyVideoFilenames[2]);
+			proxyVideoPlayer.play();
 			break;
 	}
 }
