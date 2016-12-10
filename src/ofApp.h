@@ -55,8 +55,8 @@ class ofApp : public ofBaseApp{
 	// Contour calculation and filtering
 	//
 	vector<vector<cv::Point>> obtainRawContours();
-	void	filterContoursBeforeReconstitution(vector<vector<cv::Point>> contours);
-	void	reconstituteBlobsFromContours(vector<vector<cv::Point>> contours, int w, int h);
+	void	filterContoursBeforeReconstitution(vector<vector<cv::Point>> &contours);
+	void	reconstituteBlobsFromContours(vector<vector<cv::Point>> &contours, int w, int h);
 	void	handleAbsenceOfIncomingContours();
 	
 	ofxCv::ContourFinder myOfxCvContourFinder;
@@ -70,7 +70,7 @@ class ofApp : public ofBaseApp{
 	//-----------------------------------------------
 	// Skeletonization.
 	//
-	void	computeSkeletonImageFromBlobs(vector<vector<cv::Point>> contours, int w, int h);
+	void	computeSkeletonImageFromBlobs(vector<vector<cv::Point>> &contours, int w, int h);
 	void	skeletonize();
 	inline int thin (int pass, unsigned char *table);
 	unsigned char* inputBuff;

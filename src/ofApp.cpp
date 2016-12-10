@@ -181,7 +181,7 @@ void ofApp::handleAbsenceOfIncomingContours(){
 }
 
 //--------------------------------------------------------------
-void ofApp::reconstituteBlobsFromContours (vector<vector<cv::Point>> contours, int w, int h){
+void ofApp::reconstituteBlobsFromContours (vector<vector<cv::Point>> &contours, int w, int h){
 	// Given a collection of contours,
 	// Whether obtained over OSC from a Kinectv2,
 	// or computed from a local proxy video, use flood fill
@@ -217,7 +217,7 @@ void ofApp::reconstituteBlobsFromContours (vector<vector<cv::Point>> contours, i
 
 
 //--------------------------------------------------------------
-void ofApp::computeSkeletonImageFromBlobs(vector<vector<cv::Point>> contours, int w, int h){
+void ofApp::computeSkeletonImageFromBlobs(vector<vector<cv::Point>> &contours, int w, int h){
 
 	//------------------------
 	// Copy the blob pixels from filledContourMat into skeletonBuffer
@@ -384,7 +384,7 @@ inline int ofApp::thin (int pass, unsigned char *table) {
 
 
 //--------------------------------------------------------------
-void ofApp::filterContoursBeforeReconstitution(vector<vector<cv::Point>> rawContours){
+void ofApp::filterContoursBeforeReconstitution(vector<vector<cv::Point>> &rawContours){
 	theContoursf.clear();
 	theContoursi.clear();
 	
