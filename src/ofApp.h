@@ -5,6 +5,7 @@
 #include "ofxCv.h"
 #include "ofxGui.h"
 
+#include "Skeletonizer.h"
 #include "SkeletonTracer.h"
 #include "LaserMain.h"
 
@@ -12,20 +13,20 @@ class ofApp : public ofBaseApp{
 
 	public:
 	
-	void setup();
-	void update();
-	void draw();
-	void keyPressed(int key);
-	void keyReleased(int key);
-	void mouseMoved(int x, int y );
-	void mouseDragged(int x, int y, int button);
-	void mousePressed(int x, int y, int button);
-	void mouseReleased(int x, int y, int button);
-	void mouseEntered(int x, int y);
-	void mouseExited(int x, int y);
-	void windowResized(int w, int h);
-	void dragEvent(ofDragInfo dragInfo);
-	void gotMessage(ofMessage msg);
+	void 	setup();
+	void 	update();
+	void 	draw();
+	void 	keyPressed(int key);
+	void 	keyReleased(int key);
+	void 	mouseMoved(int x, int y );
+	void 	mouseDragged(int x, int y, int button);
+	void 	mousePressed(int x, int y, int button);
+	void 	mouseReleased(int x, int y, int button);
+	void 	mouseEntered(int x, int y);
+	void 	mouseExited(int x, int y);
+	void 	windowResized(int w, int h);
+	void 	dragEvent(ofDragInfo dragInfo);
+	void 	gotMessage(ofMessage msg);
 	
 	int		displayW;
 	int		displayH;
@@ -70,23 +71,15 @@ class ofApp : public ofBaseApp{
 	//-----------------------------------------------
 	// Skeletonization.
 	//
-	void	computeSkeletonImageFromBlobs(vector<vector<cv::Point>> &contours, int w, int h);
-	void	skeletonize();
-	inline int thin (int pass, unsigned char *table);
-	unsigned char* inputBuff;
-	unsigned char* tmpBuffer;
+	
+	Skeletonizer				mySkeletonizer; 
 	int		skeletonBufW;
 	int		skeletonBufH;
-	float	skeletonizationDuration;
 	float	skeletonScale;
 	bool	bScaleProxyToKinect;
-	int		bufW, bufH;
-	int		roiMinX, roiMaxX;
-	int		roiMinY, roiMaxY;
+	float	skeletonizationDuration;
 	
-	unsigned char* skeletonBuffer;
-	ofImage	skeletonImage;
-
+	
 	//-----------------------------------------------
 	// GUI Sliders and other controls
 	//
