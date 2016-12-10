@@ -71,7 +71,6 @@ class SkeletonTracer {
 	void	initialize (int w, int h);
 	void	computeVectorSkeleton (unsigned char* skeletonPixelBuffer, int nRawContours);
 	void	traceVectorSkeletonFromSkeletonImage();
-	void	trackBones();
 	void	mergeBones(); 
 	void	smoothBones();
 	void	drawStateImage();
@@ -126,7 +125,8 @@ class SkeletonTracer {
 	int						replayColor;
 	
 	SkeletonOptimizer		mySkeletonOptimizer;
-	void					optimallyReorderBones();
+	void					compileLiveBonesIntoRawDrawing(); 
+	void					optimallyReorderRawDrawing();
 	vector<PolylinePlus>	theRawDrawing;
 	vector<PolylinePlus>	theOptimizedDrawing;
 	bool					bClosedTSP;

@@ -57,6 +57,7 @@ class ofApp : public ofBaseApp{
 	vector<vector<cv::Point>> obtainRawContours();
 	void	filterContoursBeforeReconstitution(vector<vector<cv::Point>> contours);
 	void	reconstituteBlobsFromContours(vector<vector<cv::Point>> contours, int w, int h);
+	void	handleAbsenceOfIncomingContours();
 	
 	ofxCv::ContourFinder myOfxCvContourFinder;
 	int		nCurrentPositiveContours;

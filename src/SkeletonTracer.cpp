@@ -97,11 +97,11 @@ void SkeletonTracer::computeVectorSkeleton (unsigned char* skeletonPixelBuffer, 
 		traceVectorSkeletonFromSkeletonImage();
 		mergeBones();
 		smoothBones();
-		trackBones();
-		optimallyReorderBones();
+		compileLiveBonesIntoRawDrawing();
+		optimallyReorderRawDrawing();
 		
 	} else {
-		
+		// If the nRawContours is zero:
 		memset(pixelStateBuffer, 0, nPixels);
 		bonesRawTraced.clear();
 		bonesRawMerged.clear();
@@ -502,21 +502,18 @@ ofPolyline SkeletonTracer::getSmoothed (ofPolyline inputBone){
 }
 
 
-//------------------------------------------------------------
-void SkeletonTracer::trackBones(){
-	
-}
 
 //------------------------------------------------------------
-void SkeletonTracer::optimallyReorderBones(){
-	long then = ofGetElapsedTimeMicros();
+void SkeletonTracer::compileLiveBonesIntoRawDrawing(){
 	
-	theOptimizedDrawing.clear();
+	// Copy bonesRawSmooth (a vector of ofPolylines), i.e. the live bones,
+	// into theRawDrawing (a vector of PolylinePluses)
+	// as a preparation for optimization and, eventually, rendering.
+	// As we do, assign the (live) bones the color: liveColor
+	
 	int nRawPolylines = bonesRawSmooth.size();
 	if (bDoOptimizeTSP && (nRawPolylines < maxNBonesForTSP)){
 		
-		// Copy bonesRawSmooth (vector of ofPolylines)
-		// into theRawDrawing (vector of PolylinePluses)
 		theRawDrawing.clear();
 		for (int i=0; i<nRawPolylines; i++){
 			ofPolyline aPolyline = bonesRawSmooth[i];
@@ -530,16 +527,16 @@ void SkeletonTracer::optimallyReorderBones(){
 			}
 		}
 		
-		if (theRawDrawing.size() > 0){
-			mySkeletonOptimizer.optimallyReorderBones(theRawDrawing, nOptimizePasses, bClosedTSP);
-			theOptimizedDrawing = mySkeletonOptimizer.theOptimizedDrawing;
-		}
-		
 	} else {
+		// Golan, this needs to be removed soon.
+		// We won't be compiling theOptimizedDrawing from bonesRawSmooth;
+		// Rather, we'll be compiling it from theRawDrawing + previousPolylinePlusses
 		
-		// TSP is disabled, or maxNBonesForTSP is exceeded.
-		// Copy smoothed into theOptimizedDrawing instead
+		// Either TSP is disabled, or maxNBonesForTSP was exceeded.
+		// Copy smoothed directly into theOptimizedDrawing instead,
+		// with no reordering-based (TSP) optimization.
 		theRawDrawing.clear();
+		theOptimizedDrawing.clear();
 		for (int i=0; i<nRawPolylines; i++){
 			ofPolyline aPolyline = bonesRawSmooth[i];
 			if (aPolyline.size() > 1){
@@ -552,12 +549,23 @@ void SkeletonTracer::optimallyReorderBones(){
 			}
 		}
 	}
+}
+
+
+//------------------------------------------------------------
+void SkeletonTracer::optimallyReorderRawDrawing(){
+	long then = ofGetElapsedTimeMicros();
+	
+	if (bDoOptimizeTSP && (theRawDrawing.size() > 0)){
+		theOptimizedDrawing.clear();
+		mySkeletonOptimizer.optimallyReorderBones(theRawDrawing, nOptimizePasses, bClosedTSP);
+		theOptimizedDrawing = mySkeletonOptimizer.theOptimizedDrawing;
+	}
 	
 	long now = ofGetElapsedTimeMicros();
 	float A = 0.96; float B = 1.0-A;
 	tspElapsed = A*tspElapsed + B*(now-then);
 	float optimizationAmount = mySkeletonOptimizer.optimizationAmount;
-	printf("nP = %d	tspElapsed = %f		savings = %f \n", nRawPolylines, tspElapsed, optimizationAmount);
 }
 
 

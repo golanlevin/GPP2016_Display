@@ -122,41 +122,32 @@ void ofApp::update(){
 	propagateGui();
 	captureProxyVideo();
 	
-	// Fetch the raw contours, either from OSC or from a local test video.
+	// Fetch the live raw contours: either from over OSC, or from a local proxy video.
 	vector<vector<cv::Point>> rawContours = obtainRawContours();
+	
+	// Process the incoming contours (regardless of their source of origin)
 	int nRawContours = rawContours.size();
 	if (nRawContours > 0){
 	
-		// Filter the contours, smoothing them to produce better skeletons.
+		// Filter the contours, smoothing them to yield better skeletons.
 		filterContoursBeforeReconstitution (rawContours);
 		
-		// Prepare a blob image, the input to thinning-based skeletonization.
+		// Prepare a blob image: our input to thinning-based skeletonization.
 		reconstituteBlobsFromContours (theContoursi, skeletonBufW,skeletonBufH);
 		computeSkeletonImageFromBlobs (theContoursi, skeletonBufW,skeletonBufH);
 		
-		// Trace the skeleton bones
+		// Trace the skeleton bones from the blob image.
 		mySkeletonTracer->computeVectorSkeleton (skeletonBuffer, nRawContours);
-		
-		
-		// Use ofxCv RectTracker to determine bone identity over time
-		// Blur current bones over time
-		// Record  bones & play back; add to overall collection of bones (new + old)
-		// Perspectival quad warp coordinates
-		// Compute order with which to render bones
-		// Send bones to laser
 		
 	} else {
-		
-		int nPixels = skeletonBufW*skeletonBufH;
-		memset(skeletonBuffer, (unsigned char)0, nPixels);
-		filledContourMat.setTo(0);
-		filledContourImage.setFromPixels(filledContourMat.data, skeletonBufW,skeletonBufH, OF_IMAGE_GRAYSCALE);
-		skeletonImage.setFromPixels(skeletonBuffer, skeletonBufW,skeletonBufH, OF_IMAGE_GRAYSCALE);
-		roiMinX = 0; roiMaxX = 1;
-		roiMinY = 0; roiMaxY = 1;
-		mySkeletonTracer->computeVectorSkeleton (skeletonBuffer, nRawContours);
+		// There are no incoming contours, so handle that. 
+		handleAbsenceOfIncomingContours();
 	}
-
+	
+	// Record  bones & play back; add to overall collection of bones (new + old)
+	// Perspectival quad warp coordinates
+	// Compute order with which to render bones
+	// Send bones to laser
 }
 
 //--------------------------------------------------------------
@@ -172,6 +163,21 @@ vector<vector<cv::Point>> ofApp::obtainRawContours(){
 		// For example, indication about whether a contour is a hole or not.
 	}
 	return rawContours;
+}
+
+//--------------------------------------------------------------
+void ofApp::handleAbsenceOfIncomingContours(){
+	// What to do when there are no incoming (live) contours.
+	// Blank the stuff that needs to be blanked.
+	
+	int nPixels = skeletonBufW*skeletonBufH;
+	memset(skeletonBuffer, (unsigned char)0, nPixels);
+	filledContourMat.setTo(0);
+	filledContourImage.setFromPixels(filledContourMat.data, skeletonBufW,skeletonBufH, OF_IMAGE_GRAYSCALE);
+	skeletonImage.setFromPixels(skeletonBuffer, skeletonBufW,skeletonBufH, OF_IMAGE_GRAYSCALE);
+	roiMinX = 0; roiMaxX = 1;
+	roiMinY = 0; roiMaxY = 1;
+	mySkeletonTracer->computeVectorSkeleton (skeletonBuffer, 0);
 }
 
 //--------------------------------------------------------------
