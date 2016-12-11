@@ -49,7 +49,15 @@ void ofApp::setup(){
 	mySkeletonTracer = new SkeletonTracer();
 	mySkeletonTracer->initialize(skeletonBufW, skeletonBufH);
 	mySkeletonizer.initialize(skeletonBufW, skeletonBufH);
+	
+	// testBuffer();
+	mySkelevision.initialize();
+	//mySkelevision.testBuffer();
 }
+
+
+
+
 
 
 
