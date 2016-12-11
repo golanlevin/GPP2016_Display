@@ -4,7 +4,7 @@
 #include "ofxOpenCv.h"
 #include "ofxCv.h"
 #include "ofxGui.h"
-
+#include "ofxOsc.h"
 #include "Skeletonizer.h"
 #include "SkeletonTracer.h"
 #include "LaserMain.h"
@@ -33,6 +33,7 @@ class ofApp : public ofBaseApp{
 	int		displayM;
 	float	displayScale;
 
+    ofxOscReceiver receiver;
 	//-----------------------------------------------
 	// Proxy video processing.
 	// The "real" live app obtains contours over OSC from a PC running KinectV2.
@@ -58,7 +59,9 @@ class ofApp : public ofBaseApp{
 	//
 	vector<vector<cv::Point>> obtainRawContours();
 	void	filterContoursBeforeReconstitution(vector<vector<cv::Point>> &contours);
+    void	filterContoursBeforeReconstitutionOSC(vector<vector<cv::Point>> &contours);
 	void	reconstituteBlobsFromContours(vector<vector<cv::Point>> &contours, int w, int h);
+    void	reconstituteBlobsFromContoursOSC(vector<vector<cv::Point>> &contours, int w, int h);
 	void	handleAbsenceOfIncomingContours();
 	
 	ofxCv::ContourFinder myOfxCvContourFinder;
@@ -68,7 +71,7 @@ class ofApp : public ofBaseApp{
 	vector<ofPolyline>			theContoursf;
 	cv::Mat						filledContourMat;
 	ofImage						filledContourImage;
-	
+    vector<int>                isHole;
 	//-----------------------------------------------
 	// Skeletonization.
 	//
