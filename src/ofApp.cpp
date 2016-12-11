@@ -33,7 +33,7 @@ void ofApp::setup(){
 	proxyColorImage.allocate (proxyCaptureW,proxyCaptureH);
 	proxyColorImage.set(0);
 	
-	bUseProxyVideoInsteadOfOSC	= false;
+	bUseProxyVideoInsteadOfOSC	= true;
 	bProxyVideoPlayerPaused		= false;
 	bGotAProxyFrame				= false;
 	
@@ -57,9 +57,9 @@ void ofApp::setup(){
 	mySkeletonTracer->initialize(skeletonBufW, skeletonBufH);
 	mySkeletonizer.initialize(skeletonBufW, skeletonBufH);
 
-	// mySkelevision.initialize();
-	// mySkelevision.testBuffer();
-
+	mySkelevision.initialize();
+	mySkelevision.testBuffer();
+	
 }
 
 
@@ -519,6 +519,11 @@ void ofApp::draw(){
     
     
     inputGuiPanel.draw();
+	
+	ofPushMatrix();
+	ofTranslate(mouseX,mouseY);
+	mySkelevision.drawCurrentPlaybackFrame();
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------

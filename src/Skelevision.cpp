@@ -2,12 +2,14 @@
 
 //--------------------------------------------------------------
 void Skelevision::initialize(){
-	XML.clear();
+	XML = new ofxXmlSettings();
+	XML->clear();
+	
+	generateBogusXMLData();
 }
 
 //--------------------------------------------------------------
-void Skelevision::testBuffer(){
-	
+void Skelevision::generateBogusXMLData(){
 	//-------------------
 	// 1. Create some bogus data.
 	ofSetLogLevel(OF_LOG_NOTICE);
@@ -15,26 +17,26 @@ void Skelevision::testBuffer(){
 	
 	vector<vector<ofPolyline>> someFrames;
 	someFrames.clear();
-	int nFramesPerRecording = 4;
+	int nFramesPerRecording = 200;
 	for (int f=0; f<nFramesPerRecording; f++){
 		
-		int nPolylinesPerFrame = 3;
+		int nPolylinesPerFrame = 15;
 		vector<ofPolyline> somePolylines;
 		for (int p=0; p<nPolylinesPerFrame; p++){
 			
-			int nPointsPerPolyline = 15;
+			int nPointsPerPolyline = 20;
 			ofPolyline aPolyline;
 			aPolyline.clear();
 			
-			float dx = f * 40;
-			float dy = p * 30;
-			float radiusX = 50 + (f+p)*10;
-			float radiusY = 40 + (f+((p+1)*2))*10;
+			float dx = f * 2;
+			float dy = p * 5;
+			float radiusX = 50 + (f+p)*2;
+			float radiusY = 40 + (p+1)*8;
 			
 			for (int i=0; i<nPointsPerPolyline; i++){
-				float t = ofMap(i,0,nPointsPerPolyline, 0,TWO_PI);
-				float x = dx + radiusX * cos(t);
-				float y = dy + radiusY * sin(t);
+				float t = ofMap(i,0,nPointsPerPolyline, 0,TWO_PI * 0.333);
+				float x = dx + radiusX * cos((f+p)/20.0 + t);
+				float y = dy + radiusY * sin((f+p)/20.0 + t);
 				aPolyline.addVertex(x, y);
 			}
 			somePolylines.push_back(aPolyline);
@@ -82,7 +84,7 @@ void Skelevision::testBuffer(){
 	bool bSavedXMLFile = tempXML.saveFile("recordings/frame_test.xml");
 	ofLog(OF_LOG_NOTICE, "bSavedXMLFile = %d\n", (int) bSavedXMLFile);
 	
-	
+	/*
 	bool bExportBufferVersionOfXML = false;
 	if (bExportBufferVersionOfXML){ // Skip this for now.
 		string stringVersionOfXML;
@@ -96,49 +98,54 @@ void Skelevision::testBuffer(){
 		bool fileWritten = ofBufferToFile("recordings/frame_test.dat", myBufferVersionOfXML, bBinaryWrite);
 		printf("Wrote file = %d\n", (int) fileWritten);
 	}
+	*/
+}
+
+//--------------------------------------------------------------
+void Skelevision::testBuffer(){
 	
+	ofSetLogLevel(OF_LOG_NOTICE);
 	
 	//-------------------
 	// 3. Read data from XML
-	ofSetLogLevel(OF_LOG_NOTICE);
-	XML.clear();
-	bool bLoadOkay = XML.loadFile("recordings/frame_test.xml");
+	XML->clear();
+	bool bLoadOkay = XML->loadFile("recordings/frame_test.xml");
 	ofLog(OF_LOG_NOTICE, "Reading from XML: bLoadOkay = %d\n", (int) bLoadOkay);
 	
 	currentPlaybackFrameIndex = 0;
 	currentPlaybackFrames.clear();
-	int nFramesInThisRecording = XML.getNumTags("FRAME");
+	int nFramesInThisRecording = XML->getNumTags("FRAME");
 	ofLog(OF_LOG_NOTICE, "nFramesInThisRecording = %d", nFramesInThisRecording);
 	if(nFramesInThisRecording > 0){
 		
 		for (int f=0; f<nFramesInThisRecording; f++){
-			XML.pushTag("FRAME", f);
+			XML->pushTag("FRAME", f);
 			vector<ofPolyline> aVectorOfPolylines;
 			
-			int nStrokesInThisFrame = XML.getNumTags("STROKE");
+			int nStrokesInThisFrame = XML->getNumTags("STROKE");
 			ofLog(OF_LOG_NOTICE, "  nStrokesInThisFrame = %d", nStrokesInThisFrame);
 			if (nStrokesInThisFrame > 0){
 				
 				for (int s=0; s<nStrokesInThisFrame; s++){
-					XML.pushTag("STROKE", s);
+					XML->pushTag("STROKE", s);
 					ofPolyline aPolyline;
 					
-					int nPointsInThisStroke = XML.getNumTags("PT");
+					int nPointsInThisStroke = XML->getNumTags("PT");
 					ofLog(OF_LOG_NOTICE, "    nPointsInThisStroke = %d", nPointsInThisStroke);
 					if (nPointsInThisStroke > 0){
 						
 						for (int i=0; i<nPointsInThisStroke; i++){
-							float x = XML.getValue("PT:X", 0, i);
-							float y = XML.getValue("PT:Y", 0, i);
+							float x = XML->getValue("PT:X", 0, i);
+							float y = XML->getValue("PT:Y", 0, i);
 							aPolyline.addVertex(x, y);
 						}
 					}
 					aVectorOfPolylines.push_back(aPolyline);
-					XML.popTag(); // STROKE
+					XML->popTag(); // STROKE
 				}
 			}
 			currentPlaybackFrames.push_back(aVectorOfPolylines);
-			XML.popTag(); // FRAME
+			XML->popTag(); // FRAME
 		}
 	}
 }
@@ -157,7 +164,21 @@ void Skelevision::drawCurrentPlaybackFrame(){
 		if (nStrokesInThisFrame > 0){
 			
 			
+			for (int i=0; i<nStrokesInThisFrame; i++){
+				ofPolyline ithPolyline = aVectorOfPolylines[i];
+				
+				ofSetColor(0,60,255);
+				ithPolyline.draw();
+			}
 			
 		}
 	}
+	
+	// advance currentPlaybackFrameIndex
+	currentPlaybackFrameIndex ++;
+	currentPlaybackFrameIndex %= nFramesInThisRecording;
 }
+
+
+
+

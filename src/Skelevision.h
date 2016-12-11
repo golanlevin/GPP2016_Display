@@ -12,9 +12,10 @@ class Skelevision {
 	
 	void initialize(); 
 	void testBuffer();
+	void generateBogusXMLData();
 	void drawCurrentPlaybackFrame();
 	
-	ofxXmlSettings XML;
+	ofxXmlSettings *XML;
 	vector<vector<ofPolyline>> currentPlaybackFrames;
 	int currentPlaybackFrameIndex;
 
