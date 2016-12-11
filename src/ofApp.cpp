@@ -5,58 +5,67 @@ using namespace cv;
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+
     
     ofSetFrameRate(30);
     ofSetVerticalSync(true);
     
-    proxyCaptureW = 320;
-    proxyCaptureH = 240;
-    displayScale = 1.0;
-    displayW = proxyCaptureW * displayScale;
-    displayH = proxyCaptureH * displayScale;
-    displayM = 10;
-    
-    initializeGui();
-    
-    proxyVideoFilenames = new string[3];
-    proxyVideoFilenames[0] = "proxy/1_Fernanda-Cascada_Input.mov";
-    proxyVideoFilenames[1] = "proxy/2_Lewis-Cascada_Input.mov";
-    proxyVideoFilenames[2] = "proxy/3_Group-Cascada_Input.mov";
-    
-    proxyVideoPlayer.load(proxyVideoFilenames[2]);
-    proxyVideoPlayer.play();
-    proxyVideoPlayer.setLoopState(OF_LOOP_NORMAL);
-    proxyColorImage.allocate (proxyCaptureW,proxyCaptureH);
-    proxyColorImage.set(0);
-    
-    bUseProxyVideoInsteadOfOSC	= false;
-    bProxyVideoPlayerPaused		= false;
-    bGotAProxyFrame				= false;
-    
-    minBlobSize			= 20;
-    maxBlobSize			= (proxyCaptureW*proxyCaptureH)/3;
-    maxNBlobs			= 8;
-    bGetHoles			= true;
-    
-    myOfxCvContourFinder.setMinArea(minBlobSize);
-    myOfxCvContourFinder.setMaxArea(maxBlobSize);
-    
-    skeletonBufW		= 320; // Note: the Kinectv2 depth image is 512 x 424.
-    skeletonBufH		= 240; // 320x265 would preserve the aspect ratio of Kinectv2 depth image.
-    skeletonScale		= (float)skeletonBufW/(float)proxyCaptureW;
-    bScaleProxyToKinect	= true;
-    
-    filledContourMat.create    (skeletonBufH, skeletonBufW, CV_8UC(1));
-    filledContourImage.allocate(skeletonBufW, skeletonBufH, OF_IMAGE_GRAYSCALE);
-    
-    mySkeletonTracer = new SkeletonTracer();
-    mySkeletonTracer->initialize(skeletonBufW, skeletonBufH);
-    mySkeletonizer.initialize(skeletonBufW, skeletonBufH);
-    
-    
+
     receiver.setup(6667);
     
+	proxyCaptureW = 320;
+	proxyCaptureH = 240;
+	displayScale = 1.0;
+	displayW = proxyCaptureW * displayScale;
+	displayH = proxyCaptureH * displayScale;
+	displayM = 10;
+	
+	initializeGui();
+	
+	proxyVideoFilenames = new string[3];
+	proxyVideoFilenames[0] = "proxy/1_Fernanda-Cascada_Input.mov";
+	proxyVideoFilenames[1] = "proxy/2_Lewis-Cascada_Input.mov";
+	proxyVideoFilenames[2] = "proxy/3_Group-Cascada_Input.mov";
+
+	proxyVideoPlayer.load(proxyVideoFilenames[2]);
+	proxyVideoPlayer.play();
+	proxyVideoPlayer.setLoopState(OF_LOOP_NORMAL);
+	proxyColorImage.allocate (proxyCaptureW,proxyCaptureH);
+	proxyColorImage.set(0);
+	
+	bUseProxyVideoInsteadOfOSC	= false;
+	bProxyVideoPlayerPaused		= false;
+	bGotAProxyFrame				= false;
+	
+	minBlobSize			= 20;
+	maxBlobSize			= (proxyCaptureW*proxyCaptureH)/3;
+	maxNBlobs			= 8;
+	bGetHoles			= true;
+	
+	myOfxCvContourFinder.setMinArea(minBlobSize);
+	myOfxCvContourFinder.setMaxArea(maxBlobSize);
+	
+	skeletonBufW		= 320; // Note: the Kinectv2 depth image is 512 x 424.
+	skeletonBufH		= 240; // 320x265 would preserve the aspect ratio of Kinectv2 depth image.
+	skeletonScale		= (float)skeletonBufW/(float)proxyCaptureW;
+	bScaleProxyToKinect	= true;
+	
+	filledContourMat.create    (skeletonBufH, skeletonBufW, CV_8UC(1));
+	filledContourImage.allocate(skeletonBufW, skeletonBufH, OF_IMAGE_GRAYSCALE);
+	
+	mySkeletonTracer = new SkeletonTracer();
+	mySkeletonTracer->initialize(skeletonBufW, skeletonBufH);
+	mySkeletonizer.initialize(skeletonBufW, skeletonBufH);
+	
+	// testBuffer();
+	mySkelevision.initialize();
+	//mySkelevision.testBuffer();
+
 }
+
+
+
+
 
 
 

@@ -5,9 +5,12 @@
 #include "ofxCv.h"
 #include "ofxGui.h"
 #include "ofxOsc.h"
+#include "ofxXmlSettings.h"
 #include "Skeletonizer.h"
 #include "SkeletonTracer.h"
+#include "Skelevision.h"
 #include "LaserMain.h"
+
 
 class ofApp : public ofBaseApp{
 
@@ -110,6 +113,8 @@ class ofApp : public ofBaseApp{
 	//
 	SkeletonTracer	*mySkeletonTracer;
 	bool bGotAProxyFrame;
+	
+	Skelevision		mySkelevision;
 
 
 };

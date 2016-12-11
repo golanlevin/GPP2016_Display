@@ -24,6 +24,7 @@
 		3B0E63AF1DF554B6009F5702 /* RouteOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63AA1DF554B6009F5702 /* RouteOptimizer.cpp */; };
 		3B0E63B41DF6D578009F5702 /* SkeletonOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63B21DF6D578009F5702 /* SkeletonOptimizer.cpp */; };
 		3B2A061E1DFC3B1500EF06F3 /* Skeletonizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A061C1DFC3B1500EF06F3 /* Skeletonizer.cpp */; };
+		3B2A062F1DFCD29800EF06F3 /* Skelevision.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A062D1DFCD29800EF06F3 /* Skelevision.cpp */; };
 		3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B67E7341DEACF930053090C /* SkeletonTracer.cpp */; };
 		45CC483A999BF1065A6B926C /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DBD717072C35D324E101669 /* Distance.cpp */; };
 		483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D67A00EB899FAC09430597 /* ofxLabel.cpp */; };
@@ -181,6 +182,8 @@
 		3B0E63B31DF6D578009F5702 /* SkeletonOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonOptimizer.h; sourceTree = "<group>"; };
 		3B2A061C1DFC3B1500EF06F3 /* Skeletonizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Skeletonizer.cpp; sourceTree = "<group>"; };
 		3B2A061D1DFC3B1500EF06F3 /* Skeletonizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Skeletonizer.h; sourceTree = "<group>"; };
+		3B2A062D1DFCD29800EF06F3 /* Skelevision.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Skelevision.cpp; sourceTree = "<group>"; };
+		3B2A062E1DFCD29800EF06F3 /* Skelevision.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Skelevision.h; sourceTree = "<group>"; };
 		3B361208CD4107E479F04E7B /* NetworkingUtils.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = NetworkingUtils.cpp; path = ../../../addons/ofxOsc/libs/oscpack/src/ip/posix/NetworkingUtils.cpp; sourceTree = SOURCE_ROOT; };
 		3B67E7301DEACE120053090C /* GPP2016_DisplayDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPP2016_DisplayDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B67E7341DEACF930053090C /* SkeletonTracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonTracer.cpp; sourceTree = "<group>"; };
@@ -1213,6 +1216,8 @@
 				3B67E7351DEACF930053090C /* SkeletonTracer.h */,
 				3B0E63B21DF6D578009F5702 /* SkeletonOptimizer.cpp */,
 				3B0E63B31DF6D578009F5702 /* SkeletonOptimizer.h */,
+				3B2A062D1DFCD29800EF06F3 /* Skelevision.cpp */,
+				3B2A062E1DFCD29800EF06F3 /* Skelevision.h */,
 				3B0E63A21DF554B6009F5702 /* tsp */,
 			);
 			path = src;
@@ -1444,6 +1449,7 @@
 				3B0E63AC1DF554B6009F5702 /* LaserDefs.cpp in Sources */,
 				D31F5C1B140C59B2AF1533A8 /* registration.c in Sources */,
 				49BEEB2DFA5319D55AA6899F /* tilt.c in Sources */,
+				3B2A062F1DFCD29800EF06F3 /* Skelevision.cpp in Sources */,
 				3B0E63AD1DF554B6009F5702 /* LaserProgram.cpp in Sources */,
 				255A7B680DC81E543C875794 /* usb_libusb10.c in Sources */,
 				250A95BA26587BE85DB0A353 /* ofxCvColorImage.cpp in Sources */,
