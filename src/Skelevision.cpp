@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void Skelevision::initialize(){
-	;//
+	XML.clear();
 }
 
 //--------------------------------------------------------------
@@ -10,6 +10,9 @@ void Skelevision::testBuffer(){
 	
 	//-------------------
 	// 1. Create some bogus data.
+	ofSetLogLevel(OF_LOG_NOTICE);
+	ofLog(OF_LOG_NOTICE, "Generating Bogus skeleton data.");
+	
 	vector<vector<ofPolyline>> someFrames;
 	someFrames.clear();
 	int nFramesPerRecording = 4;
@@ -42,7 +45,9 @@ void Skelevision::testBuffer(){
 	
 	//-------------------
 	// 2. Add data to XML
-	//
+	ofSetLogLevel(OF_LOG_NOTICE);
+	ofLog(OF_LOG_NOTICE, "Adding bogus data to XML.");
+	
 	ofxXmlSettings tempXML;
 	tempXML.clear();
 	int nReadFrames = someFrames.size();
@@ -74,7 +79,9 @@ void Skelevision::testBuffer(){
 		}
 		tempXML.popTag(); // mostRecentFrameTag
 	}
-	tempXML.saveFile("recordings/frame_test.xml");
+	bool bSavedXMLFile = tempXML.saveFile("recordings/frame_test.xml");
+	ofLog(OF_LOG_NOTICE, "bSavedXMLFile = %d\n", (int) bSavedXMLFile);
+	
 	
 	bool bExportBufferVersionOfXML = false;
 	if (bExportBufferVersionOfXML){ // Skip this for now.
@@ -93,9 +100,10 @@ void Skelevision::testBuffer(){
 	
 	//-------------------
 	// 3. Read data from XML
-	XML.clear();
-	XML.loadFile("recordings/frame_test.xml");
 	ofSetLogLevel(OF_LOG_NOTICE);
+	XML.clear();
+	bool bLoadOkay = XML.loadFile("recordings/frame_test.xml");
+	ofLog(OF_LOG_NOTICE, "Reading from XML: bLoadOkay = %d\n", (int) bLoadOkay);
 	
 	currentPlaybackFrameIndex = 0;
 	currentPlaybackFrames.clear();

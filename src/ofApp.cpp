@@ -51,8 +51,8 @@ void ofApp::setup(){
 	mySkeletonizer.initialize(skeletonBufW, skeletonBufH);
 	
 	// testBuffer();
-	mySkelevision.initialize();
-	//mySkelevision.testBuffer();
+	// mySkelevision.initialize();
+	// mySkelevision.testBuffer();
 }
 
 
