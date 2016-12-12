@@ -26,6 +26,7 @@
 		3B2A061E1DFC3B1500EF06F3 /* Skeletonizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A061C1DFC3B1500EF06F3 /* Skeletonizer.cpp */; };
 		3B2A062F1DFCD29800EF06F3 /* Skelevision.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A062D1DFCD29800EF06F3 /* Skelevision.cpp */; };
 		3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B67E7341DEACF930053090C /* SkeletonTracer.cpp */; };
+		3BF0A0D61DFD899D00C404A1 /* ofxZip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BF0A0D51DFD899D00C404A1 /* ofxZip.cpp */; };
 		45CC483A999BF1065A6B926C /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DBD717072C35D324E101669 /* Distance.cpp */; };
 		483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D67A00EB899FAC09430597 /* ofxLabel.cpp */; };
 		49BEEB2DFA5319D55AA6899F /* tilt.c in Sources */ = {isa = PBXBuildFile; fileRef = BF2F2AA872288D30F53983EF /* tilt.c */; };
@@ -189,6 +190,8 @@
 		3B67E7341DEACF930053090C /* SkeletonTracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonTracer.cpp; sourceTree = "<group>"; };
 		3B67E7351DEACF930053090C /* SkeletonTracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonTracer.h; sourceTree = "<group>"; };
 		3B67E7371DEB1C330053090C /* GPPSettings.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = GPPSettings.xml; path = bin/data/settings/GPPSettings.xml; sourceTree = SOURCE_ROOT; };
+		3BF0A0D41DFD899D00C404A1 /* ofxZip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxZip.h; path = ofxZip/src/ofxZip.h; sourceTree = "<group>"; };
+		3BF0A0D51DFD899D00C404A1 /* ofxZip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxZip.cpp; path = ofxZip/src/ofxZip.cpp; sourceTree = "<group>"; };
 		3CABCA8EA52D11C95F7A1309 /* registration.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = registration.h; path = ../../../addons/ofxKinect/libs/libfreenect/src/registration.h; sourceTree = SOURCE_ROOT; };
 		3DBD37876A11E46E4D7069B3 /* cameras.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 30; name = cameras.c; path = ../../../addons/ofxKinect/libs/libfreenect/src/cameras.c; sourceTree = SOURCE_ROOT; };
 		402C8F4015542356D362AC88 /* Calibration.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Calibration.cpp; path = ../../../addons/ofxCv/libs/ofxCv/src/Calibration.cpp; sourceTree = SOURCE_ROOT; };
@@ -695,6 +698,15 @@
 				56ED74AD5FC73867F5E046F0 /* photo_c.h */,
 			);
 			name = photo;
+			sourceTree = "<group>";
+		};
+		3BF0A0D31DFD894700C404A1 /* ofxZip */ = {
+			isa = PBXGroup;
+			children = (
+				3BF0A0D41DFD899D00C404A1 /* ofxZip.h */,
+				3BF0A0D51DFD899D00C404A1 /* ofxZip.cpp */,
+			);
+			name = ofxZip;
 			sourceTree = "<group>";
 		};
 		3E44059DCBC2444D65660B9C /* imgproc */ = {
@@ -1218,6 +1230,7 @@
 				3B0E63B31DF6D578009F5702 /* SkeletonOptimizer.h */,
 				3B2A062D1DFCD29800EF06F3 /* Skelevision.cpp */,
 				3B2A062E1DFCD29800EF06F3 /* Skelevision.h */,
+				3BF0A0D31DFD894700C404A1 /* ofxZip */,
 				3B0E63A21DF554B6009F5702 /* tsp */,
 			);
 			path = src;
@@ -1437,6 +1450,7 @@
 				837220E80EB56CD44AD27F2A /* ofxSlider.cpp in Sources */,
 				3B0E63AF1DF554B6009F5702 /* RouteOptimizer.cpp in Sources */,
 				B56FE57CC35806596D38118C /* ofxSliderGroup.cpp in Sources */,
+				3BF0A0D61DFD899D00C404A1 /* ofxZip.cpp in Sources */,
 				1CD33E884D9E3358252E82A1 /* ofxToggle.cpp in Sources */,
 				7ADB04AF67C568EAFAEBA546 /* ofxKinectExtras.cpp in Sources */,
 				686B0DF6249B52E1A85B39EC /* ofxKinect.cpp in Sources */,

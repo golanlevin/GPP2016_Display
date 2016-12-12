@@ -115,6 +115,7 @@ class ofApp : public ofBaseApp{
 	bool bGotAProxyFrame;
 	
 	Skelevision		mySkelevision;
+	bool			bRecording; 
 
 
 };

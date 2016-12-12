@@ -57,8 +57,11 @@ void ofApp::setup(){
 	mySkeletonTracer->initialize(skeletonBufW, skeletonBufH);
 	mySkeletonizer.initialize(skeletonBufW, skeletonBufH);
 
+	
+	//---------------------------------
 	mySkelevision.initialize();
-	mySkelevision.testBuffer();
+	bRecording = false;
+
 	
 }
 
@@ -480,6 +483,11 @@ void ofApp::draw(){
     displayX = 1*displayW + 2*displayM;
     displayY = 0*displayH + 1*displayM;
     filledContourImage.draw(displayX,displayY, displayW,displayH);
+	if (bRecording){
+		ofFill();
+		ofSetColor(255,0,0);
+		ofDrawRectangle(displayX+5,displayY+5, 10,10);
+	}
     
     // 4. Draw the skeleton image.
     displayX = 1*displayW + 2*displayM;
@@ -505,7 +513,6 @@ void ofApp::draw(){
     ofDrawBitmapString( ofToString(tspMicros) + " us", displayX+5,displayY+16);
     
     
-    
     // 6. Draw the bones.
     ofPushMatrix();
     displayX = 2*displayW + 3*displayM;
@@ -515,15 +522,12 @@ void ofApp::draw(){
     ofSetHexColor(0x202020);
     proxyColorImage.draw(0,0, displayW,displayH);
     mySkeletonTracer->drawBones();
-    ofPopMatrix();
-    
-    
-    inputGuiPanel.draw();
-	
-	ofPushMatrix();
-	ofTranslate(mouseX,mouseY);
 	mySkelevision.drawCurrentPlaybackFrame();
-	ofPopMatrix();
+    ofPopMatrix();
+	
+	
+    // 7. Draw the GUI.
+    inputGuiPanel.draw();
 }
 
 //--------------------------------------------------------------
@@ -565,6 +569,11 @@ void ofApp::keyPressed(int key){
             proxyVideoPlayer.load(proxyVideoFilenames[2]);
             proxyVideoPlayer.play();
             break;
+			
+		case 'r':
+		case 'R':
+			bRecording = !bRecording;
+			break;
     }
 }
 
