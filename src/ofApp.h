@@ -19,6 +19,8 @@ class ofApp : public ofBaseApp{
 	void 	setup();
 	void 	update();
 	void 	draw();
+	void	exit();
+	
 	void 	keyPressed(int key);
 	void 	keyReleased(int key);
 	void 	mouseMoved(int x, int y );
@@ -79,7 +81,9 @@ class ofApp : public ofBaseApp{
 	// Skeletonization.
 	//
 	
-	Skeletonizer				mySkeletonizer; 
+	Skeletonizer				mySkeletonizer;
+	int		kinectV2DepthW;
+	int		kinectV2DepthH;
 	int		skeletonBufW;
 	int		skeletonBufH;
 	float	skeletonScale;
@@ -98,6 +102,7 @@ class ofApp : public ofBaseApp{
 	ofxFloatSlider	inputLineResample;
 	ofxIntSlider	contourThickness;
 	ofxToggle		bSmoothHolesToo;
+	ofxToggle		bDrawGrayProxy;
 	
 	ofxFloatSlider	boneResampling;
 	ofxFloatSlider	boneSmoothSigma;
@@ -115,7 +120,6 @@ class ofApp : public ofBaseApp{
 	bool bGotAProxyFrame;
 	
 	Skelevision		mySkelevision;
-	bool			bRecording; 
 
 
 };

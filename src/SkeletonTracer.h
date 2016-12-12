@@ -74,7 +74,7 @@ class SkeletonTracer {
 	void	mergeBones(); 
 	void	smoothBones();
 	void	drawStateImage();
-	void	drawBones();
+	void	drawBones(bool bShowPathBetweenBones);
 	ofPolyline getSmoothed (ofPolyline inputBone);
 	
 	ofPolyline			tempBone;

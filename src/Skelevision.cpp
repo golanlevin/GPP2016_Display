@@ -1,7 +1,23 @@
 #include "Skelevision.h"
 
+
+//--------------------------------------------------------------
+/*
+Skelevision::Skelevision(){
+	startThread();
+}
+
+Skelevision::~Skelevision(){
+	waitForThread(true);
+}
+ */
+
 //--------------------------------------------------------------
 void Skelevision::initialize(){
+	
+	maxNRecordingFrames = 100;
+	bDeleteOldestFramesWhenRecording = true;
+	bUseZippedFiles = true;
 	
 	readXML = new ofxXmlSettings();
 	readXML->clear();
@@ -13,22 +29,97 @@ void Skelevision::initialize(){
 	currentPlaybackFrames.clear();
 	currentRecordingFrames.clear();
 	
+	bCurrentlyRecording	= false;
 	bLoadedFileFromXML	= false;
+	bPlaybackPaused		= false;
 	outputFileCounter	= 0;
 	
-	string xmlFilename			= "recordings/recording_test.xml";
-	string zippedXmlFilename	= "recordings/recording_test.xml.zip";
+
+	string xmlFilename			= "recordings/test/recording_test.xml";
+	string zippedXmlFilename	= "recordings/test/recording_test.xml.zip";
 	
-	generateBogusFrames();					// Put lissajous into currentRecordingFrames
-	transferCurrentRecordingToXML();		// Transfer currentRecordingFrames into saveXML
-	saveXMLRecording(xmlFilename, false);	// Save from saveXML to filename.
+	generateBogusFrames();						// Put bogus (Lissajous) into currentRecordingFrames
+	transferCurrentRecordingToXML();			// Transfer currentRecordingFrames into saveXML
+	saveXMLRecording(zippedXmlFilename, true);	// Save from saveXML to filename.
 	
 
-	loadXMLRecording (xmlFilename, false);
+	loadXMLRecording (zippedXmlFilename, true);
 	transferFromXmlToCurrentDrawing();
-	
 }
 
+
+//--------------------------------------------------------------
+void Skelevision::startRecording(){
+	currentRecordingFrames.clear();
+	bCurrentlyRecording = true;
+}
+
+//---------------------------------
+void Skelevision::stopRecording(){
+	bCurrentlyRecording = false;
+}
+
+//---------------------------------
+void Skelevision::toggleRecording(){
+	bCurrentlyRecording = !bCurrentlyRecording;
+	if (bCurrentlyRecording){
+		startRecording();
+	} else {
+		stopRecording();
+	}
+}
+
+//---------------------------------
+void Skelevision::saveCurrentRecording(){
+	stopRecording();
+	if (currentRecordingFrames.size() > 0){
+		transferCurrentRecordingToXML();
+		
+		string xmlFilename = "recordings/recording_" + ofToString(outputFileCounter) + ".xml";
+		if (bUseZippedFiles){ xmlFilename += ".zip"; }
+		saveXMLRecording (xmlFilename, bUseZippedFiles);
+		outputFileCounter++;
+	}
+}
+
+//---------------------------------
+bool Skelevision::isRecording(){
+	return bCurrentlyRecording;
+}
+
+//---------------------------------
+int Skelevision::getCurrentRecordingLength(){
+	return (currentRecordingFrames.size());
+}
+
+//--------------------------------------------------------------
+void Skelevision::addFrameToCurrentRecording (vector<PolylinePlus> &theRawDrawing){
+	if (bCurrentlyRecording){
+		
+		currentRecordingFrames.push_back(theRawDrawing);
+		
+		int nRecordedFrames = currentRecordingFrames.size();
+		if (nRecordedFrames > maxNRecordingFrames){
+			if (bDeleteOldestFramesWhenRecording){
+				while (currentRecordingFrames.size() > maxNRecordingFrames){
+					currentRecordingFrames.erase(currentRecordingFrames.begin());
+				}
+			} else {
+				stopRecording();
+			}
+		}
+	}
+}
+
+//---------------------------------
+void Skelevision::loadAndInitiatePlaybackOfRecording (int which){
+	
+	string xmlFilename = "recordings/recording_" + ofToString(which) + ".xml";
+	if (bUseZippedFiles){ xmlFilename += ".zip"; }
+	
+	loadXMLRecording(xmlFilename, bUseZippedFiles);
+	transferFromXmlToCurrentDrawing();
+}
 
 //--------------------------------------------------------------
 void Skelevision::loadXMLRecording (string &xmlFilename, bool bFileIsZipped){
@@ -104,8 +195,8 @@ void Skelevision::transferFromXmlToCurrentDrawing(){
 						if (nPointsInThisStroke > 0){
 							
 							for (int i=0; i<nPointsInThisStroke; i++){
-								float x = readXML->getValue("PT:X", 0, i);
-								float y = readXML->getValue("PT:Y", 0, i);
+								float x = readXML->getValue("PT:X", (double) 0.0, i);
+								float y = readXML->getValue("PT:Y", (double) 0.0, i);
 								aPolyline.addVertex(x, y);
 							}
 						}
@@ -124,18 +215,28 @@ void Skelevision::transferFromXmlToCurrentDrawing(){
 				readXML->popTag(); // FRAME
 			}
 		}
+		ofLog(OF_LOG_WARNING, "Loaded %d frames.", nFramesInThisRecording);
 	}
 }
 
-
+//--------------------------------------------------------------
+void Skelevision::togglePlaybackPaused(){
+	bPlaybackPaused = !bPlaybackPaused;
+	if (bPlaybackPaused){
+		stopRecording();
+	}
+}
 
 //--------------------------------------------------------------
 void Skelevision::drawCurrentPlaybackFrame(){
 
+	currentPlaybackDrawing.clear();
+	
 	int nFramesInThisRecording = currentPlaybackFrames.size();
 	if ((nFramesInThisRecording > 0) && (bLoadedFileFromXML) &&
 		(currentPlaybackFrameIndex < nFramesInThisRecording)){
 		
+		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 		
@@ -144,19 +245,67 @@ void Skelevision::drawCurrentPlaybackFrame(){
 		int nStrokesInThisFrame = aVectorOfPolylinePluses.size();
 		if (nStrokesInThisFrame > 0){
 			
+			// Copy the current frame's PolylinePluses into currentPlaybackDrawing,
+			// modifying them as we go with scaling & translation
 			for (int i=0; i<nStrokesInThisFrame; i++){
 				PolylinePlus ithPP = aVectorOfPolylinePluses[i];
 				ofPolyline ithPolyline = ithPP.polyline;
+				
+				for (int p=0; p<ithPolyline.size(); p++){
+					ithPolyline[p].x -= 320/2;
+					ithPolyline[p].y -= 240/2;
+					ithPolyline[p].x *= 0.5;
+					ithPolyline[p].y *= 0.5;
+					ithPolyline[p].x += 320/2;
+					ithPolyline[p].y += 240/2;
+				}
+				
+				/*
+				ofSetLineWidth(2.0);
+				ofSetColor(ithPP.r, ithPP.g, ithPP.b);
+				ithPolyline.draw();
+				*/
+				
+				/*
+				PolylinePlus transformedPP;
+				transformedPP.r = ithPP.r;
+				transformedPP.g = ithPP.g;
+				transformedPP.b = ithPP.b;
+				ofPolyline transformedPolyline = ithPolyline;
+				
+				for (int p=0; p<transformedPolyline.size(); p++){
+					transformedPolyline[p].x -= 320/2;
+					transformedPolyline[p].y -= 240/2;
+					transformedPolyline[p].x *= 0.5;
+					transformedPolyline[p].y *= 0.5;
+					transformedPolyline[p].x += 320/2;
+					transformedPolyline[p].y += 240/2;
+				}
+				currentPlaybackDrawing.push_back(transformedPP);
+				*/
+			}
+			
+			
+			// Draw the currentPlaybackDrawing to the screen
+			for (int i=0; i<nStrokesInThisFrame; i++){
+				PolylinePlus ithPP = aVectorOfPolylinePluses[i];
+				ofPolyline ithPolyline = ithPP.polyline;
+				ofSetLineWidth(2.0);
 				ofSetColor(ithPP.r, ithPP.g, ithPP.b);
 				ithPolyline.draw();
 			}
+			
+			
+			
 		}
 		
 		// advance currentPlaybackFrameIndex
-		currentPlaybackFrameIndex ++;
-		currentPlaybackFrameIndex %= nFramesInThisRecording;
+		if (!bPlaybackPaused){
+			currentPlaybackFrameIndex ++;
+			currentPlaybackFrameIndex %= nFramesInThisRecording;
+		}
 		
-		glBlendFunc(GL_ONE, GL_ZERO); // Restore default.
+		glPopAttrib(); // Restore blend mode default.
 	}
 }
 
@@ -189,19 +338,18 @@ void Skelevision::transferCurrentRecordingToXML(){
 			for (int i=0; i<nPointsInPthPolyline; i++){
 				
 				ofPoint ithPointInPthPolyline = pthPolyline[i];
-				float x = ithPointInPthPolyline.x;
-				float y = ithPointInPthPolyline.y;
+				double x = ithPointInPthPolyline.x;
+				double y = ithPointInPthPolyline.y;
 				
 				int mostRecentPointTag = saveXML->addTag("PT");
-				saveXML->setValue("PT:X", x, mostRecentPointTag);
-				saveXML->setValue("PT:Y", y, mostRecentPointTag);
+				saveXML->setValue("PT:X", (double) x, mostRecentPointTag);
+				saveXML->setValue("PT:Y", (double) y, mostRecentPointTag);
 			}
 			saveXML->popTag(); // mostRecentStrokeTag
 		}
 		saveXML->popTag(); // mostRecentFrameTag
 	}
 }
-
 
 
 //--------------------------------------------------------------
@@ -259,8 +407,9 @@ void Skelevision::saveXMLRecording (string &xmlFilename, bool bSaveAsZipped){
 void Skelevision::generateBogusFrames(){
 	//-------------------
 	// Create some bogus drawing data.
-
+	startRecording();
 	currentRecordingFrames.clear();
+	
 	int nFramesPerRecording = 200;
 	for (int f=0; f<nFramesPerRecording; f++){
 		
@@ -292,8 +441,11 @@ void Skelevision::generateBogusFrames(){
 			
 			somePolylinePluses.push_back(aPolylinePlus);
 		}
-		currentRecordingFrames.push_back(somePolylinePluses);
+		
+		addFrameToCurrentRecording (somePolylinePluses);
 	}
+	
+	stopRecording();
 }
 
 

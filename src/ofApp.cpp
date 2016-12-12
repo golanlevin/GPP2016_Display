@@ -33,6 +33,7 @@ void ofApp::setup(){
 	proxyColorImage.allocate (proxyCaptureW,proxyCaptureH);
 	proxyColorImage.set(0);
 	
+	
 	bUseProxyVideoInsteadOfOSC	= true;
 	bProxyVideoPlayerPaused		= false;
 	bGotAProxyFrame				= false;
@@ -44,6 +45,9 @@ void ofApp::setup(){
 	
 	myOfxCvContourFinder.setMinArea(minBlobSize);
 	myOfxCvContourFinder.setMaxArea(maxBlobSize);
+	
+	kinectV2DepthW		= 512;
+	kinectV2DepthH		= 424;
 	
 	skeletonBufW		= 320; // Note: the Kinectv2 depth image is 512 x 424.
 	skeletonBufH		= 240; // 320x265 would preserve the aspect ratio of Kinectv2 depth image.
@@ -60,15 +64,14 @@ void ofApp::setup(){
 	
 	//---------------------------------
 	mySkelevision.initialize();
-	bRecording = false;
 
 	
 }
 
-
-
-
-
+//--------------------------------------------------------------
+void ofApp::exit(){
+	/* mySkelevision.stopThread(); */
+}
 
 
 //--------------------------------------------------------------
@@ -82,6 +85,7 @@ void ofApp::initializeGui(){
     inputGuiPanel.add(inputLineResample.setup	("inputLineResample",	3.0, 1.0, 11.0));
     inputGuiPanel.add(contourThickness.setup	("contourThickness",	2, 0,8));
     inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
+	inputGuiPanel.add(bDrawGrayProxy.setup		("bDrawGrayProxy",		true));
     
     inputGuiPanel.add(boneResampling.setup		("boneResampling",		3.0, 1.0, 11.0));
     inputGuiPanel.add(boneSmoothSigma.setup		("boneSmoothSigma",		0.9, 0.0, 3.0));
@@ -117,7 +121,7 @@ void ofApp::captureProxyVideo(){
             proxyColorImage.setFromPixels(proxyVideoPlayer.getPixels());
             bGotAProxyFrame = true;
         } else {
-            //;
+			; // Don't do nothin'
         }
     }
 }
@@ -135,21 +139,18 @@ void ofApp::update(){
     // Process the incoming contours (regardless of their source of origin)
     int nRawContours = rawContours.size();
     if (nRawContours > 0){
-        
-        if(bUseProxyVideoInsteadOfOSC){
-            // Filter the contours, smoothing them to yield better skeletons.
+		
+		// Filter the contours, smoothing them to yield better skeletons.
+		// Then prepare a blob image: our input to thinning-based skeletonization.
+        // (There are minor differences if we're getting data from OSC or proxy video.)
+        if (bUseProxyVideoInsteadOfOSC){
             filterContoursBeforeReconstitution (rawContours);
-            
-            // Prepare a blob image: our input to thinning-based skeletonization.
             reconstituteBlobsFromContours (theContoursi, skeletonBufW,skeletonBufH);
-        }else{
-            // Filter the contours, smoothing them to yield better skeletons.
+        } else {
             filterContoursBeforeReconstitutionOSC (rawContours);
-            
-            // Prepare a blob image: our input to thinning-based skeletonization.
             reconstituteBlobsFromContoursOSC (theContoursi, skeletonBufW,skeletonBufH);
-            
         }
+		
         // Compute a skeleton image: pixels representing the live skeletons.
         mySkeletonizer.computeSkeletonImageFromBlobs(filledContourMat, theContoursi,
                                                      nCurrentPositiveContours, contourThickness,
@@ -157,7 +158,14 @@ void ofApp::update(){
         
         // Trace the (polyline) skeleton bones from the (pixel) skeleton image.
         mySkeletonTracer->computeVectorSkeleton (mySkeletonizer.skeletonBuffer, nRawContours);
-        
+		
+		// If mySkelevision is recording, add in the most recent frame
+		if (mySkelevision.isRecording()){
+			vector<PolylinePlus> &theRawDrawing = mySkeletonTracer->theRawDrawing;
+			mySkelevision.addFrameToCurrentRecording(theRawDrawing);
+		}
+		
+		
     } else {
         // There are no incoming contours, so handle that.
         handleAbsenceOfIncomingContours();
@@ -174,22 +182,19 @@ vector<vector<cv::Point>> ofApp::obtainRawContours(){
     
     vector<vector<cv::Point>> rawContours;
     if (bUseProxyVideoInsteadOfOSC){
+		
         computeContoursFromProxyVideo();
         rawContours = myOfxCvContourFinder.getContours();
+		
     } else {
-        
         // DAN MOORE CODE GOES HERE
         // rawContours = something something fetched from OSC
-        // Note that it will be necessary for these to match ofxCv contours,
+        // Note that it is necessary for these to match ofxCv contours,
         // For example: indicating whether a contour is a hole or not.
-        
-        
-        //				int size = buffer.size()/sizeof(ofPoint);
-        //				char *tempData = buffer.getData();
-        //				points.resize(size);
-        //				memcpy(&points[0], tempData, buffer.size());
+		
         rawContours.clear();
         isHole.clear();
+		
         while(receiver.hasWaitingMessages()){
             // get the next message
             ofxOscMessage m;
@@ -393,10 +398,11 @@ void ofApp::filterContoursBeforeReconstitutionOSC(vector<vector<cv::Point>> &raw
                 cv::Point jthRawPoint = ithRawContour[j];
                 float jxf = (float)jthRawPoint.x;
                 float jyf = (float)jthRawPoint.y;
-//                if (bScaleProxyToKinect){
-                    jxf *= (320.0/512.0);
-                    jyf *= (320.0/512.0);
-//                }
+				
+				// if (bScaleProxyToKinect){
+				jxf *= (float) skeletonBufW / (float) kinectV2DepthW; //(320.0/512.0);
+				jyf *= (float) skeletonBufH / (float) kinectV2DepthH; //(320.0/512.0);
+				// }
                 
                 ithNewPolyline.addVertex(jxf, jyf);
             }
@@ -456,7 +462,7 @@ void ofApp::computeContoursFromProxyVideo(){
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(100,100,100);
-    
+
     float displayX, displayY;
     
     // 1. Draw the incoming image
@@ -464,7 +470,8 @@ void ofApp::draw(){
     displayX = 0*displayW + 1*displayM;
     displayY = 0*displayH + 1*displayM;
     proxyColorImage.draw(displayX,displayY, displayW,displayH);
-    
+	
+	
     // 2. Draw the contours:
     ofFill();
     ofSetHexColor(0x000000);
@@ -477,18 +484,22 @@ void ofApp::draw(){
     ofScale(displayScale,displayScale);
     myOfxCvContourFinder.draw();
     ofPopMatrix();
-    
+	
+	
     // 3. Draw the blobs reconstituted from the contours, and their combined bounding box.
     ofSetHexColor(0xffffff);
     displayX = 1*displayW + 2*displayM;
     displayY = 0*displayH + 1*displayM;
     filledContourImage.draw(displayX,displayY, displayW,displayH);
-	if (bRecording){
+	if (mySkelevision.isRecording()){
 		ofFill();
 		ofSetColor(255,0,0);
 		ofDrawRectangle(displayX+5,displayY+5, 10,10);
+		int nCurrRecFrames = mySkelevision.getCurrentRecordingLength();
+		ofDrawBitmapString( ofToString(nCurrRecFrames), displayX+20, displayY+15);
 	}
-    
+	
+	
     // 4. Draw the skeleton image.
     displayX = 1*displayW + 2*displayM;
     displayY = 1*displayH + 2*displayM;
@@ -498,8 +509,9 @@ void ofApp::draw(){
     ofPopMatrix();
     int durMicros = (int)(mySkeletonizer.skeletonizationDuration);
     ofSetColor(255,255,0);
-    ofDrawBitmapString( ofToString(durMicros) + " us", displayX+5,displayY+16);
-    
+    ofDrawBitmapString( "Skl: " + ofToString(durMicros) + " us", displayX+5,displayY+16);
+	
+	
     // 5. Draw the skeleton-tracer state image.
     ofSetHexColor(0xffffff);
     displayX = 1*displayW + 2*displayM;
@@ -510,7 +522,7 @@ void ofApp::draw(){
     ofPopMatrix();
     int tspMicros = (int)(mySkeletonTracer->tspElapsed);
     ofSetColor(255,255,0);
-    ofDrawBitmapString( ofToString(tspMicros) + " us", displayX+5,displayY+16);
+    ofDrawBitmapString( "TSP: " + ofToString(tspMicros) + " us", displayX+5,displayY+16);
     
     
     // 6. Draw the bones.
@@ -519,15 +531,24 @@ void ofApp::draw(){
     displayY = 0*displayH + 1*displayM;
     ofTranslate(displayX,displayY);
     ofScale(3.0,3.0);
-    ofSetHexColor(0x202020);
-    proxyColorImage.draw(0,0, displayW,displayH);
-    mySkeletonTracer->drawBones();
+	if (bDrawGrayProxy){
+		ofSetHexColor(0x202020);
+		filledContourImage.draw(0,0, displayW,displayH);
+		// proxyColorImage.draw(0,0, displayW,displayH);
+	} else {
+		ofFill();
+		ofSetColor(0,0,0);
+		ofDrawRectangle(0,0, displayW,displayH);
+	}
+	
+	bool bShowPathBetweenBones = true;
+    mySkeletonTracer->drawBones(bShowPathBetweenBones);
 	mySkelevision.drawCurrentPlaybackFrame();
     ofPopMatrix();
 	
-	
-    // 7. Draw the GUI.
-    inputGuiPanel.draw();
+	// 0. Draw the GUI.
+	inputGuiPanel.draw();
+
 }
 
 //--------------------------------------------------------------
@@ -538,6 +559,7 @@ void ofApp::keyPressed(int key){
                 bProxyVideoPlayerPaused = !bProxyVideoPlayerPaused;
                 proxyVideoPlayer.setPaused(bProxyVideoPlayerPaused);
             }
+			mySkelevision.togglePlaybackPaused();
             break;
             
         case ',':
@@ -572,7 +594,13 @@ void ofApp::keyPressed(int key){
 			
 		case 'r':
 		case 'R':
-			bRecording = !bRecording;
+			mySkelevision.toggleRecording();
+			if (mySkelevision.isRecording() == false){
+				mySkelevision.saveCurrentRecording();
+			}
+			break;
+		case 'p':
+			mySkelevision.loadAndInitiatePlaybackOfRecording(0);
 			break;
     }
 }

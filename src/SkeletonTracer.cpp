@@ -577,16 +577,34 @@ void SkeletonTracer::drawStateImage(){
 }
 
 //------------------------------------------------------------
-void SkeletonTracer::drawBones(){
+void SkeletonTracer::drawBones(bool bShowPathBetweenBones){
 	
 	int nPolylinePlusses = theOptimizedDrawing.size();
+	float x0 = 0;
+	float y0 = 0;
+	float x1 = 0;
+	float y1 = 0;
+	
 	for (int i=0; i<nPolylinePlusses; i++){
-		PolylinePlus aPP = theOptimizedDrawing[i];
-		ofPolyline aBone = aPP.polyline;
+		PolylinePlus ithPP = theOptimizedDrawing[i];
+		ofPolyline aBone = ithPP.polyline;
 		if (aBone.size() >= 2){
 			ofSetLineWidth(2.0);
-			ofSetColor(aPP.r, aPP.g, aPP.b);
+			ofSetColor(ithPP.r, ithPP.g, ithPP.b);
 			aBone.draw();
+			
+			if (bShowPathBetweenBones){
+				x1 = aBone[0].x;
+				y1 = aBone[0].y;
+				if (i > 0){
+					ofSetLineWidth(1.0);
+					ofSetColor(0,255,0, 128);
+					ofDrawLine(x0,y0, x1,y1);
+				}
+				x0 = aBone[aBone.size()-1].x;
+				y0 = aBone[aBone.size()-1].y;
+			}
+			
 		}
 	}
 }
