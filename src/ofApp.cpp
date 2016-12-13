@@ -63,14 +63,14 @@ void ofApp::setup(){
 
 	
 	//---------------------------------
-	mySkelevision.initialize();
+	mySkeletonLoaderSaver.initialize(skeletonBufW, skeletonBufH);
 
 	
 }
 
 //--------------------------------------------------------------
 void ofApp::exit(){
-	/* mySkelevision.stopThread(); */
+	/* mySkeletonLoaderSaver.stopThread(); */
 }
 
 
@@ -159,10 +159,10 @@ void ofApp::update(){
         // Trace the (polyline) skeleton bones from the (pixel) skeleton image.
         mySkeletonTracer->computeVectorSkeleton (mySkeletonizer.skeletonBuffer, nRawContours);
 		
-		// If mySkelevision is recording, add in the most recent frame
-		if (mySkelevision.isRecording()){
+		// If mySkeletonLoaderSaver is recording, add in the most recent frame
+		if (mySkeletonLoaderSaver.isRecording()){
 			vector<PolylinePlus> &theRawDrawing = mySkeletonTracer->theRawDrawing;
-			mySkelevision.addFrameToCurrentRecording(theRawDrawing);
+			mySkeletonLoaderSaver.addFrameToCurrentRecording(theRawDrawing);
 		}
 		
 		
@@ -491,11 +491,11 @@ void ofApp::draw(){
     displayX = 1*displayW + 2*displayM;
     displayY = 0*displayH + 1*displayM;
     filledContourImage.draw(displayX,displayY, displayW,displayH);
-	if (mySkelevision.isRecording()){
+	if (mySkeletonLoaderSaver.isRecording()){
 		ofFill();
 		ofSetColor(255,0,0);
 		ofDrawRectangle(displayX+5,displayY+5, 10,10);
-		int nCurrRecFrames = mySkelevision.getCurrentRecordingLength();
+		int nCurrRecFrames = mySkeletonLoaderSaver.getCurrentRecordingLength();
 		ofDrawBitmapString( ofToString(nCurrRecFrames), displayX+20, displayY+15);
 	}
 	
@@ -543,7 +543,7 @@ void ofApp::draw(){
 	
 	bool bShowPathBetweenBones = true;
     mySkeletonTracer->drawBones(bShowPathBetweenBones);
-	mySkelevision.drawCurrentPlaybackFrame();
+	mySkeletonLoaderSaver.drawCurrentPlaybackFrame();
     ofPopMatrix();
 	
 	// 0. Draw the GUI.
@@ -559,7 +559,7 @@ void ofApp::keyPressed(int key){
                 bProxyVideoPlayerPaused = !bProxyVideoPlayerPaused;
                 proxyVideoPlayer.setPaused(bProxyVideoPlayerPaused);
             }
-			mySkelevision.togglePlaybackPaused();
+			mySkeletonLoaderSaver.togglePlaybackPaused();
             break;
             
         case ',':
@@ -594,13 +594,13 @@ void ofApp::keyPressed(int key){
 			
 		case 'r':
 		case 'R':
-			mySkelevision.toggleRecording();
-			if (mySkelevision.isRecording() == false){
-				mySkelevision.saveCurrentRecording();
+			mySkeletonLoaderSaver.toggleRecording();
+			if (mySkeletonLoaderSaver.isRecording() == false){
+				mySkeletonLoaderSaver.saveCurrentRecording();
 			}
 			break;
 		case 'p':
-			mySkelevision.loadAndInitiatePlaybackOfRecording(0);
+			mySkeletonLoaderSaver.loadAndInitiatePlaybackOfRecording(0);
 			break;
     }
 }

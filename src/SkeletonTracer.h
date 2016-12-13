@@ -125,11 +125,13 @@ class SkeletonTracer {
 	int						replayColor;
 	
 	SkeletonOptimizer		mySkeletonOptimizer;
-	void					compileLiveBonesIntoRawDrawing(); 
+	void					compileLiveBonesIntoRawDrawing();
+	void					normalizeTheRawDrawing(); 
 	void					optimallyReorderRawDrawing();
 	vector<PolylinePlus>	theRawDrawing;
 	vector<PolylinePlus>	theOptimizedDrawing;
 	bool					bClosedTSP;
+	bool					bNormalizeTheRawDrawing;
 	float					tspElapsed;
 
 	

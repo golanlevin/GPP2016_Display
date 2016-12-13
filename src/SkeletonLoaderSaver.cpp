@@ -1,19 +1,19 @@
-#include "Skelevision.h"
+#include "SkeletonLoaderSaver.h"
 
 
 //--------------------------------------------------------------
 /*
-Skelevision::Skelevision(){
+SkeletonLoaderSaver::SkeletonLoaderSaver(){
 	startThread();
 }
 
-Skelevision::~Skelevision(){
+SkeletonLoaderSaver::~SkeletonLoaderSaver(){
 	waitForThread(true);
 }
  */
 
 //--------------------------------------------------------------
-void Skelevision::initialize(){
+void SkeletonLoaderSaver::initialize(int w, int h){
 	
 	maxNRecordingFrames = 100;
 	bDeleteOldestFramesWhenRecording = true;
@@ -34,7 +34,10 @@ void Skelevision::initialize(){
 	bPlaybackPaused		= false;
 	outputFileCounter	= 0;
 	
-
+	bUseNormalizedDrawings = true;
+	buffer_w = w;
+	buffer_h = h;
+	
 	string xmlFilename			= "recordings/test/recording_test.xml";
 	string zippedXmlFilename	= "recordings/test/recording_test.xml.zip";
 	
@@ -49,18 +52,18 @@ void Skelevision::initialize(){
 
 
 //--------------------------------------------------------------
-void Skelevision::startRecording(){
+void SkeletonLoaderSaver::startRecording(){
 	currentRecordingFrames.clear();
 	bCurrentlyRecording = true;
 }
 
 //---------------------------------
-void Skelevision::stopRecording(){
+void SkeletonLoaderSaver::stopRecording(){
 	bCurrentlyRecording = false;
 }
 
 //---------------------------------
-void Skelevision::toggleRecording(){
+void SkeletonLoaderSaver::toggleRecording(){
 	bCurrentlyRecording = !bCurrentlyRecording;
 	if (bCurrentlyRecording){
 		startRecording();
@@ -70,7 +73,7 @@ void Skelevision::toggleRecording(){
 }
 
 //---------------------------------
-void Skelevision::saveCurrentRecording(){
+void SkeletonLoaderSaver::saveCurrentRecording(){
 	stopRecording();
 	if (currentRecordingFrames.size() > 0){
 		transferCurrentRecordingToXML();
@@ -83,17 +86,17 @@ void Skelevision::saveCurrentRecording(){
 }
 
 //---------------------------------
-bool Skelevision::isRecording(){
+bool SkeletonLoaderSaver::isRecording(){
 	return bCurrentlyRecording;
 }
 
 //---------------------------------
-int Skelevision::getCurrentRecordingLength(){
+int SkeletonLoaderSaver::getCurrentRecordingLength(){
 	return (currentRecordingFrames.size());
 }
 
 //--------------------------------------------------------------
-void Skelevision::addFrameToCurrentRecording (vector<PolylinePlus> &theRawDrawing){
+void SkeletonLoaderSaver::addFrameToCurrentRecording (vector<PolylinePlus> &theRawDrawing){
 	if (bCurrentlyRecording){
 		
 		currentRecordingFrames.push_back(theRawDrawing);
@@ -112,7 +115,7 @@ void Skelevision::addFrameToCurrentRecording (vector<PolylinePlus> &theRawDrawin
 }
 
 //---------------------------------
-void Skelevision::loadAndInitiatePlaybackOfRecording (int which){
+void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRecording (int which){
 	
 	string xmlFilename = "recordings/recording_" + ofToString(which) + ".xml";
 	if (bUseZippedFiles){ xmlFilename += ".zip"; }
@@ -122,7 +125,7 @@ void Skelevision::loadAndInitiatePlaybackOfRecording (int which){
 }
 
 //--------------------------------------------------------------
-void Skelevision::loadXMLRecording (string &xmlFilename, bool bFileIsZipped){
+void SkeletonLoaderSaver::loadXMLRecording (string &xmlFilename, bool bFileIsZipped){
 	// Loads a recording into the XML ofxXMLSettings object from a zipped (or not) file.
 	ofSetLogLevel(OF_LOG_NOTICE);
 	long then = ofGetElapsedTimeMicros();
@@ -164,7 +167,7 @@ void Skelevision::loadXMLRecording (string &xmlFilename, bool bFileIsZipped){
 
 
 //--------------------------------------------------------------
-void Skelevision::transferFromXmlToCurrentDrawing(){
+void SkeletonLoaderSaver::transferFromXmlToCurrentDrawing(){
 	// loadXMLRecording only loads data into the XML ofxXmlSettings object.
 	// Here, we copy the data from the XML object into currentPlaybackFrames.
 	
@@ -220,7 +223,7 @@ void Skelevision::transferFromXmlToCurrentDrawing(){
 }
 
 //--------------------------------------------------------------
-void Skelevision::togglePlaybackPaused(){
+void SkeletonLoaderSaver::togglePlaybackPaused(){
 	bPlaybackPaused = !bPlaybackPaused;
 	if (bPlaybackPaused){
 		stopRecording();
@@ -228,7 +231,7 @@ void Skelevision::togglePlaybackPaused(){
 }
 
 //--------------------------------------------------------------
-void Skelevision::drawCurrentPlaybackFrame(){
+void SkeletonLoaderSaver::drawCurrentPlaybackFrame(){
 
 	currentPlaybackDrawing.clear();
 	
@@ -252,39 +255,20 @@ void Skelevision::drawCurrentPlaybackFrame(){
 				ofPolyline ithPolyline = ithPP.polyline;
 				
 				for (int p=0; p<ithPolyline.size(); p++){
+					/*
 					ithPolyline[p].x -= 320/2;
 					ithPolyline[p].y -= 240/2;
 					ithPolyline[p].x *= 0.5;
 					ithPolyline[p].y *= 0.5;
 					ithPolyline[p].x += 320/2;
 					ithPolyline[p].y += 240/2;
+					 */
 				}
-				
-				/*
-				ofSetLineWidth(2.0);
-				ofSetColor(ithPP.r, ithPP.g, ithPP.b);
-				ithPolyline.draw();
-				*/
-				
-				/*
-				PolylinePlus transformedPP;
-				transformedPP.r = ithPP.r;
-				transformedPP.g = ithPP.g;
-				transformedPP.b = ithPP.b;
-				ofPolyline transformedPolyline = ithPolyline;
-				
-				for (int p=0; p<transformedPolyline.size(); p++){
-					transformedPolyline[p].x -= 320/2;
-					transformedPolyline[p].y -= 240/2;
-					transformedPolyline[p].x *= 0.5;
-					transformedPolyline[p].y *= 0.5;
-					transformedPolyline[p].x += 320/2;
-					transformedPolyline[p].y += 240/2;
-				}
-				currentPlaybackDrawing.push_back(transformedPP);
-				*/
+
 			}
 			
+			ofPushMatrix();
+			if (bUseNormalizedDrawings){ ofScale(buffer_w, buffer_w); }
 			
 			// Draw the currentPlaybackDrawing to the screen
 			for (int i=0; i<nStrokesInThisFrame; i++){
@@ -294,6 +278,8 @@ void Skelevision::drawCurrentPlaybackFrame(){
 				ofSetColor(ithPP.r, ithPP.g, ithPP.b);
 				ithPolyline.draw();
 			}
+			
+			ofPopMatrix();
 			
 			
 			
@@ -311,7 +297,7 @@ void Skelevision::drawCurrentPlaybackFrame(){
 
 
 //--------------------------------------------------------------
-void Skelevision::transferCurrentRecordingToXML(){
+void SkeletonLoaderSaver::transferCurrentRecordingToXML(){
 
 	// Add currentRecordingFrames data to XML.
 	// Performed when currentRecordingFrames is 'done' being recorded.
@@ -353,7 +339,7 @@ void Skelevision::transferCurrentRecordingToXML(){
 
 
 //--------------------------------------------------------------
-void Skelevision::saveXMLRecording (string &xmlFilename, bool bSaveAsZipped){
+void SkeletonLoaderSaver::saveXMLRecording (string &xmlFilename, bool bSaveAsZipped){
 	ofSetLogLevel(OF_LOG_NOTICE); // OF_LOG_WARNING
 	long then = ofGetElapsedTimeMicros();
 	
@@ -404,7 +390,7 @@ void Skelevision::saveXMLRecording (string &xmlFilename, bool bSaveAsZipped){
 }
 
 //--------------------------------------------------------------
-void Skelevision::generateBogusFrames(){
+void SkeletonLoaderSaver::generateBogusFrames(){
 	//-------------------
 	// Create some bogus drawing data.
 	startRecording();
@@ -430,6 +416,8 @@ void Skelevision::generateBogusFrames(){
 				float t = ofMap(i,0,nPointsPerPolyline, 0,TWO_PI * 0.4);
 				float x = dx + radiusX * cos((f * 0.1) + t);
 				float y = dy + radiusY * sin((f * 0.1) + t + p*0.02);
+				x /= buffer_w;
+				y /= buffer_w; // NOTE: SQUARE SPACE (WxW)
 				aPolyline.addVertex(x, y);
 			}
 			

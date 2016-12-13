@@ -8,7 +8,7 @@
 #include "ofxXmlSettings.h"
 #include "Skeletonizer.h"
 #include "SkeletonTracer.h"
-#include "Skelevision.h"
+#include "SkeletonLoaderSaver.h"
 #include "LaserMain.h"
 
 
@@ -119,7 +119,7 @@ class ofApp : public ofBaseApp{
 	SkeletonTracer	*mySkeletonTracer;
 	bool bGotAProxyFrame;
 	
-	Skelevision		mySkelevision;
+	SkeletonLoaderSaver		mySkeletonLoaderSaver;
 
 
 };

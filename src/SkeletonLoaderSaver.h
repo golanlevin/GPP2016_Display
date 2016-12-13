@@ -10,16 +10,16 @@
 
 #include "SkeletonOptimizer.h" // Included for PolylinePlus struct.
 
-class Skelevision /* : public ofThread */ {
+class SkeletonLoaderSaver /* : public ofThread */ {
 
 	public:
 	
 	/*
-	Skelevision();
-	~Skelevision();
+	SkeletonLoaderSaver();
+	~SkeletonLoaderSaver();
 	 */
 	
-	void	initialize();
+	void	initialize(int w, int h);
 	void	loadXMLRecording (string &xmlFilename, bool bFileIsZipped);
 	void	transferFromXmlToCurrentDrawing();
 	void	loadAndInitiatePlaybackOfRecording(int which);
@@ -56,5 +56,9 @@ class Skelevision /* : public ofThread */ {
 	bool	bLoadedFileFromXML;
 	bool	bPlaybackPaused;
 	int		outputFileCounter;
+	
+	bool	bUseNormalizedDrawings;
+	int		buffer_w;
+	int		buffer_h;
 
 };

@@ -40,6 +40,7 @@ void SkeletonTracer::initialize (int w, int h){
 	bDoMergeBones	= true;
 	bDoOptimizeTSP	= true;
 	bClosedTSP		= false;
+	bNormalizeTheRawDrawing = true;
 	
 	replayColor		= 0x0000FF;
 	liveColor		= 0xFF0000;
@@ -515,19 +516,52 @@ void SkeletonTracer::compileLiveBonesIntoRawDrawing(){
 	if (bDoOptimizeTSP && (nRawPolylines < maxNBonesForTSP)){
 		
 		theRawDrawing.clear();
-		for (int i=0; i<nRawPolylines; i++){
-			ofPolyline aPolyline = bonesRawSmooth[i];
-			if (aPolyline.size() > 1){
-				PolylinePlus aPolylinePlus;
-				aPolylinePlus.polyline = aPolyline;
-				aPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
-				aPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
-				aPolylinePlus.b = (liveColor & 0x0000FF)      ;
-				theRawDrawing.push_back(aPolylinePlus);
+		
+		if (!bNormalizeTheRawDrawing){
+			
+			// If we're not normalizing the raw drawing:
+			for (int i=0; i<nRawPolylines; i++){
+				ofPolyline aPolyline = bonesRawSmooth[i];
+				if (aPolyline.size() > 1){
+					PolylinePlus aPolylinePlus;
+					aPolylinePlus.polyline = aPolyline;
+					aPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
+					aPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
+					aPolylinePlus.b = (liveColor & 0x0000FF)      ;
+					theRawDrawing.push_back(aPolylinePlus);
+				}
+			}
+			
+		} else if (bNormalizeTheRawDrawing){
+			
+			// If we're not normalizing the raw drawing:
+			for (int i=0; i<nRawPolylines; i++){
+				ofPolyline aRawSmoothPolyline = bonesRawSmooth[i];
+				int nPoints = aRawSmoothPolyline.size();
+				if (nPoints > 1){
+					
+					ofPolyline aNormalizedPolyline;
+					aNormalizedPolyline.clear();
+					for (int p=0; p<nPoints; p++){
+						ofPoint pthPoint = aRawSmoothPolyline[p];
+						float px = pthPoint.x / (float) buffer_w;
+						float py = pthPoint.y / (float) buffer_w; // NOTE: SQUARE SPACE, W*W
+						aNormalizedPolyline.addVertex(px, py);
+					}
+					
+					PolylinePlus aNormalizedPolylinePlus;
+					aNormalizedPolylinePlus.polyline = aNormalizedPolyline;
+					aNormalizedPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
+					aNormalizedPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
+					aNormalizedPolylinePlus.b = (liveColor & 0x0000FF)      ;
+					theRawDrawing.push_back(aNormalizedPolylinePlus);
+				}
 			}
 		}
 		
+		
 	} else {
+		/*
 		// Golan, this needs to be removed soon.
 		// We won't be compiling theOptimizedDrawing from bonesRawSmooth;
 		// Rather, we'll be compiling it from theRawDrawing + previousPolylinePlusses
@@ -548,8 +582,10 @@ void SkeletonTracer::compileLiveBonesIntoRawDrawing(){
 				theOptimizedDrawing.push_back(aPolylinePlus);
 			}
 		}
+		*/
 	}
 }
+
 
 
 //------------------------------------------------------------
@@ -585,6 +621,9 @@ void SkeletonTracer::drawBones(bool bShowPathBetweenBones){
 	float x1 = 0;
 	float y1 = 0;
 	
+	ofPushMatrix();
+	if (bNormalizeTheRawDrawing){ ofScale(buffer_w, buffer_w); }
+	
 	for (int i=0; i<nPolylinePlusses; i++){
 		PolylinePlus ithPP = theOptimizedDrawing[i];
 		ofPolyline aBone = ithPP.polyline;
@@ -607,6 +646,8 @@ void SkeletonTracer::drawBones(bool bShowPathBetweenBones){
 			
 		}
 	}
+	
+	ofPopMatrix();
 }
 
 
