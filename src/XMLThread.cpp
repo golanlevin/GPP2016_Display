@@ -24,13 +24,14 @@ void XMLThread::threadedFunction(){
             
         }
         unlock();
-        
-        sleep(1);
+		
+		yield();
+        // usleep(1);
     }
 }
 
 void XMLThread::start(){
-    startThread();
+    startThread(false);
 }
 void XMLThread::stop(){
     waitForThread(true);

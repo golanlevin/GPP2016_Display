@@ -22,9 +22,11 @@ void SkeletonDisplayer::initialize(int w, int h){
 	DSM = new DisplaySettingsManager();
 	DQW = new DisplayQuadWarper (DSM);
 	
+	/*
 	ofSetLogLevel(OF_LOG_VERBOSE);
 	etherdream.setup();
 	etherdream.setPPS(30000);
+	 */
 }
 
 //--------------------------------------------------------------

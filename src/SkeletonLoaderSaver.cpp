@@ -28,7 +28,7 @@ SkeletonLoaderSaver::~SkeletonLoaderSaver(){
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::initialize(int w, int h){
 
-    maxNRecordingFrames = 100;
+    maxNRecordingFrames = 1000;
     bDeleteOldestFramesWhenRecording = true;
     bUseZippedFiles = true;
     
@@ -143,7 +143,7 @@ void SkeletonLoaderSaver::loadXMLRecording (string &xmlFilename, bool bFileIsZip
 
 
 void SkeletonLoaderSaver::recordingSaved(string & filename){
-    ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!  "<<filename<<" saved"<<endl;
+    // ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!  "<<filename<<" saved"<<endl;
     savedFiles.push_back(filename);
 }
 
