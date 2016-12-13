@@ -53,15 +53,6 @@ struct BoneMergeCouplet {
 	BoneTerminus	boneJTerminus;
 };
 
-/*
-struct PolylinePlus {
-	ofPolyline polyline; // assume there will always be a field called 'polyline'
-	float r;
-	float g;
-	float b;
-};
- */
-
 
 
 class SkeletonTracer {
@@ -74,7 +65,6 @@ class SkeletonTracer {
 	void	mergeBones(); 
 	void	smoothBones();
 	void	drawStateImage();
-	void	drawBones(bool bShowPathBetweenBones);
 	ofPolyline getSmoothed (ofPolyline inputBone);
 	
 	ofPolyline			tempBone;
@@ -82,7 +72,6 @@ class SkeletonTracer {
 	vector<ofPolyline>	bonesRawTraced;		// 1. The raw traced bones.
 	vector<ofPolyline>	bonesRawMerged;		// 2. Ultra-short bones appended to neighbors.
 	vector<ofPolyline>	bonesRawSmooth;		// 3. Visually filtered bones (resampled, smoothed).
-	vector<ofPolyline>	bonesReordered;		// 4. Bones optimized for minimum cumulative length.
 	
 	int				buffer_w;
 	int				buffer_h;
@@ -108,32 +97,23 @@ class SkeletonTracer {
 	// Generate high resolution images.
 	ofxVectorGraphics	myVectorGraphics;
 	void			exportVectorGraphics(); 
-	
-	
+
 
 	bool			bDoMergeBones;
 	float			boneResampling;
 	float			boneSmoothSigma;
 	int				boneSmoothKernW;
-	bool			bDoOptimizeTSP;
-	int				maxNBonesForTSP;
-	int				nOptimizePasses;
 	
+
 	//-----------------
 	// Use Bryce's TSP algorithm to reorder bones.
 	int						liveColor;
 	int						replayColor;
 	
-	SkeletonOptimizer		mySkeletonOptimizer;
 	void					compileLiveBonesIntoRawDrawing();
-	void					normalizeTheRawDrawing(); 
-	void					optimallyReorderRawDrawing();
+	void					normalizeTheRawDrawing();
 	vector<PolylinePlus>	theRawDrawing;
-	vector<PolylinePlus>	theOptimizedDrawing;
-	bool					bClosedTSP;
 	bool					bNormalizeTheRawDrawing;
-	float					tspElapsed;
 
-	
 };
 

@@ -9,7 +9,8 @@
 #include "Skeletonizer.h"
 #include "SkeletonTracer.h"
 #include "SkeletonLoaderSaver.h"
-#include "LaserMain.h"
+#include "SkeletonDisplayer.h"
+#include "LaserMain.h" // Bryce
 
 
 class ofApp : public ofBaseApp{
@@ -119,7 +120,8 @@ class ofApp : public ofBaseApp{
 	SkeletonTracer	*mySkeletonTracer;
 	bool bGotAProxyFrame;
 	
-	SkeletonLoaderSaver		mySkeletonLoaderSaver;
+	SkeletonLoaderSaver		*mySkeletonLoaderSaver;
+	SkeletonDisplayer		mySkeletonDisplayer;
 
 
 };

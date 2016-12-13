@@ -15,10 +15,10 @@ void ofApp::setup(){
     
 	proxyCaptureW = 320;
 	proxyCaptureH = 240;
-	displayScale = 1.0;
+	displayScale = 0.75;
 	displayW = proxyCaptureW * displayScale;
 	displayH = proxyCaptureH * displayScale;
-	displayM = 10;
+	displayM = 8;
 	
 	initializeGui();
 	
@@ -63,21 +63,25 @@ void ofApp::setup(){
 
 	
 	//---------------------------------
-	mySkeletonLoaderSaver.initialize(skeletonBufW, skeletonBufH);
-
+	mySkeletonLoaderSaver = new SkeletonLoaderSaver();
+	mySkeletonLoaderSaver->initialize(skeletonBufW, skeletonBufH);
+	
+	mySkeletonDisplayer.initialize(skeletonBufW, skeletonBufH);
+	mySkeletonDisplayer.givePointers(mySkeletonTracer, mySkeletonLoaderSaver);
+	
 	
 }
 
 //--------------------------------------------------------------
 void ofApp::exit(){
-	/* mySkeletonLoaderSaver.stopThread(); */
+	/* mySkeletonLoaderSaver->stopThread(); */
 }
 
 
 //--------------------------------------------------------------
 void ofApp::initializeGui(){
     
-    ofxGuiSetDefaultWidth(320);
+    ofxGuiSetDefaultWidth(displayW);
     inputGuiPanel.setup("Settings", "settings/GPPSettings.xml", displayM, (displayM*3)+(displayH*2));
     
     inputGuiPanel.add(proxyThreshold.setup		("proxyThreshold",		80, 0,254));
@@ -93,7 +97,7 @@ void ofApp::initializeGui(){
     inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		true));
     inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
     inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			false));
-    inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		50, 20,300));
+    inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		60, 20,300));
     // inputGuiPanel.add(nOptimizePasses.setup		("nOptimizePasses",		2, 1, 5));
 }
 
@@ -104,10 +108,10 @@ void ofApp::propagateGui(){
     mySkeletonTracer->boneSmoothSigma	= (float)	boneSmoothSigma;
     mySkeletonTracer->boneSmoothKernW	= (int)		boneSmoothKernW;
     mySkeletonTracer->bDoMergeBones		= (bool)	bDoMergeBones;
-    mySkeletonTracer->bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
-    mySkeletonTracer->bClosedTSP		= (bool)	bClosedTSP;
-    mySkeletonTracer->maxNBonesForTSP	= (int)		maxNBonesForTSP;
-    // mySkeletonTracer->nOptimizePasses	= (int)		nOptimizePasses;
+	
+	mySkeletonDisplayer.bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
+    mySkeletonDisplayer.bClosedTSP		= (bool)	bClosedTSP;
+    mySkeletonDisplayer.maxNBonesForTSP	= (int)		maxNBonesForTSP;
 }
 
 
@@ -160,9 +164,9 @@ void ofApp::update(){
         mySkeletonTracer->computeVectorSkeleton (mySkeletonizer.skeletonBuffer, nRawContours);
 		
 		// If mySkeletonLoaderSaver is recording, add in the most recent frame
-		if (mySkeletonLoaderSaver.isRecording()){
+		if (mySkeletonLoaderSaver->isRecording()){
 			vector<PolylinePlus> &theRawDrawing = mySkeletonTracer->theRawDrawing;
-			mySkeletonLoaderSaver.addFrameToCurrentRecording(theRawDrawing);
+			mySkeletonLoaderSaver->addFrameToCurrentRecording(theRawDrawing);
 		}
 		
 		
@@ -170,6 +174,9 @@ void ofApp::update(){
         // There are no incoming contours, so handle that.
         handleAbsenceOfIncomingContours();
     }
+	
+	
+	mySkeletonDisplayer.update(); 
     
     // Record  bones & play back; add to overall collection of bones (new + old)
     // Perspectival quad warp coordinates
@@ -461,7 +468,11 @@ void ofApp::computeContoursFromProxyVideo(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    ofBackground(100,100,100);
+	ofBackground(0,0,0);
+	ofFill();
+	ofSetColor(100,100,100);
+	ofDrawRectangle(0,0,1280,720);
+	// ofBackground(100,100,100);
 
     float displayX, displayY;
     
@@ -491,11 +502,11 @@ void ofApp::draw(){
     displayX = 1*displayW + 2*displayM;
     displayY = 0*displayH + 1*displayM;
     filledContourImage.draw(displayX,displayY, displayW,displayH);
-	if (mySkeletonLoaderSaver.isRecording()){
+	if (mySkeletonLoaderSaver->isRecording()){
 		ofFill();
 		ofSetColor(255,0,0);
 		ofDrawRectangle(displayX+5,displayY+5, 10,10);
-		int nCurrRecFrames = mySkeletonLoaderSaver.getCurrentRecordingLength();
+		int nCurrRecFrames = mySkeletonLoaderSaver->getCurrentRecordingLength();
 		ofDrawBitmapString( ofToString(nCurrRecFrames), displayX+20, displayY+15);
 	}
 	
@@ -505,6 +516,7 @@ void ofApp::draw(){
     displayY = 1*displayH + 2*displayM;
     ofPushMatrix();
     ofTranslate(displayX,displayY);
+	ofScale(displayScale,displayScale);
     mySkeletonizer.draw();
     ofPopMatrix();
     int durMicros = (int)(mySkeletonizer.skeletonizationDuration);
@@ -518,19 +530,23 @@ void ofApp::draw(){
     displayY = 2*displayH + 3*displayM;
     ofPushMatrix();
     ofTranslate(displayX,displayY);
+	ofScale(displayScale,displayScale);
     mySkeletonTracer->drawStateImage();
     ofPopMatrix();
-    int tspMicros = (int)(mySkeletonTracer->tspElapsed);
+    int tspMicros	= (int)(mySkeletonDisplayer.tspElapsed);
+	int nTspBones	= mySkeletonDisplayer.nCombinedPolylinePluses;
+	int optim		= (int)(100.0 * mySkeletonDisplayer.optimizationAmount);
     ofSetColor(255,255,0);
     ofDrawBitmapString( "TSP: " + ofToString(tspMicros) + " us", displayX+5,displayY+16);
-    
+	ofDrawBitmapString( "#PP: " + ofToString(nTspBones)        , displayX+5,displayY+30);
+	ofDrawBitmapString( "%Op: " + ofToString(optim)		+ "%"  , displayX+5,displayY+44);
     
     // 6. Draw the bones.
     ofPushMatrix();
     displayX = 2*displayW + 3*displayM;
     displayY = 0*displayH + 1*displayM;
     ofTranslate(displayX,displayY);
-    ofScale(3.0,3.0);
+    ofScale(3.2, 3.2);
 	if (bDrawGrayProxy){
 		ofSetHexColor(0x202020);
 		filledContourImage.draw(0,0, displayW,displayH);
@@ -541,9 +557,11 @@ void ofApp::draw(){
 		ofDrawRectangle(0,0, displayW,displayH);
 	}
 	
-	bool bShowPathBetweenBones = true;
-    mySkeletonTracer->drawBones(bShowPathBetweenBones);
-	mySkeletonLoaderSaver.drawCurrentPlaybackFrame();
+	ofScale(displayScale, displayScale);
+	mySkeletonDisplayer.bShowPathBetweenBones = true;
+	mySkeletonDisplayer.renderToScreen();
+	
+	// mySkeletonLoaderSaver->drawCurrentPlaybackFrame();
     ofPopMatrix();
 	
 	// 0. Draw the GUI.
@@ -559,7 +577,7 @@ void ofApp::keyPressed(int key){
                 bProxyVideoPlayerPaused = !bProxyVideoPlayerPaused;
                 proxyVideoPlayer.setPaused(bProxyVideoPlayerPaused);
             }
-			mySkeletonLoaderSaver.togglePlaybackPaused();
+			mySkeletonLoaderSaver->togglePlaybackPaused();
             break;
             
         case ',':
@@ -594,13 +612,13 @@ void ofApp::keyPressed(int key){
 			
 		case 'r':
 		case 'R':
-			mySkeletonLoaderSaver.toggleRecording();
-			if (mySkeletonLoaderSaver.isRecording() == false){
-				mySkeletonLoaderSaver.saveCurrentRecording();
+			mySkeletonLoaderSaver->toggleRecording();
+			if (mySkeletonLoaderSaver->isRecording() == false){
+				mySkeletonLoaderSaver->saveCurrentRecording();
 			}
 			break;
 		case 'p':
-			mySkeletonLoaderSaver.loadAndInitiatePlaybackOfRecording(0);
+			mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRecording(0);
 			break;
     }
 }

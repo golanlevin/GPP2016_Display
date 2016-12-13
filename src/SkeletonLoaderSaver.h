@@ -36,7 +36,8 @@ class SkeletonLoaderSaver /* : public ofThread */ {
 	void	startRecording();
 	void	addFrameToCurrentRecording (vector<PolylinePlus> &theRawDrawing);
 	void	stopRecording();
-	void	saveCurrentRecording(); 
+	void	saveCurrentRecording();
+	void	retrieveAndAdvanceCurrentPlaybackDrawing();
 	int		getCurrentRecordingLength(); 
 	bool	bCurrentlyRecording;
 	bool	bDeleteOldestFramesWhenRecording;
@@ -47,8 +48,8 @@ class SkeletonLoaderSaver /* : public ofThread */ {
 	ofxXmlSettings *readXML;
 	ofxXmlSettings *saveXML;
 	
-	vector<PolylinePlus>		 currentPlaybackDrawing; // the currently re-playing drawing
-	vector<vector<PolylinePlus>> currentPlaybackFrames;  // the currently re-playing drawings
+	vector<PolylinePlus>		 currentPlaybackDrawing; // the current frame of the now-playing sequence
+	vector<vector<PolylinePlus>> currentPlaybackFrames;  // the sequence of currently re-playing drawings
 	vector<vector<PolylinePlus>> currentRecordingFrames; // the drawings currently being recorded
 	
 	

@@ -23,6 +23,7 @@
 		3B0E63AE1DF554B6009F5702 /* RouteNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63A81DF554B6009F5702 /* RouteNode.cpp */; };
 		3B0E63AF1DF554B6009F5702 /* RouteOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63AA1DF554B6009F5702 /* RouteOptimizer.cpp */; };
 		3B0E63B41DF6D578009F5702 /* SkeletonOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63B21DF6D578009F5702 /* SkeletonOptimizer.cpp */; };
+		3B1D9C841DFFE6D900DFAF7E /* SkeletonDisplayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B1D9C821DFFE6D900DFAF7E /* SkeletonDisplayer.cpp */; };
 		3B2A061E1DFC3B1500EF06F3 /* Skeletonizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A061C1DFC3B1500EF06F3 /* Skeletonizer.cpp */; };
 		3B2A062F1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A062D1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp */; };
 		3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B67E7341DEACF930053090C /* SkeletonTracer.cpp */; };
@@ -181,6 +182,8 @@
 		3B0E63AB1DF554B6009F5702 /* RouteOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RouteOptimizer.h; sourceTree = "<group>"; };
 		3B0E63B21DF6D578009F5702 /* SkeletonOptimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonOptimizer.cpp; sourceTree = "<group>"; };
 		3B0E63B31DF6D578009F5702 /* SkeletonOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonOptimizer.h; sourceTree = "<group>"; };
+		3B1D9C821DFFE6D900DFAF7E /* SkeletonDisplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonDisplayer.cpp; sourceTree = "<group>"; };
+		3B1D9C831DFFE6D900DFAF7E /* SkeletonDisplayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonDisplayer.h; sourceTree = "<group>"; };
 		3B2A061C1DFC3B1500EF06F3 /* Skeletonizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Skeletonizer.cpp; sourceTree = "<group>"; };
 		3B2A061D1DFC3B1500EF06F3 /* Skeletonizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Skeletonizer.h; sourceTree = "<group>"; };
 		3B2A062D1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonLoaderSaver.cpp; sourceTree = "<group>"; };
@@ -1230,6 +1233,8 @@
 				3B0E63B31DF6D578009F5702 /* SkeletonOptimizer.h */,
 				3B2A062D1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp */,
 				3B2A062E1DFCD29800EF06F3 /* SkeletonLoaderSaver.h */,
+				3B1D9C821DFFE6D900DFAF7E /* SkeletonDisplayer.cpp */,
+				3B1D9C831DFFE6D900DFAF7E /* SkeletonDisplayer.h */,
 				3BF0A0D31DFD894700C404A1 /* ofxZip */,
 				3B0E63A21DF554B6009F5702 /* tsp */,
 			);
@@ -1427,6 +1432,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B1D9C841DFFE6D900DFAF7E /* SkeletonDisplayer.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
 				B6840996567E78436F7ECFAB /* ETF.cpp in Sources */,

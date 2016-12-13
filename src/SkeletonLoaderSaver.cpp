@@ -26,6 +26,7 @@ void SkeletonLoaderSaver::initialize(int w, int h){
 	saveXML->clear();
 	
 	currentPlaybackFrameIndex = 0;
+	currentPlaybackDrawing.clear();
 	currentPlaybackFrames.clear();
 	currentRecordingFrames.clear();
 	
@@ -231,9 +232,32 @@ void SkeletonLoaderSaver::togglePlaybackPaused(){
 }
 
 //--------------------------------------------------------------
+void SkeletonLoaderSaver::retrieveAndAdvanceCurrentPlaybackDrawing(){
+	
+	currentPlaybackDrawing.clear();
+	if (bLoadedFileFromXML){
+		int nFramesInThisRecording = currentPlaybackFrames.size();
+		if (nFramesInThisRecording > 0) {
+			
+			currentPlaybackFrameIndex %= nFramesInThisRecording; // Safety check.
+			currentPlaybackDrawing = currentPlaybackFrames[currentPlaybackFrameIndex];
+			
+			// advance currentPlaybackFrameIndex
+			if (!bPlaybackPaused){
+				currentPlaybackFrameIndex ++;
+				currentPlaybackFrameIndex %= nFramesInThisRecording;
+			}
+		}
+	}
+}
+
+
+
+//--------------------------------------------------------------
+// This function is soon to be retired.
+//
 void SkeletonLoaderSaver::drawCurrentPlaybackFrame(){
 
-	currentPlaybackDrawing.clear();
 	
 	int nFramesInThisRecording = currentPlaybackFrames.size();
 	if ((nFramesInThisRecording > 0) && (bLoadedFileFromXML) &&
@@ -248,29 +272,10 @@ void SkeletonLoaderSaver::drawCurrentPlaybackFrame(){
 		int nStrokesInThisFrame = aVectorOfPolylinePluses.size();
 		if (nStrokesInThisFrame > 0){
 			
-			// Copy the current frame's PolylinePluses into currentPlaybackDrawing,
-			// modifying them as we go with scaling & translation
-			for (int i=0; i<nStrokesInThisFrame; i++){
-				PolylinePlus ithPP = aVectorOfPolylinePluses[i];
-				ofPolyline ithPolyline = ithPP.polyline;
-				
-				for (int p=0; p<ithPolyline.size(); p++){
-					/*
-					ithPolyline[p].x -= 320/2;
-					ithPolyline[p].y -= 240/2;
-					ithPolyline[p].x *= 0.5;
-					ithPolyline[p].y *= 0.5;
-					ithPolyline[p].x += 320/2;
-					ithPolyline[p].y += 240/2;
-					 */
-				}
-
-			}
-			
 			ofPushMatrix();
 			if (bUseNormalizedDrawings){ ofScale(buffer_w, buffer_w); }
 			
-			// Draw the currentPlaybackDrawing to the screen
+			// Draw the currentPlayback Frame to the screen
 			for (int i=0; i<nStrokesInThisFrame; i++){
 				PolylinePlus ithPP = aVectorOfPolylinePluses[i];
 				ofPolyline ithPolyline = ithPP.polyline;
@@ -280,9 +285,6 @@ void SkeletonLoaderSaver::drawCurrentPlaybackFrame(){
 			}
 			
 			ofPopMatrix();
-			
-			
-			
 		}
 		
 		// advance currentPlaybackFrameIndex
@@ -354,20 +356,20 @@ void SkeletonLoaderSaver::saveXMLRecording (string &xmlFilename, bool bSaveAsZip
 		const std::vector<unsigned char> srcVec (stringVersionOfXML.begin(), stringVersionOfXML.end());
 		
 		// Compress the vector of chars, producing a new vector of chars
-		int compressionLevel = 1; // speediest; gives ~5:1
+		int compressionLevel = 1; // speediest; gives ~5:1 compression ratio
 		vector<unsigned char> resultVec = ofxZip::compress( srcVec, compressionLevel );
 		
 		// Copy the compressed vector of chars to a char array
 		int nCharsInZippedXML = resultVec.size();
 		char* charsOfZippedXML = (char *) &resultVec[0];
 		
-		// Put the array of compressed chars into a buffer
+		// Put that array of (compressed) chars into an ofBuffer
 		ofBuffer myBufferOfZippedXML;
 		myBufferOfZippedXML.allocate(nCharsInZippedXML);
 		myBufferOfZippedXML.set(charsOfZippedXML, nCharsInZippedXML);
 		
-		// Save the buffer to a zipped file
-		// such as "recordings/recording_test.xml.zip"
+		// Save the ofBuffer to a zipped file
+		// (such as "recordings/recording_test.xml.zip")
 		bool bBinaryWrite = true;
 		bool bSavedZippedFile = ofBufferToFile(xmlFilename, myBufferOfZippedXML, bBinaryWrite);
 	
@@ -378,8 +380,8 @@ void SkeletonLoaderSaver::saveXMLRecording (string &xmlFilename, bool bSaveAsZip
 		
 	} else { // bSaveAsZipped is false
 		
-		// Save the XML data using its internal saveFile method.
-		// To a file such as "recordings/recording_test.xml");
+		// Save the XML data using its internal saveFile method
+		// (to a file such as "recordings/recording_test.xml")
 		bool bSavedXMLFile = saveXML->saveFile(xmlFilename);
 		
 		// Report and tidy up.

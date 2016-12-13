@@ -24,7 +24,6 @@ void SkeletonTracer::initialize (int w, int h){
 	bonesRawTraced.clear();
 	bonesRawMerged.clear();
 	bonesRawSmooth.clear();
-	bonesReordered.clear();
 	
 	nBranchPointIndices = 0;
 	branchPointIndices = new int[SKEL_MAX_N_BRANCH_POINTS];
@@ -35,11 +34,7 @@ void SkeletonTracer::initialize (int w, int h){
 	boneResampling = 2.5;
 	boneSmoothSigma = 0.9;
 	boneSmoothKernW = 2;
-	maxNBonesForTSP	= 50;
-	nOptimizePasses = 2;
 	bDoMergeBones	= true;
-	bDoOptimizeTSP	= true;
-	bClosedTSP		= false;
 	bNormalizeTheRawDrawing = true;
 	
 	replayColor		= 0x0000FF;
@@ -99,7 +94,6 @@ void SkeletonTracer::computeVectorSkeleton (unsigned char* skeletonPixelBuffer, 
 		mergeBones();
 		smoothBones();
 		compileLiveBonesIntoRawDrawing();
-		optimallyReorderRawDrawing();
 		
 	} else {
 		// If the nRawContours is zero:
@@ -107,9 +101,7 @@ void SkeletonTracer::computeVectorSkeleton (unsigned char* skeletonPixelBuffer, 
 		bonesRawTraced.clear();
 		bonesRawMerged.clear();
 		bonesRawSmooth.clear();
-		bonesReordered.clear();
 		theRawDrawing.clear();
-		theOptimizedDrawing.clear();
 		currentBone.clear();
 	}
 }
@@ -513,64 +505,11 @@ void SkeletonTracer::compileLiveBonesIntoRawDrawing(){
 	// As we do, assign the (live) bones the color: liveColor
 	
 	int nRawPolylines = bonesRawSmooth.size();
-	if (bDoOptimizeTSP && (nRawPolylines < maxNBonesForTSP)){
+	theRawDrawing.clear();
+	
+	if (!bNormalizeTheRawDrawing){
 		
-		theRawDrawing.clear();
-		
-		if (!bNormalizeTheRawDrawing){
-			
-			// If we're not normalizing the raw drawing:
-			for (int i=0; i<nRawPolylines; i++){
-				ofPolyline aPolyline = bonesRawSmooth[i];
-				if (aPolyline.size() > 1){
-					PolylinePlus aPolylinePlus;
-					aPolylinePlus.polyline = aPolyline;
-					aPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
-					aPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
-					aPolylinePlus.b = (liveColor & 0x0000FF)      ;
-					theRawDrawing.push_back(aPolylinePlus);
-				}
-			}
-			
-		} else if (bNormalizeTheRawDrawing){
-			
-			// If we're not normalizing the raw drawing:
-			for (int i=0; i<nRawPolylines; i++){
-				ofPolyline aRawSmoothPolyline = bonesRawSmooth[i];
-				int nPoints = aRawSmoothPolyline.size();
-				if (nPoints > 1){
-					
-					ofPolyline aNormalizedPolyline;
-					aNormalizedPolyline.clear();
-					for (int p=0; p<nPoints; p++){
-						ofPoint pthPoint = aRawSmoothPolyline[p];
-						float px = pthPoint.x / (float) buffer_w;
-						float py = pthPoint.y / (float) buffer_w; // NOTE: SQUARE SPACE, W*W
-						aNormalizedPolyline.addVertex(px, py);
-					}
-					
-					PolylinePlus aNormalizedPolylinePlus;
-					aNormalizedPolylinePlus.polyline = aNormalizedPolyline;
-					aNormalizedPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
-					aNormalizedPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
-					aNormalizedPolylinePlus.b = (liveColor & 0x0000FF)      ;
-					theRawDrawing.push_back(aNormalizedPolylinePlus);
-				}
-			}
-		}
-		
-		
-	} else {
-		/*
-		// Golan, this needs to be removed soon.
-		// We won't be compiling theOptimizedDrawing from bonesRawSmooth;
-		// Rather, we'll be compiling it from theRawDrawing + previousPolylinePlusses
-		
-		// Either TSP is disabled, or maxNBonesForTSP was exceeded.
-		// Copy smoothed directly into theOptimizedDrawing instead,
-		// with no reordering-based (TSP) optimization.
-		theRawDrawing.clear();
-		theOptimizedDrawing.clear();
+		// If we're not normalizing the raw drawing:
 		for (int i=0; i<nRawPolylines; i++){
 			ofPolyline aPolyline = bonesRawSmooth[i];
 			if (aPolyline.size() > 1){
@@ -579,31 +518,38 @@ void SkeletonTracer::compileLiveBonesIntoRawDrawing(){
 				aPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
 				aPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
 				aPolylinePlus.b = (liveColor & 0x0000FF)      ;
-				theOptimizedDrawing.push_back(aPolylinePlus);
+				theRawDrawing.push_back(aPolylinePlus);
 			}
 		}
-		*/
+		
+	} else if (bNormalizeTheRawDrawing){
+		
+		// If we're not normalizing the raw drawing:
+		for (int i=0; i<nRawPolylines; i++){
+			ofPolyline aRawSmoothPolyline = bonesRawSmooth[i];
+			int nPoints = aRawSmoothPolyline.size();
+			if (nPoints > 1){
+				
+				ofPolyline aNormalizedPolyline;
+				aNormalizedPolyline.clear();
+				for (int p=0; p<nPoints; p++){
+					ofPoint pthPoint = aRawSmoothPolyline[p];
+					float px = pthPoint.x / (float) buffer_w;
+					float py = pthPoint.y / (float) buffer_w; // NOTE: SQUARE SPACE, W*W
+					aNormalizedPolyline.addVertex(px, py);
+				}
+				
+				PolylinePlus aNormalizedPolylinePlus;
+				aNormalizedPolylinePlus.polyline = aNormalizedPolyline;
+				aNormalizedPolylinePlus.r = (liveColor & 0xFF0000) >> 16;
+				aNormalizedPolylinePlus.g = (liveColor & 0x00FF00) >>  8;
+				aNormalizedPolylinePlus.b = (liveColor & 0x0000FF)      ;
+				theRawDrawing.push_back(aNormalizedPolylinePlus);
+			}
+		}
 	}
 }
-
-
-
-//------------------------------------------------------------
-void SkeletonTracer::optimallyReorderRawDrawing(){
-	long then = ofGetElapsedTimeMicros();
 	
-	if (bDoOptimizeTSP && (theRawDrawing.size() > 0)){
-		theOptimizedDrawing.clear();
-		mySkeletonOptimizer.optimallyReorderBones(theRawDrawing, nOptimizePasses, bClosedTSP);
-		theOptimizedDrawing = mySkeletonOptimizer.theOptimizedDrawing;
-	}
-	
-	long now = ofGetElapsedTimeMicros();
-	float A = 0.95; float B = 1.0-A;
-	tspElapsed = A*tspElapsed + B*(now-then);
-	float optimizationAmount = mySkeletonOptimizer.optimizationAmount;
-}
-
 
 
 //------------------------------------------------------------
@@ -612,43 +558,6 @@ void SkeletonTracer::drawStateImage(){
 	pixelStateImage.draw(0,0, buffer_w, buffer_h);
 }
 
-//------------------------------------------------------------
-void SkeletonTracer::drawBones(bool bShowPathBetweenBones){
-	
-	int nPolylinePlusses = theOptimizedDrawing.size();
-	float x0 = 0;
-	float y0 = 0;
-	float x1 = 0;
-	float y1 = 0;
-	
-	ofPushMatrix();
-	if (bNormalizeTheRawDrawing){ ofScale(buffer_w, buffer_w); }
-	
-	for (int i=0; i<nPolylinePlusses; i++){
-		PolylinePlus ithPP = theOptimizedDrawing[i];
-		ofPolyline aBone = ithPP.polyline;
-		if (aBone.size() >= 2){
-			ofSetLineWidth(2.0);
-			ofSetColor(ithPP.r, ithPP.g, ithPP.b);
-			aBone.draw();
-			
-			if (bShowPathBetweenBones){
-				x1 = aBone[0].x;
-				y1 = aBone[0].y;
-				if (i > 0){
-					ofSetLineWidth(1.0);
-					ofSetColor(0,255,0, 128);
-					ofDrawLine(x0,y0, x1,y1);
-				}
-				x0 = aBone[aBone.size()-1].x;
-				y0 = aBone[aBone.size()-1].y;
-			}
-			
-		}
-	}
-	
-	ofPopMatrix();
-}
 
 
 ///////////////////////////////////////////////////////////////////////////////////
