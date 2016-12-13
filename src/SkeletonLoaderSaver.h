@@ -6,18 +6,26 @@
 #include "ofxGui.h"
 #include "ofxXmlSettings.h"
 #include "ofxZip.h"
-#include "ofThread.h"
+#include "XMLThread.h"
 
 #include "SkeletonOptimizer.h" // Included for PolylinePlus struct.
 
-class SkeletonLoaderSaver /* : public ofThread */ {
+class SkeletonLoaderSaver {//: public ofThread {
 
 	public:
 	
-	/*
+	
 	SkeletonLoaderSaver();
 	~SkeletonLoaderSaver();
-	 */
+    
+    
+//    void    start();
+//    void    stop();
+//    void    threadedFunction();
+    
+    // ofEvent CallBack loading XML
+    void recordingSaved(string & filename);
+    void recordingLoaded(ofxXmlSettings & xml);
 	
 	void	initialize(int w, int h);
 	void	loadXMLRecording (string &xmlFilename, bool bFileIsZipped);
@@ -45,8 +53,8 @@ class SkeletonLoaderSaver /* : public ofThread */ {
 	int		maxNRecordingFrames;
 	
 	
-	ofxXmlSettings *readXML;
-	ofxXmlSettings *saveXML;
+	ofxXmlSettings readXML;
+	ofxXmlSettings saveXML;
 	
 	vector<PolylinePlus>		 currentPlaybackDrawing; // the current frame of the now-playing sequence
 	vector<vector<PolylinePlus>> currentPlaybackFrames;  // the sequence of currently re-playing drawings
@@ -62,4 +70,9 @@ class SkeletonLoaderSaver /* : public ofThread */ {
 	int		buffer_w;
 	int		buffer_h;
 
+    vector<string> savedFiles;
+    
+    XMLThread xmlThread;
+    
+    
 };
