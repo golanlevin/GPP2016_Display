@@ -553,7 +553,7 @@ void ofApp::draw(){
     ofScale(mainDisplayAreaScale, mainDisplayAreaScale); // 705x705
 	
 	ofFill();
-	ofSetColor(0,0,0);
+	ofSetColor(32,32,32);
 	ofDrawRectangle(0,0, displayW,displayW); // yes, square.
 	if (bDrawGrayProxy){
 		ofSetHexColor(0x202020);
