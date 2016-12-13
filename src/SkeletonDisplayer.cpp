@@ -7,13 +7,18 @@ void SkeletonDisplayer::initialize(int w, int h){
 	buffer_w = w;
 	buffer_h = h;
 	
+	bDoQuadWarping		= true; 
 	bClosedTSP			= false;
 	tspElapsed			= 0;
 	nOptimizePasses		= 2;
 	maxNBonesForTSP		= 60;
 	
 	combinedDrawing.clear();
+	warpedCombinedDrawing.clear();
 	optimizedDrawing.clear();
+	
+	DSM = new DisplaySettingsManager();
+	DQW = new DisplayQuadWarper (DSM); 
 }
 
 //--------------------------------------------------------------
@@ -35,49 +40,122 @@ void SkeletonDisplayer::update(){
 //--------------------------------------------------------------
 void SkeletonDisplayer::compileFinalDrawing(){
 	
+	//--------------------
 	// 1. Fetch the "live" drawing (if any) from SkeletonTracer;
 	vector<PolylinePlus> &theRawDrawing				= mySkeletonTracer->theRawDrawing;
 	
+	//--------------------
 	// 2. Fetch the "playback" drawing (if any) from SkeletonLoaderSaver
 	vector<PolylinePlus> &currentPlaybackDrawing	= mySkeletonLoaderSaver->currentPlaybackDrawing;
 	
+	//--------------------
 	// 3. Combine these into combinedDrawing, producing: vector<PolylinePlus>
 	combinedDrawing.clear();
+	
+	// Apply offsets (scale & translation) to various parts NOW
 	
 	// Add mySkeletonTracer's theRawDrawing;
 	if (theRawDrawing.size() > 0){
 		for (int i=0; i<theRawDrawing.size(); i++){
-			PolylinePlus ithPP = theRawDrawing[i];
-			combinedDrawing.push_back(ithPP);
+			// PolylinePlus ithPP = theRawDrawing[i];
+			combinedDrawing.push_back(theRawDrawing[i]); //ithPP);
 		}
 	}
 	
 	// Add mySkeletonLoaderSaver's currentPlaybackDrawing;
 	if (currentPlaybackDrawing.size() > 0){
 		for (int i=0; i<currentPlaybackDrawing.size(); i++){
-			PolylinePlus ithPP = currentPlaybackDrawing[i];
-			combinedDrawing.push_back(ithPP);
+			// PolylinePlus ithPP = currentPlaybackDrawing[i];
+			combinedDrawing.push_back(currentPlaybackDrawing[i]); //ithPP);
 		}
 	}
 	
-	// 4. Optimize the order of the PolylinePlus's using SkeletonOptimizer
+	// Count total number of points in combinedDrawing
+	countTotalPoints();
+	
+	//--------------------
+	// 4. Apply quad warping to combinedDrawing, producing warpedCombinedDrawing
+	computeQuadWarpedDrawing (combinedDrawing);
+	
+	//--------------------
+	// 5. Optimize the order of the PolylinePlus's using SkeletonOptimizer
 	// Producing: vector<PolylinePlus> optimizedDrawing
-	optimallyReorderRawDrawing();
+	optimallyReorderDrawing (warpedCombinedDrawing);
 
 }
 
 
 //------------------------------------------------------------
-void SkeletonDisplayer::optimallyReorderRawDrawing(){
+void SkeletonDisplayer::computeQuadWarpedDrawing (vector<PolylinePlus> &drawingToWarp){
+	
+	if (bDoQuadWarping){
+		
+		warpedCombinedDrawing.clear();
+		int nPolylinePluses = drawingToWarp.size();
+		for (int i=0; i<nPolylinePluses; i++){
+			
+			PolylinePlus ithPP = drawingToWarp[i];
+			ofPolyline aPolylineToWarp = ithPP.polyline;
+			
+			PolylinePlus	aWarpedPolylinePlus;
+			ofPolyline		aWarpedPolyline;
+
+			aWarpedPolyline.clear();
+			int nPointsInPolyline = aPolylineToWarp.size();
+			for (int p=0; p<nPointsInPolyline; p++){
+				ofPoint aPointToWarp = aPolylineToWarp[p];
+				float inx = aPointToWarp.x;
+				float iny = aPointToWarp.y;
+				
+				float* warpedFloatPair = DQW->warpPointInRect (inx, iny, 1.0, 1.0);
+				
+				float outx = warpedFloatPair[0];
+				float outy = warpedFloatPair[1];
+				aWarpedPolyline.addVertex(outx, outy);
+			}
+			
+			aWarpedPolylinePlus.polyline = aWarpedPolyline;
+			aWarpedPolylinePlus.r = ithPP.r;
+			aWarpedPolylinePlus.g = ithPP.g;
+			aWarpedPolylinePlus.b = ithPP.b;
+			
+			warpedCombinedDrawing.push_back (aWarpedPolylinePlus);
+		}
+		
+	} else {
+		
+		// If bDoQuadWarping is false
+		warpedCombinedDrawing.clear();
+		int nPolylinePluses = drawingToWarp.size();
+		for (int i=0; i<nPolylinePluses; i++){
+			PolylinePlus ithPP = drawingToWarp[i];
+			warpedCombinedDrawing.push_back (ithPP);
+		}
+	}
+}
+
+
+
+//------------------------------------------------------------
+void SkeletonDisplayer::countTotalPoints(){
+	totalNPoints = 0;
+	int nPolylinePluses = combinedDrawing.size();
+	for (int i=0; i<nPolylinePluses; i++){
+		totalNPoints += (combinedDrawing[i].polyline).size();
+	}
+}
+
+//------------------------------------------------------------
+void SkeletonDisplayer::optimallyReorderDrawing (vector<PolylinePlus> &drawingToReorder){
 	long then = ofGetElapsedTimeMicros();
 	
 	optimizedDrawing.clear();
-	nCombinedPolylinePluses = combinedDrawing.size();
+	nCombinedPolylinePluses = drawingToReorder.size();
 	
 	if (nCombinedPolylinePluses > 0){
 		if ((bDoOptimizeTSP) && (nCombinedPolylinePluses < maxNBonesForTSP)){
 			
-			mySkeletonOptimizer.optimallyReorderBones(combinedDrawing, nOptimizePasses, bClosedTSP);
+			mySkeletonOptimizer.optimallyReorderBones(drawingToReorder, nOptimizePasses, bClosedTSP);
 			optimizedDrawing = mySkeletonOptimizer.theOptimizedDrawing;
 			optimizationAmount = mySkeletonOptimizer.optimizationAmount;
 			
@@ -86,14 +164,14 @@ void SkeletonDisplayer::optimallyReorderRawDrawing(){
 			// Copy directly into theOptimizedDrawing instead,
 			// with no reordering-based (TSP) optimization.
 			for (int i=0; i<nCombinedPolylinePluses; i++){
-				PolylinePlus aPolylinePlus = combinedDrawing[i];
+				PolylinePlus aPolylinePlus = drawingToReorder[i];
 				optimizedDrawing.push_back(aPolylinePlus);
 			}
 		}
 	}
 	
 	long now = ofGetElapsedTimeMicros();
-	float A = 0.95; float B = 1.0-A;
+	float A = 0.98; float B = 1.0-A;
 	tspElapsed = A*tspElapsed + B*(now-then);
 }
 
@@ -113,7 +191,15 @@ void SkeletonDisplayer::renderToScreen(){
 	renderVectorOfPolylinePluses (optimizedDrawing);
 	
 	ofPopMatrix();
-	glPopAttrib(); // Restore blend mode default.
+	glPopAttrib(); // Restore blend mode defaults
+}
+
+//--------------------------------------------------------------
+void SkeletonDisplayer::renderDisplayQuadWarper(){
+	ofPushMatrix();
+	if (bUseNormalizedDrawings){ ofScale(buffer_w, buffer_w); }
+	DQW->drawBoundary();
+	ofPopMatrix();
 }
 
 //--------------------------------------------------------------

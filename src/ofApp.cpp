@@ -16,6 +16,7 @@ void ofApp::setup(){
 	proxyCaptureW = 320;
 	proxyCaptureH = 240;
 	displayScale = 0.75;
+	mainDisplayAreaScale = 2.9375;
 	displayW = proxyCaptureW * displayScale;
 	displayH = proxyCaptureH * displayScale;
 	displayM = 8;
@@ -89,7 +90,7 @@ void ofApp::initializeGui(){
     inputGuiPanel.add(inputLineResample.setup	("inputLineResample",	3.0, 1.0, 11.0));
     inputGuiPanel.add(contourThickness.setup	("contourThickness",	2, 0,8));
     inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
-	inputGuiPanel.add(bDrawGrayProxy.setup		("bDrawGrayProxy",		true));
+	inputGuiPanel.add(bDrawGrayProxy.setup		("bDrawGrayProxy",		false));
     
     inputGuiPanel.add(boneResampling.setup		("boneResampling",		3.0, 1.0, 11.0));
     inputGuiPanel.add(boneSmoothSigma.setup		("boneSmoothSigma",		0.9, 0.0, 3.0));
@@ -534,32 +535,35 @@ void ofApp::draw(){
     mySkeletonTracer->drawStateImage();
     ofPopMatrix();
     int tspMicros	= (int)(mySkeletonDisplayer.tspElapsed);
+	int totalNPts	= mySkeletonDisplayer.totalNPoints;
 	int nTspBones	= mySkeletonDisplayer.nCombinedPolylinePluses;
 	int optim		= (int)(100.0 * mySkeletonDisplayer.optimizationAmount);
+	
     ofSetColor(255,255,0);
     ofDrawBitmapString( "TSP: " + ofToString(tspMicros) + " us", displayX+5,displayY+16);
-	ofDrawBitmapString( "#PP: " + ofToString(nTspBones)        , displayX+5,displayY+30);
-	ofDrawBitmapString( "%Op: " + ofToString(optim)		+ "%"  , displayX+5,displayY+44);
+	ofDrawBitmapString( "#Pt: " + ofToString(totalNPts)        , displayX+5,displayY+30);
+	ofDrawBitmapString( "#PP: " + ofToString(nTspBones)        , displayX+5,displayY+44);
+	ofDrawBitmapString( "%Op: " + ofToString(optim)		+ "%"  , displayX+5,displayY+58);
     
     // 6. Draw the bones.
     ofPushMatrix();
     displayX = 2*displayW + 3*displayM;
     displayY = 0*displayH + 1*displayM;
     ofTranslate(displayX,displayY);
-    ofScale(3.2, 3.2);
+    ofScale(mainDisplayAreaScale, mainDisplayAreaScale); // 705x705
+	
+	ofFill();
+	ofSetColor(0,0,0);
+	ofDrawRectangle(0,0, displayW,displayW); // yes, square.
 	if (bDrawGrayProxy){
 		ofSetHexColor(0x202020);
 		filledContourImage.draw(0,0, displayW,displayH);
-		// proxyColorImage.draw(0,0, displayW,displayH);
-	} else {
-		ofFill();
-		ofSetColor(0,0,0);
-		ofDrawRectangle(0,0, displayW,displayH);
 	}
 	
 	ofScale(displayScale, displayScale);
 	mySkeletonDisplayer.bShowPathBetweenBones = true;
 	mySkeletonDisplayer.renderToScreen();
+	mySkeletonDisplayer.renderDisplayQuadWarper(); 
 	
 	// mySkeletonLoaderSaver->drawCurrentPlaybackFrame();
     ofPopMatrix();
@@ -571,6 +575,8 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	mySkeletonDisplayer.DQW->setCalibrationMode(-1);
+	
     switch (key){
         case ' ':
             if (bUseProxyVideoInsteadOfOSC){
@@ -589,23 +595,30 @@ void ofApp::keyPressed(int key){
             
         case 'S':
             inputGuiPanel.saveToFile("settings/GPPSettings.xml");
+			mySkeletonDisplayer.DQW->saveCalibration();
             break;
         case 'L':
             inputGuiPanel.loadFromFile("settings/GPPSettings.xml");
             break;
-        case 'E':
-            mySkeletonTracer->exportVectorGraphics();
-            break;
+			
+		case '1':
+			mySkeletonDisplayer.DQW->setCalibrationMode(0); break;
+		case '2':
+			mySkeletonDisplayer.DQW->setCalibrationMode(1); break;
+		case '3':
+			mySkeletonDisplayer.DQW->setCalibrationMode(2); break;
+		case '4':
+			mySkeletonDisplayer.DQW->setCalibrationMode(3); break;
             
-        case '1':
+        case '8':
             proxyVideoPlayer.load(proxyVideoFilenames[0]);
             proxyVideoPlayer.play();
             break;
-        case '2':
+        case '9':
             proxyVideoPlayer.load(proxyVideoFilenames[1]);
             proxyVideoPlayer.play();
             break;
-        case '3':
+        case '0':
             proxyVideoPlayer.load(proxyVideoFilenames[2]);
             proxyVideoPlayer.play();
             break;
@@ -632,7 +645,18 @@ void ofApp::keyReleased(int key){}
 void ofApp::mouseMoved(int x, int y ){}
 
 //--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){}
+void ofApp::mouseDragged(int x, int y, int button){
+	
+	// Handle adjustment for display quad warper control points.
+	float mainDisplayAreaX = 2*displayW + 3*displayM;
+	float mainDisplayAreaY = 0*displayH + 1*displayM;
+	float mainDisplayAreaW = displayW * mainDisplayAreaScale;
+	
+	float x01 = (mouseX - mainDisplayAreaX)/mainDisplayAreaW;
+	float y01 = (mouseY - mainDisplayAreaY)/mainDisplayAreaW; // yes, W*W
+	
+	mySkeletonDisplayer.DQW->mouseDown(x01, y01);
+}
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button){}

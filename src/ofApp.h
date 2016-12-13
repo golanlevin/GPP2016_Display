@@ -122,6 +122,7 @@ class ofApp : public ofBaseApp{
 	
 	SkeletonLoaderSaver		*mySkeletonLoaderSaver;
 	SkeletonDisplayer		mySkeletonDisplayer;
+	float					mainDisplayAreaScale;
 
 
 };

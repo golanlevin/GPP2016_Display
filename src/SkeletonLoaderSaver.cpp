@@ -219,7 +219,7 @@ void SkeletonLoaderSaver::transferFromXmlToCurrentDrawing(){
 				readXML->popTag(); // FRAME
 			}
 		}
-		ofLog(OF_LOG_WARNING, "Loaded %d frames.", nFramesInThisRecording);
+		ofLog(OF_LOG_NOTICE, "Loaded %d frames.", nFramesInThisRecording);
 	}
 }
 

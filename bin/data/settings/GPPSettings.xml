@@ -6,4 +6,19 @@
 	<boneResampling>3</boneResampling>
 <Input_Settings/>
 <bSmoothHolesToo>0</bSmoothHolesToo>
+<group>
+		<proxyThreshold>80</proxyThreshold>
+		<inputLineSmoothing>5</inputLineSmoothing>
+		<inputLineResample>3</inputLineResample>
+		<contourThickness>2</contourThickness>
+		<bSmoothHolesToo>0</bSmoothHolesToo>
+		<bDrawGrayProxy>0</bDrawGrayProxy>
+		<boneResampling>3</boneResampling>
+		<boneSmoothSigma>0.9</boneSmoothSigma>
+		<boneSmoothKernW>2</boneSmoothKernW>
+		<bDoMergeBones>1</bDoMergeBones>
+		<bDoOptimizeTSP>1</bDoOptimizeTSP>
+		<bClosedTSP>0</bClosedTSP>
+		<maxNBonesForTSP>60</maxNBonesForTSP>
+	</group>
 </Input_Settings>

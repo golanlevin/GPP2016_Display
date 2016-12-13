@@ -24,6 +24,8 @@
 		3B0E63AF1DF554B6009F5702 /* RouteOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63AA1DF554B6009F5702 /* RouteOptimizer.cpp */; };
 		3B0E63B41DF6D578009F5702 /* SkeletonOptimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E63B21DF6D578009F5702 /* SkeletonOptimizer.cpp */; };
 		3B1D9C841DFFE6D900DFAF7E /* SkeletonDisplayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B1D9C821DFFE6D900DFAF7E /* SkeletonDisplayer.cpp */; };
+		3B1D9C881E00155B00DFAF7E /* DisplayQuadWarper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B1D9C871E00155B00DFAF7E /* DisplayQuadWarper.cpp */; };
+		3B1D9C8B1E0019E200DFAF7E /* DisplaySettingsManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B1D9C891E0019E200DFAF7E /* DisplaySettingsManager.cpp */; };
 		3B2A061E1DFC3B1500EF06F3 /* Skeletonizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A061C1DFC3B1500EF06F3 /* Skeletonizer.cpp */; };
 		3B2A062F1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A062D1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp */; };
 		3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B67E7341DEACF930053090C /* SkeletonTracer.cpp */; };
@@ -184,6 +186,12 @@
 		3B0E63B31DF6D578009F5702 /* SkeletonOptimizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonOptimizer.h; sourceTree = "<group>"; };
 		3B1D9C821DFFE6D900DFAF7E /* SkeletonDisplayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonDisplayer.cpp; sourceTree = "<group>"; };
 		3B1D9C831DFFE6D900DFAF7E /* SkeletonDisplayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonDisplayer.h; sourceTree = "<group>"; };
+		3B1D9C861E00155B00DFAF7E /* DisplayQuadWarper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DisplayQuadWarper.h; path = displayQuadWarper/DisplayQuadWarper.h; sourceTree = "<group>"; };
+		3B1D9C871E00155B00DFAF7E /* DisplayQuadWarper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DisplayQuadWarper.cpp; path = displayQuadWarper/DisplayQuadWarper.cpp; sourceTree = "<group>"; };
+		3B1D9C891E0019E200DFAF7E /* DisplaySettingsManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DisplaySettingsManager.cpp; path = displayQuadWarper/DisplaySettingsManager.cpp; sourceTree = "<group>"; };
+		3B1D9C8A1E0019E200DFAF7E /* DisplaySettingsManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DisplaySettingsManager.h; path = displayQuadWarper/DisplaySettingsManager.h; sourceTree = "<group>"; };
+		3B1D9C8D1E00348200DFAF7E /* GPPSettings.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = GPPSettings.xml; path = bin/data/settings/GPPSettings.xml; sourceTree = "<group>"; };
+		3B1D9C8E1E00348200DFAF7E /* quad_settings.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = quad_settings.xml; path = bin/data/settings/quad_settings.xml; sourceTree = "<group>"; };
 		3B2A061C1DFC3B1500EF06F3 /* Skeletonizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Skeletonizer.cpp; sourceTree = "<group>"; };
 		3B2A061D1DFC3B1500EF06F3 /* Skeletonizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Skeletonizer.h; sourceTree = "<group>"; };
 		3B2A062D1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonLoaderSaver.cpp; sourceTree = "<group>"; };
@@ -192,7 +200,6 @@
 		3B67E7301DEACE120053090C /* GPP2016_DisplayDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPP2016_DisplayDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B67E7341DEACF930053090C /* SkeletonTracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonTracer.cpp; sourceTree = "<group>"; };
 		3B67E7351DEACF930053090C /* SkeletonTracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonTracer.h; sourceTree = "<group>"; };
-		3B67E7371DEB1C330053090C /* GPPSettings.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = GPPSettings.xml; path = bin/data/settings/GPPSettings.xml; sourceTree = SOURCE_ROOT; };
 		3BF0A0D41DFD899D00C404A1 /* ofxZip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxZip.h; path = ofxZip/src/ofxZip.h; sourceTree = "<group>"; };
 		3BF0A0D51DFD899D00C404A1 /* ofxZip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxZip.cpp; path = ofxZip/src/ofxZip.cpp; sourceTree = "<group>"; };
 		3CABCA8EA52D11C95F7A1309 /* registration.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = registration.h; path = ../../../addons/ofxKinect/libs/libfreenect/src/registration.h; sourceTree = SOURCE_ROOT; };
@@ -692,6 +699,26 @@
 				3B0E63AB1DF554B6009F5702 /* RouteOptimizer.h */,
 			);
 			path = tsp;
+			sourceTree = "<group>";
+		};
+		3B1D9C851E00153600DFAF7E /* DisplayQuadWarper */ = {
+			isa = PBXGroup;
+			children = (
+				3B1D9C8A1E0019E200DFAF7E /* DisplaySettingsManager.h */,
+				3B1D9C891E0019E200DFAF7E /* DisplaySettingsManager.cpp */,
+				3B1D9C861E00155B00DFAF7E /* DisplayQuadWarper.h */,
+				3B1D9C871E00155B00DFAF7E /* DisplayQuadWarper.cpp */,
+			);
+			name = DisplayQuadWarper;
+			sourceTree = "<group>";
+		};
+		3B1D9C8C1E00346E00DFAF7E /* settings */ = {
+			isa = PBXGroup;
+			children = (
+				3B1D9C8D1E00348200DFAF7E /* GPPSettings.xml */,
+				3B1D9C8E1E00348200DFAF7E /* quad_settings.xml */,
+			);
+			name = settings;
 			sourceTree = "<group>";
 		};
 		3B8F70BFDA30BBA2A5A060FC /* photo */ = {
@@ -1208,6 +1235,7 @@
 		E4B69B4A0A3A1720003C02F2 = {
 			isa = PBXGroup;
 			children = (
+				3B1D9C8C1E00346E00DFAF7E /* settings */,
 				E4B6FCAD0C3E899E008CF71C /* openFrameworks-Info.plist */,
 				E4EB6923138AFD0F00A09F29 /* Project.xcconfig */,
 				E4B69E1C0A3A1BDC003C02F2 /* src */,
@@ -1221,7 +1249,6 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				3B67E7371DEB1C330053090C /* GPPSettings.xml */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
@@ -1235,6 +1262,7 @@
 				3B2A062E1DFCD29800EF06F3 /* SkeletonLoaderSaver.h */,
 				3B1D9C821DFFE6D900DFAF7E /* SkeletonDisplayer.cpp */,
 				3B1D9C831DFFE6D900DFAF7E /* SkeletonDisplayer.h */,
+				3B1D9C851E00153600DFAF7E /* DisplayQuadWarper */,
 				3BF0A0D31DFD894700C404A1 /* ofxZip */,
 				3B0E63A21DF554B6009F5702 /* tsp */,
 			);
@@ -1466,6 +1494,7 @@
 				E55DEEF784A10419E444669E /* flags.c in Sources */,
 				21A059755481CC0BF969FD2D /* keep_alive.c in Sources */,
 				FCC16AB16073FF0581F50ED7 /* loader.c in Sources */,
+				3B1D9C881E00155B00DFAF7E /* DisplayQuadWarper.cpp in Sources */,
 				3B0E63AC1DF554B6009F5702 /* LaserDefs.cpp in Sources */,
 				D31F5C1B140C59B2AF1533A8 /* registration.c in Sources */,
 				49BEEB2DFA5319D55AA6899F /* tilt.c in Sources */,
@@ -1501,6 +1530,7 @@
 				9D44DC88EF9E7991B4A09951 /* tinyxmlerror.cpp in Sources */,
 				3B2A061E1DFC3B1500EF06F3 /* Skeletonizer.cpp in Sources */,
 				5A4349E9754D6FA14C0F2A3A /* tinyxmlparser.cpp in Sources */,
+				3B1D9C8B1E0019E200DFAF7E /* DisplaySettingsManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

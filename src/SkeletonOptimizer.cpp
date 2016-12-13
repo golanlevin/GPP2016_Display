@@ -44,7 +44,7 @@ void SkeletonOptimizer::optimallyReorderBones(vector<PolylinePlus> &theRawDrawin
 				}
 			}
 			
-			float A = 0.96; float B = 1.0-A;
+			float A = 0.98; float B = 1.0-A;
 			optimizationAmount = A*optimizationAmount + B*(1.0-frac);
 			
 		}
