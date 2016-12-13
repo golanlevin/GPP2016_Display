@@ -125,7 +125,7 @@ void SkeletonLoaderSaver::addFrameToCurrentRecording (vector<PolylinePlus> &theR
 //---------------------------------
 void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRecording (int which){
     
-    if(savedFiles.size() >= which){
+    if(savedFiles.size() >= which && savedFiles.size() > 0){
         string xmlFilename = savedFiles[which];
         cout<<"loading "<<xmlFilename<<endl;
         loadXMLRecording(xmlFilename, bUseZippedFiles);
