@@ -20,7 +20,7 @@ class SkeletonDisplayer {
 	ofxIlda::Frame	ildaFrame;	// Data structure to store and manage ILDA frame drawings
 	ofxEtherdream	etherdream; // The interface to the etherdream device
 	void			generateAndSendIldaFrame();
-	vector<Poly>	laserPolys;
+	vector<ofxIlda::Poly>	laserPolys;
 	
 	
 	void	initialize(int w, int h);
