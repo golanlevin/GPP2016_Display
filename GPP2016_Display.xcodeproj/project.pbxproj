@@ -30,6 +30,7 @@
 		3B2A062F1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A062D1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp */; };
 		3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B67E7341DEACF930053090C /* SkeletonTracer.cpp */; };
 		3BF0A0D61DFD899D00C404A1 /* ofxZip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BF0A0D51DFD899D00C404A1 /* ofxZip.cpp */; };
+		3DF13B291E0076F500600EB1 /* XMLThread.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3DF13B271E0076F500600EB1 /* XMLThread.cpp */; };
 		45CC483A999BF1065A6B926C /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DBD717072C35D324E101669 /* Distance.cpp */; };
 		483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D67A00EB899FAC09430597 /* ofxLabel.cpp */; };
 		49BEEB2DFA5319D55AA6899F /* tilt.c in Sources */ = {isa = PBXBuildFile; fileRef = BF2F2AA872288D30F53983EF /* tilt.c */; };
@@ -204,6 +205,8 @@
 		3BF0A0D51DFD899D00C404A1 /* ofxZip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxZip.cpp; path = ofxZip/src/ofxZip.cpp; sourceTree = "<group>"; };
 		3CABCA8EA52D11C95F7A1309 /* registration.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = registration.h; path = ../../../addons/ofxKinect/libs/libfreenect/src/registration.h; sourceTree = SOURCE_ROOT; };
 		3DBD37876A11E46E4D7069B3 /* cameras.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 30; name = cameras.c; path = ../../../addons/ofxKinect/libs/libfreenect/src/cameras.c; sourceTree = SOURCE_ROOT; };
+		3DF13B271E0076F500600EB1 /* XMLThread.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = XMLThread.cpp; sourceTree = "<group>"; };
+		3DF13B281E0076F500600EB1 /* XMLThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XMLThread.h; sourceTree = "<group>"; };
 		402C8F4015542356D362AC88 /* Calibration.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 30; name = Calibration.cpp; path = ../../../addons/ofxCv/libs/ofxCv/src/Calibration.cpp; sourceTree = SOURCE_ROOT; };
 		417A0B7154103C22ECC253E8 /* reduce_key_val.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = reduce_key_val.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/gpu/device/detail/reduce_key_val.hpp; sourceTree = SOURCE_ROOT; };
 		41E9090E543FC2D51BFD312C /* warp_reduce.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = warp_reduce.hpp; path = ../../../addons/ofxOpenCv/libs/opencv/include/opencv2/gpu/device/warp_reduce.hpp; sourceTree = SOURCE_ROOT; };
@@ -1249,6 +1252,8 @@
 		E4B69E1C0A3A1BDC003C02F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				3DF13B271E0076F500600EB1 /* XMLThread.cpp */,
+				3DF13B281E0076F500600EB1 /* XMLThread.h */,
 				E4B69E1D0A3A1BDC003C02F2 /* main.cpp */,
 				E4B69E1E0A3A1BDC003C02F2 /* ofApp.cpp */,
 				E4B69E1F0A3A1BDC003C02F2 /* ofApp.h */,
@@ -1499,6 +1504,7 @@
 				D31F5C1B140C59B2AF1533A8 /* registration.c in Sources */,
 				49BEEB2DFA5319D55AA6899F /* tilt.c in Sources */,
 				3B2A062F1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp in Sources */,
+				3DF13B291E0076F500600EB1 /* XMLThread.cpp in Sources */,
 				3B0E63AD1DF554B6009F5702 /* LaserProgram.cpp in Sources */,
 				255A7B680DC81E543C875794 /* usb_libusb10.c in Sources */,
 				250A95BA26587BE85DB0A353 /* ofxCvColorImage.cpp in Sources */,
@@ -1831,7 +1837,7 @@
 					../../../addons/ofxOpenCv/libs/opencv/lib/osx/opencv.a,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)Debug";
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx10.11;
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -1925,7 +1931,7 @@
 					../../../addons/ofxOpenCv/libs/opencv/lib/osx/opencv.a,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx10.9;
+				SDKROOT = macosx10.11;
 				WRAPPER_EXTENSION = app;
 				baseConfigurationReference = E4EB6923138AFD0F00A09F29;
 			};

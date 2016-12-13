@@ -27,6 +27,7 @@ SkeletonLoaderSaver::~SkeletonLoaderSaver(){
 
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::initialize(int w, int h){
+<<<<<<< HEAD
     
     maxNRecordingFrames = 100;
     bDeleteOldestFramesWhenRecording = true;
@@ -57,6 +58,45 @@ void SkeletonLoaderSaver::initialize(int w, int h){
     
     ofAddListener(xmlThread.xmlSaved, this,  &SkeletonLoaderSaver::recordingSaved);
     ofAddListener(xmlThread.xmlLoaded, this,  &SkeletonLoaderSaver::recordingLoaded);
+=======
+	
+	maxNRecordingFrames = 100;
+	bDeleteOldestFramesWhenRecording = true;
+	bUseZippedFiles = true;
+	
+	readXML = new ofxXmlSettings();
+	readXML->clear();
+	
+	saveXML = new ofxXmlSettings();
+	saveXML->clear();
+	
+	currentPlaybackFrameIndex = 0;
+	currentPlaybackDrawing.clear();
+	currentPlaybackFrames.clear();
+	currentRecordingFrames.clear();
+	
+	bCurrentlyRecording	= false;
+	bLoadedFileFromXML	= false;
+	bPlaybackPaused		= false;
+	outputFileCounter	= 0;
+	
+	bUseNormalizedDrawings = true;
+	buffer_w = w;
+	buffer_h = h;
+	
+	string xmlFilename			= "recordings/test/recording_test.xml";
+	string zippedXmlFilename	= "recordings/test/recording_test.xml.zip";
+
+	bool bGenerateAndSaveBogus = false;
+	if (bGenerateAndSaveBogus){
+		generateBogusFrames();						// Put bogus (Lissajous) into currentRecordingFrames
+		transferCurrentRecordingToXML();			// Transfer currentRecordingFrames into saveXML
+		saveXMLRecording(zippedXmlFilename, true);	// Save from saveXML to filename.
+	}
+	
+	loadXMLRecording (zippedXmlFilename, true);
+	transferFromXmlToCurrentDrawing();
+>>>>>>> ae9d2dad55a255031bb31a4582598909601b5710
 }
 
 
