@@ -44,21 +44,20 @@ void DisplayQuadWarper::fetchSettings(){
 
 //===============================================================================================
 void DisplayQuadWarper::saveCalibration(){
-	// modify the settingManager's internal variables.
-	if (DSM != NULL){
-
-		for (int i=0; i<4; i++) {
-			DSM->DOQ.pts[i][0] = (int) calibration_points[i][0];
-			DSM->DOQ.pts[i][1] = (int) calibration_points[i][1];
-		}
-
-		DSM->saveSettings();
-		ofLogNotice()  << "DQW Calibration Written";
-	} else {
+    // modify the settingManager's internal variables.
+    if (DSM != NULL){
+        
+        for (int i=0; i<4; i++) {
+            DSM->DOQ.pts[i][0] = calibration_points[i][0];
+            DSM->DOQ.pts[i][1] = calibration_points[i][1];
+        }
+        
+        DSM->saveSettings();
+        ofLogNotice()  << "DQW Calibration Written";
+    } else {
         ofLogWarning() << "DQW Calibration NOT Written, DSM is null";
-	}
+    }
 }
-
 
 
 //===============================================================================================
