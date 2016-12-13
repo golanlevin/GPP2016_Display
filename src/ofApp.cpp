@@ -28,7 +28,7 @@ void ofApp::setup(){
 	proxyVideoFilenames[1] = "proxy/2_Lewis-Cascada_Input.mov";
 	proxyVideoFilenames[2] = "proxy/3_Group-Cascada_Input.mov";
 
-	proxyVideoPlayer.load(proxyVideoFilenames[2]);
+	proxyVideoPlayer.load(proxyVideoFilenames[1]);
 	proxyVideoPlayer.play();
 	proxyVideoPlayer.setLoopState(OF_LOOP_NORMAL);
 	proxyColorImage.allocate (proxyCaptureW,proxyCaptureH);
@@ -97,7 +97,7 @@ void ofApp::initializeGui(){
     inputGuiPanel.add(boneSmoothKernW.setup		("boneSmoothKernW",		2, 1, 7));
     inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		true));
     inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
-    inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			false));
+    inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			true));
     inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		60, 20,300));
     // inputGuiPanel.add(nOptimizePasses.setup		("nOptimizePasses",		2, 1, 5));
 }

@@ -243,7 +243,9 @@ void SkeletonDisplayer::renderVectorOfPolylinePluses (vector<PolylinePlus> &aDra
 		for (int i=0; i<nPolylinePlusses; i++){
 			PolylinePlus ithPP = aDrawing[i];
 			ofPolyline aBone = ithPP.polyline;
-			if (aBone.size() >= 2){
+			int nPointsInBone = aBone.size();
+			
+			if (nPointsInBone >= 2){
 				ofSetLineWidth(2.0);
 				ofSetColor(ithPP.r, ithPP.g, ithPP.b);
 				aBone.draw();
@@ -253,11 +255,11 @@ void SkeletonDisplayer::renderVectorOfPolylinePluses (vector<PolylinePlus> &aDra
 					y1 = aBone[0].y;
 					if ((i > 0) || (bClosedTSP)){
 						ofSetLineWidth(1.0);
-						ofSetColor(0,80,0);
+						ofSetColor(0,144,0);
 						ofDrawLine(x0,y0, x1,y1);
 					}
-					x0 = aBone[aBone.size()-1].x;
-					y0 = aBone[aBone.size()-1].y;
+					x0 = aBone[nPointsInBone-1].x;
+					y0 = aBone[nPointsInBone-1].y;
 				}
 			}
 		}

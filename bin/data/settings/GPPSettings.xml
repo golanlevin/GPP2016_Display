@@ -18,7 +18,7 @@
 		<boneSmoothKernW>2</boneSmoothKernW>
 		<bDoMergeBones>1</bDoMergeBones>
 		<bDoOptimizeTSP>1</bDoOptimizeTSP>
-		<bClosedTSP>0</bClosedTSP>
+		<bClosedTSP>1</bClosedTSP>
 		<maxNBonesForTSP>60</maxNBonesForTSP>
 	</group>
 </Input_Settings>

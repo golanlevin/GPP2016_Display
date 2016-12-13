@@ -41,12 +41,14 @@ void SkeletonLoaderSaver::initialize(int w, int h){
 	
 	string xmlFilename			= "recordings/test/recording_test.xml";
 	string zippedXmlFilename	= "recordings/test/recording_test.xml.zip";
-	
-	generateBogusFrames();						// Put bogus (Lissajous) into currentRecordingFrames
-	transferCurrentRecordingToXML();			// Transfer currentRecordingFrames into saveXML
-	saveXMLRecording(zippedXmlFilename, true);	// Save from saveXML to filename.
-	
 
+	bool bGenerateAndSaveBogus = false;
+	if (bGenerateAndSaveBogus){
+		generateBogusFrames();						// Put bogus (Lissajous) into currentRecordingFrames
+		transferCurrentRecordingToXML();			// Transfer currentRecordingFrames into saveXML
+		saveXMLRecording(zippedXmlFilename, true);	// Save from saveXML to filename.
+	}
+	
 	loadXMLRecording (zippedXmlFilename, true);
 	transferFromXmlToCurrentDrawing();
 }
