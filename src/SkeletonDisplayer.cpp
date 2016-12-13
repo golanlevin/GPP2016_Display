@@ -20,7 +20,11 @@ void SkeletonDisplayer::initialize(int w, int h){
 	optimizedDrawing.clear();
 	
 	DSM = new DisplaySettingsManager();
-	DQW = new DisplayQuadWarper (DSM); 
+	DQW = new DisplayQuadWarper (DSM);
+	
+	ofSetLogLevel(OF_LOG_VERBOSE);
+	etherdream.setup();
+	etherdream.setPPS(30000);
 }
 
 //--------------------------------------------------------------
@@ -88,9 +92,16 @@ void SkeletonDisplayer::compileFinalDrawing(){
 	// Producing: vector<PolylinePlus> finalDrawing
 	computeFinalDrawing (optimizedDrawing);
 	
+	// 7. Add finalDrawing to ildaFrame (for laser).
+	generateIldaFrame();
 
 }
 
+
+//------------------------------------------------------------
+void SkeletonDisplayer::generateIldaFrame(){
+	//
+}
 
 //------------------------------------------------------------
 void SkeletonDisplayer::computeQuadWarpedDrawing (vector<PolylinePlus> &drawingToWarp){
@@ -197,7 +208,7 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 					}
 					
 				} else {
-					// Generate a bezier curve. 
+					// Generate a bezier curve.
 					float x1 = x0 + bezierStrength*(x0 - iBone[nPointsInBonei-2].x);
 					float y1 = y0 + bezierStrength*(y0 - iBone[nPointsInBonei-2].y);
 					float x2 = x3 + bezierStrength*(x3 - jBone[1].x);
@@ -211,7 +222,7 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 					PolylinePlus connectivePolylinePlus;
 					connectivePolylinePlus.polyline = connectivePolyline;
 					connectivePolylinePlus.r = 0;
-					connectivePolylinePlus.g = 255;
+					connectivePolylinePlus.g = 0;//255
 					connectivePolylinePlus.b = 0;
 					
 					finalDrawing.push_back(connectivePolylinePlus); //---- ADD PP connective
@@ -260,8 +271,8 @@ void SkeletonDisplayer::renderToScreen(){
 	// Assumes that update() has been called. 
 	
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+	// glEnable(GL_BLEND);
+	// glBlendFunc(GL_ONE, GL_SRC_ALPHA); // Some other time, perhaps. 
 	ofPushMatrix();
 	
 	if (bUseNormalizedDrawings){ ofScale(buffer_w, buffer_w); }

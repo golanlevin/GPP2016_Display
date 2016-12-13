@@ -29,6 +29,9 @@
 		3B2A061E1DFC3B1500EF06F3 /* Skeletonizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A061C1DFC3B1500EF06F3 /* Skeletonizer.cpp */; };
 		3B2A062F1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A062D1DFCD29800EF06F3 /* SkeletonLoaderSaver.cpp */; };
 		3B67E7361DEACF930053090C /* SkeletonTracer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B67E7341DEACF930053090C /* SkeletonTracer.cpp */; };
+		3BA840181E007F82004E2479 /* etherdream.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BA840051E007F82004E2479 /* etherdream.c */; };
+		3BA8401A1E007F82004E2479 /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 3BA840081E007F82004E2479 /* test.c */; };
+		3BA8401E1E007F82004E2479 /* ofxEtherdream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BA8400D1E007F82004E2479 /* ofxEtherdream.cpp */; };
 		3BF0A0D61DFD899D00C404A1 /* ofxZip.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BF0A0D51DFD899D00C404A1 /* ofxZip.cpp */; };
 		45CC483A999BF1065A6B926C /* Distance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9DBD717072C35D324E101669 /* Distance.cpp */; };
 		483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78D67A00EB899FAC09430597 /* ofxLabel.cpp */; };
@@ -200,6 +203,17 @@
 		3B67E7301DEACE120053090C /* GPP2016_DisplayDebug.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GPP2016_DisplayDebug.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B67E7341DEACF930053090C /* SkeletonTracer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SkeletonTracer.cpp; sourceTree = "<group>"; };
 		3B67E7351DEACF930053090C /* SkeletonTracer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SkeletonTracer.h; sourceTree = "<group>"; };
+		3BA840001E007F82004E2479 /* protocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = protocol.h; sourceTree = "<group>"; };
+		3BA840051E007F82004E2479 /* etherdream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = etherdream.c; sourceTree = "<group>"; };
+		3BA840061E007F82004E2479 /* etherdream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = etherdream.h; sourceTree = "<group>"; };
+		3BA840081E007F82004E2479 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = test.c; sourceTree = "<group>"; };
+		3BA8400D1E007F82004E2479 /* ofxEtherdream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxEtherdream.cpp; sourceTree = "<group>"; };
+		3BA8400E1E007F82004E2479 /* ofxEtherdream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxEtherdream.h; sourceTree = "<group>"; };
+		3BA840131E007F82004E2479 /* ofxIldaFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxIldaFrame.h; sourceTree = "<group>"; };
+		3BA840141E007F82004E2479 /* ofxIldaPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxIldaPoint.h; sourceTree = "<group>"; };
+		3BA840151E007F82004E2479 /* ofxIldaPoly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxIldaPoly.h; sourceTree = "<group>"; };
+		3BA840161E007F82004E2479 /* ofxIldaPolyProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxIldaPolyProcessor.h; sourceTree = "<group>"; };
+		3BA840171E007F82004E2479 /* ofxIldaRenderTarget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxIldaRenderTarget.h; sourceTree = "<group>"; };
 		3BF0A0D41DFD899D00C404A1 /* ofxZip.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ofxZip.h; path = ofxZip/src/ofxZip.h; sourceTree = "<group>"; };
 		3BF0A0D51DFD899D00C404A1 /* ofxZip.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ofxZip.cpp; path = ofxZip/src/ofxZip.cpp; sourceTree = "<group>"; };
 		3CABCA8EA52D11C95F7A1309 /* registration.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = registration.h; path = ../../../addons/ofxKinect/libs/libfreenect/src/registration.h; sourceTree = SOURCE_ROOT; };
@@ -728,6 +742,88 @@
 				56ED74AD5FC73867F5E046F0 /* photo_c.h */,
 			);
 			name = photo;
+			sourceTree = "<group>";
+		};
+		3BA83FFA1E007F82004E2479 /* memotv */ = {
+			isa = PBXGroup;
+			children = (
+				3BA83FFB1E007F82004E2479 /* ofxEtherdream */,
+				3BA8400F1E007F82004E2479 /* ofxIlda */,
+			);
+			path = memotv;
+			sourceTree = "<group>";
+		};
+		3BA83FFB1E007F82004E2479 /* ofxEtherdream */ = {
+			isa = PBXGroup;
+			children = (
+				3BA83FFC1E007F82004E2479 /* libs */,
+				3BA8400C1E007F82004E2479 /* src */,
+			);
+			path = ofxEtherdream;
+			sourceTree = "<group>";
+		};
+		3BA83FFC1E007F82004E2479 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				3BA83FFD1E007F82004E2479 /* common */,
+				3BA840011E007F82004E2479 /* driver */,
+			);
+			path = libs;
+			sourceTree = "<group>";
+		};
+		3BA83FFD1E007F82004E2479 /* common */ = {
+			isa = PBXGroup;
+			children = (
+				3BA840001E007F82004E2479 /* protocol.h */,
+			);
+			path = common;
+			sourceTree = "<group>";
+		};
+		3BA840011E007F82004E2479 /* driver */ = {
+			isa = PBXGroup;
+			children = (
+				3BA840031E007F82004E2479 /* libetherdream */,
+			);
+			path = driver;
+			sourceTree = "<group>";
+		};
+		3BA840031E007F82004E2479 /* libetherdream */ = {
+			isa = PBXGroup;
+			children = (
+				3BA840051E007F82004E2479 /* etherdream.c */,
+				3BA840061E007F82004E2479 /* etherdream.h */,
+				3BA840081E007F82004E2479 /* test.c */,
+			);
+			path = libetherdream;
+			sourceTree = "<group>";
+		};
+		3BA8400C1E007F82004E2479 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				3BA8400D1E007F82004E2479 /* ofxEtherdream.cpp */,
+				3BA8400E1E007F82004E2479 /* ofxEtherdream.h */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		3BA8400F1E007F82004E2479 /* ofxIlda */ = {
+			isa = PBXGroup;
+			children = (
+				3BA840121E007F82004E2479 /* src */,
+			);
+			path = ofxIlda;
+			sourceTree = "<group>";
+		};
+		3BA840121E007F82004E2479 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				3BA840131E007F82004E2479 /* ofxIldaFrame.h */,
+				3BA840141E007F82004E2479 /* ofxIldaPoint.h */,
+				3BA840151E007F82004E2479 /* ofxIldaPoly.h */,
+				3BA840161E007F82004E2479 /* ofxIldaPolyProcessor.h */,
+				3BA840171E007F82004E2479 /* ofxIldaRenderTarget.h */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 		3BF0A0D31DFD894700C404A1 /* ofxZip */ = {
@@ -1262,6 +1358,7 @@
 				3B2A062E1DFCD29800EF06F3 /* SkeletonLoaderSaver.h */,
 				3B1D9C821DFFE6D900DFAF7E /* SkeletonDisplayer.cpp */,
 				3B1D9C831DFFE6D900DFAF7E /* SkeletonDisplayer.h */,
+				3BA83FFA1E007F82004E2479 /* memotv */,
 				3B1D9C851E00153600DFAF7E /* DisplayQuadWarper */,
 				3BF0A0D31DFD894700C404A1 /* ofxZip */,
 				3B0E63A21DF554B6009F5702 /* tsp */,
@@ -1460,6 +1557,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3BA8401E1E007F82004E2479 /* ofxEtherdream.cpp in Sources */,
 				3B1D9C841DFFE6D900DFAF7E /* SkeletonDisplayer.cpp in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				E4B69E210A3A1BDC003C02F2 /* ofApp.cpp in Sources */,
@@ -1479,6 +1577,7 @@
 				856AA354D08AB4B323081444 /* ofxBaseGui.cpp in Sources */,
 				5CBB2AB3A60F65431D7B555D /* ofxButton.cpp in Sources */,
 				B266578FC55D23BFEBC042E7 /* ofxGuiGroup.cpp in Sources */,
+				3BA8401A1E007F82004E2479 /* test.c in Sources */,
 				483908258D00B98B4BE69F07 /* ofxLabel.cpp in Sources */,
 				F285EB3169F1566CA3D93C20 /* ofxPanel.cpp in Sources */,
 				837220E80EB56CD44AD27F2A /* ofxSlider.cpp in Sources */,
@@ -1490,6 +1589,7 @@
 				686B0DF6249B52E1A85B39EC /* ofxKinect.cpp in Sources */,
 				0F8F016776681D468C0D0949 /* audio.c in Sources */,
 				ACE7DC9A3223ED5EE1B80074 /* cameras.c in Sources */,
+				3BA840181E007F82004E2479 /* etherdream.c in Sources */,
 				F4135EEFC911E9ED211FB6F9 /* core.c in Sources */,
 				E55DEEF784A10419E444669E /* flags.c in Sources */,
 				21A059755481CC0BF969FD2D /* keep_alive.c in Sources */,
