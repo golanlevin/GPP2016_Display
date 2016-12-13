@@ -21,6 +21,11 @@ class SkeletonDisplayer {
 	ofxEtherdream	etherdream; // The interface to the etherdream device
 	void			generateAndSendIldaFrame();
 	vector<ofxIlda::Poly>	laserPolys;
+	bool			bDoFlipX;
+	bool			bDoFlipY;
+	
+	bool			bConnectToYesterframeLastPoint;
+	ofPoint			yesterframeLastPoint;
 	
 	
 	void	initialize(int w, int h);

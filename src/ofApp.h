@@ -56,7 +56,6 @@ class ofApp : public ofBaseApp{
 	bool	bGetHoles;
 
 	bool	bProxyVideoPlayerPaused;
-	bool	bUseProxyVideoInsteadOfOSC;
 	void	captureProxyVideo(); 
 	void	computeContoursFromProxyVideo();
 	
@@ -97,6 +96,7 @@ class ofApp : public ofBaseApp{
 	void			initializeGui();
 	void			propagateGui();
 	
+	ofxToggle		bUseProxyVideoInsteadOfOSC;
 	ofxPanel		inputGuiPanel;
 	ofxIntSlider	proxyThreshold;
 	ofxFloatSlider	inputLineSmoothing;

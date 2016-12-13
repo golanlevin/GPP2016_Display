@@ -9,6 +9,12 @@ void SkeletonDisplayer::initialize(int w, int h){
 	
 	bDoQuadWarping		= true; 
 	bClosedTSP			= true;
+	bDoFlipX			= true;
+	bDoFlipY			= false;
+	
+	bConnectToYesterframeLastPoint = true;
+	yesterframeLastPoint.set(0.5, 0.5);
+	
 	tspElapsed			= 0;
 	nOptimizePasses		= 2;
 	maxNBonesForTSP		= 60;
@@ -118,6 +124,8 @@ void SkeletonDisplayer::generateAndSendIldaFrame(){
 			ildaFrame.addPoly(ithPP.polyline, ithPPColor);
 		}
 		
+		ildaFrame.params.output.transform.doFlipX = bDoFlipX;
+		ildaFrame.params.output.transform.doFlipY = bDoFlipY;
 		ildaFrame.update();
 		etherdream.setPoints(ildaFrame);
 	}
@@ -190,11 +198,51 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 	
 	finalDrawing.clear();
 	float bezierStrength = 3;
-	int bezierResolution = 3;
-	int nPtsForShortLine = 3;
+	int bezierResolution = 9;
+	int nPtsForShortLine = 4;
 	
 	int nPolylinePlusses = aDrawing.size();
 	if (nPolylinePlusses > 0){
+		
+		
+		if (bConnectToYesterframeLastPoint){
+			// What to do when the current frame starts at a
+			// different place than where last frame left off.
+			
+			float lastX = yesterframeLastPoint.x;
+			float lastY = yesterframeLastPoint.y;
+			
+			PolylinePlus firstPP = aDrawing[0];
+			ofPolyline firstPl = firstPP.polyline;
+			ofPoint firstPt = firstPl[0];
+			float firstX = firstPt.x;
+			float firstY = firstPt.y;
+
+			float distSinceYesterframe = ofDist(lastX,lastY, firstX,firstY);
+			if (distSinceYesterframe > minDistanceForConnection){
+				
+				ofPolyline connectivePolyline;
+				connectivePolyline.clear();
+				for (int j=0; j<=nPtsForShortLine; j++){
+					float px = ofMap(j,0,nPtsForShortLine, lastX,firstX);
+					float py = ofMap(j,0,nPtsForShortLine, lastY,firstY);
+					connectivePolyline.addVertex(px, py);
+				}
+				
+				PolylinePlus connectivePolylinePlus;
+				connectivePolylinePlus.polyline = connectivePolyline;
+				connectivePolylinePlus.r = 0;
+				connectivePolylinePlus.g = 0; //255;
+				connectivePolylinePlus.b = 0;
+				
+				finalDrawing.push_back(connectivePolylinePlus); //---- ADD yester connective
+				
+			}
+		}
+		
+		
+		
+		
 		
 		for (int i=0; i<nPolylinePlusses; i++){
 			PolylinePlus ithPP = aDrawing[i];
@@ -250,6 +298,18 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 				
 			}
 		}
+		
+		if (bConnectToYesterframeLastPoint){
+			PolylinePlus lastPP = finalDrawing.back();
+			ofPolyline lastPl = lastPP.polyline;
+			int nPts = lastPl.size();
+			ofPoint lastPt = lastPl[nPts-1];
+			float lastX = lastPt.x;
+			float lastY = lastPt.y;
+			yesterframeLastPoint.set(lastX, lastY);
+		}
+		
+		
 	}
 }
 

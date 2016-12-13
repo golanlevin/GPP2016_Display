@@ -3,6 +3,9 @@
 using namespace ofxCv;
 using namespace cv;
 
+
+// Clamp all points coming into etherdream (beziers!)
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 
@@ -35,7 +38,7 @@ void ofApp::setup(){
 	proxyColorImage.set(0);
 	
 	
-	bUseProxyVideoInsteadOfOSC	= false;
+	bUseProxyVideoInsteadOfOSC	= true;
 	bProxyVideoPlayerPaused		= false;
 	bGotAProxyFrame				= false;
 	
@@ -84,25 +87,29 @@ void ofApp::initializeGui(){
     
     ofxGuiSetDefaultWidth(displayW);
     inputGuiPanel.setup("Settings", "settings/GPPSettings.xml", displayM, (displayM*3)+(displayH*2));
-    
+	
+	
+	inputGuiPanel.add(bUseProxyVideoInsteadOfOSC.setup ("bUseProxyVideoInsteadOfOSC",		true));
+	
     inputGuiPanel.add(proxyThreshold.setup		("proxyThreshold",		80, 0,254));
     inputGuiPanel.add(inputLineSmoothing.setup	("inputLineSmoothing",	5.0, 0.0, 16.0));
     inputGuiPanel.add(inputLineResample.setup	("inputLineResample",	3.0, 1.0, 11.0));
     inputGuiPanel.add(contourThickness.setup	("contourThickness",	2, 0,8));
     inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
-	inputGuiPanel.add(bDrawGrayProxy.setup		("bDrawGrayProxy",		false));
+//	inputGuiPanel.add(bDrawGrayProxy.setup		("bDrawGrayProxy",		false));
     
     inputGuiPanel.add(boneResampling.setup		("boneResampling",		3.0, 1.0, 11.0));
     inputGuiPanel.add(boneSmoothSigma.setup		("boneSmoothSigma",		0.9, 0.0, 3.0));
     inputGuiPanel.add(boneSmoothKernW.setup		("boneSmoothKernW",		2, 1, 7));
     inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		true));
     inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
-    // inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			true));
+//	inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			true));
     inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		60, 20,300));
-    // inputGuiPanel.add(nOptimizePasses.setup		("nOptimizePasses",		2, 1, 5));
+//	inputGuiPanel.add(nOptimizePasses.setup		("nOptimizePasses",		2, 1, 5));
 	
 	inputGuiPanel.add(blankCount.setup			("blankCount",			0, 0,30));
 	inputGuiPanel.add(endCount.setup			("endCount",			8, 0,30));
+	//inputGuiPanel.add(
 }
 
 
@@ -550,13 +557,15 @@ void ofApp::draw(){
 	ofDrawBitmapString( "#Pt: " + ofToString(totalNPts)        , displayX+5,displayY+30);
 	ofDrawBitmapString( "#PP: " + ofToString(nTspBones)        , displayX+5,displayY+44);
 	ofDrawBitmapString( "%Op: " + ofToString(optim)		+ "%"  , displayX+5,displayY+58);
-    
+	
+	//-------------------------
     // 6. Draw the bones.
     ofPushMatrix();
     displayX = 2*displayW + 3*displayM;
     displayY = 0*displayH + 1*displayM;
     ofTranslate(displayX,displayY);
-    ofScale(mainDisplayAreaScale, mainDisplayAreaScale); // 705x705
+    ofScale(mainDisplayAreaScale, 0-mainDisplayAreaScale); // 705x705
+	ofTranslate(0, 0-displayW); // coordinate system is flipped.
 	
 	ofFill();
 	ofSetColor(32,32,32);
@@ -658,8 +667,8 @@ void ofApp::mouseDragged(int x, int y, int button){
 	float mainDisplayAreaY = 0*displayH + 1*displayM;
 	float mainDisplayAreaW = displayW * mainDisplayAreaScale;
 	
-	float x01 = (mouseX - mainDisplayAreaX)/mainDisplayAreaW;
-	float y01 = (mouseY - mainDisplayAreaY)/mainDisplayAreaW; // yes, W*W
+	float x01 =       (mouseX - mainDisplayAreaX)/mainDisplayAreaW;
+	float y01 = 1.0 - (mouseY - mainDisplayAreaY)/mainDisplayAreaW; // yes, W*W
 	
 	mySkeletonDisplayer.DQW->mouseDown(x01, y01);
 }

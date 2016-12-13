@@ -22,5 +22,6 @@
 		<maxNBonesForTSP>60</maxNBonesForTSP>
 	<blankCount>0</blankCount>
 		<endCount>8</endCount>
+	<bUseProxyVideoInsteadOfOSC>1</bUseProxyVideoInsteadOfOSC>
 	</group>
 </Input_Settings>
