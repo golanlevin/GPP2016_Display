@@ -25,10 +25,13 @@ class SkeletonDisplayer {
 	void	renderDisplayQuadWarper();
 	void	renderToLaser();
 	void	renderVectorOfPolylinePluses (vector<PolylinePlus> &aDrawing);
+	void	renderVectorOfPolylinePlusesWithConnectors (vector<PolylinePlus> &aDrawing);
 	
 	vector<PolylinePlus> combinedDrawing;		// 1. Combination of live & playback
 	vector<PolylinePlus> warpedCombinedDrawing;	// 2. Quad-warped combination drawing
-	vector<PolylinePlus> optimizedDrawing;		// 3. Final optimized drawing
+	vector<PolylinePlus> optimizedDrawing;		// 3. Optimized drawing (order & direction)
+	vector<PolylinePlus> finalDrawing;			// 4. Final drawing: Optimized, + black connections.
+	
 	
 	SkeletonTracer		*mySkeletonTracer;
 	SkeletonLoaderSaver	*mySkeletonLoaderSaver;
@@ -48,6 +51,7 @@ class SkeletonDisplayer {
 	
 	SkeletonOptimizer		mySkeletonOptimizer;
 	void					optimallyReorderDrawing (vector<PolylinePlus> &drawingToReorder);
+	void					computeFinalDrawing (vector<PolylinePlus> &optimizedDrawing);
 	bool					bDoOptimizeTSP;
 	bool					bClosedTSP;
 	int						nCombinedPolylinePluses;
@@ -55,5 +59,7 @@ class SkeletonDisplayer {
 	int						nOptimizePasses;
 	float					tspElapsed;
 	float					optimizationAmount;
+	float					minDistanceForBezier;
+	float					minDistanceForConnection;
 
 };
