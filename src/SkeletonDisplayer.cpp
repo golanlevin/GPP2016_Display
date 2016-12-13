@@ -22,11 +22,14 @@ void SkeletonDisplayer::initialize(int w, int h){
 	DSM = new DisplaySettingsManager();
 	DQW = new DisplayQuadWarper (DSM);
 	
-	/*
-	ofSetLogLevel(OF_LOG_VERBOSE);
-	etherdream.setup();
-	etherdream.setPPS(30000);
-	 */
+	bUsingLaser = true;
+	if (bUsingLaser){
+		ofSetLogLevel(OF_LOG_VERBOSE);
+		etherdream.setup();
+		etherdream.setPPS(30000);
+		ofSetLogLevel(OF_LOG_NOTICE);
+	}
+
 }
 
 //--------------------------------------------------------------
@@ -94,15 +97,31 @@ void SkeletonDisplayer::compileFinalDrawing(){
 	// Producing: vector<PolylinePlus> finalDrawing
 	computeFinalDrawing (optimizedDrawing);
 	
-	// 7. Add finalDrawing to ildaFrame (for laser).
-	generateIldaFrame();
+	// 7. Add finalDrawing to ildaFrame, and send points to the etherdream DAC
+	generateAndSendIldaFrame();
+	
 
 }
 
 
 //------------------------------------------------------------
-void SkeletonDisplayer::generateIldaFrame(){
-	//
+void SkeletonDisplayer::generateAndSendIldaFrame(){
+	if (bUsingLaser){
+		
+		laserPolys.clear();
+		int nPolylinePluses = finalDrawing.size();
+		for (int i=0; i<nPolylinePluses; i++){
+			PolylinePlus ithPP = finalDrawing[i];
+			ofxIlda::Poly aPoly;
+			aPoly.setFromPolyline(ithPP.polyline);
+			aPoly.color.set(ithPP.r, ithPP.g, ithPP.b);
+			laserPolys.push_back(aPoly);
+		}
+		
+		ildaFrame.setProcessedPolys (laserPolys);
+		ildaFrame.updateFinalPoints();
+		etherdream.setPoints(ildaFrame);
+	}
 }
 
 //------------------------------------------------------------

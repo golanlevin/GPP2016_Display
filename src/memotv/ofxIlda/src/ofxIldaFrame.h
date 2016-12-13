@@ -314,7 +314,12 @@ namespace ofxIlda {
             
             return p;
         }
-        
+		
+		//--------------------------------------------------------------
+		void setProcessedPolys (vector<Poly> &newPolys){
+			processedPolys = newPolys;
+		}
+		
         //--------------------------------------------------------------
         void updateFinalPoints() {
             points.clear();
