@@ -10,13 +10,17 @@
 #include "DisplaySettingsManager.h"
 #include "DisplayQuadWarper.h"
 #include "ofxEtherdream.h"
+#include "ofxIldaFrame.h"
 
 class SkeletonDisplayer {
 	
 	public:
 	
-	ofxIlda::Frame ildaFrame;   // Data structure to store and manage ILDA frame drawings
-	ofxEtherdream etherdream;   // The interface to the etherdream device
+	bool			bUsingLaser;
+	ofxIlda::Frame	ildaFrame;	// Data structure to store and manage ILDA frame drawings
+	ofxEtherdream	etherdream; // The interface to the etherdream device
+	void			generateAndSendIldaFrame();
+	vector<Poly>	laserPolys;
 	
 	
 	void	initialize(int w, int h);
@@ -31,7 +35,7 @@ class SkeletonDisplayer {
 	void	renderVectorOfPolylinePluses (vector<PolylinePlus> &aDrawing);
 	void	renderVectorOfPolylinePlusesWithConnectors (vector<PolylinePlus> &aDrawing);
 	
-	void	generateIldaFrame();
+	
 	
 	vector<PolylinePlus> combinedDrawing;		// 1. Combination of live & playback
 	vector<PolylinePlus> warpedCombinedDrawing;	// 2. Quad-warped combination drawing
