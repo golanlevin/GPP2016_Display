@@ -8,7 +8,7 @@ void SkeletonDisplayer::initialize(int w, int h){
 	buffer_h = h;
 	
 	bDoQuadWarping		= true; 
-	bClosedTSP			= false;
+	bClosedTSP			= true;
 	tspElapsed			= 0;
 	nOptimizePasses		= 2;
 	maxNBonesForTSP		= 60;
@@ -108,18 +108,17 @@ void SkeletonDisplayer::compileFinalDrawing(){
 void SkeletonDisplayer::generateAndSendIldaFrame(){
 	if (bUsingLaser){
 		
-		laserPolys.clear();
+		ildaFrame.clear();
 		int nPolylinePluses = finalDrawing.size();
 		for (int i=0; i<nPolylinePluses; i++){
 			PolylinePlus ithPP = finalDrawing[i];
-			ofxIlda::Poly aPoly;
-			aPoly.setFromPolyline(ithPP.polyline);
-			aPoly.color.set(ithPP.r, ithPP.g, ithPP.b);
-			laserPolys.push_back(aPoly);
+			ofFloatColor ithPPColor;
+			ithPPColor.set(ithPP.r, ithPP.g, ithPP.b);
+			
+			ildaFrame.addPoly(ithPP.polyline, ithPPColor);
 		}
 		
-		ildaFrame.setProcessedPolys (laserPolys);
-		ildaFrame.updateFinalPoints();
+		ildaFrame.update();
 		etherdream.setPoints(ildaFrame);
 	}
 }
@@ -191,7 +190,7 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 	
 	finalDrawing.clear();
 	float bezierStrength = 3;
-	int bezierResolution = 10;
+	int bezierResolution = 3;
 	int nPtsForShortLine = 3;
 	
 	int nPolylinePlusses = aDrawing.size();
@@ -243,7 +242,7 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 					PolylinePlus connectivePolylinePlus;
 					connectivePolylinePlus.polyline = connectivePolyline;
 					connectivePolylinePlus.r = 0;
-					connectivePolylinePlus.g = 0;//255
+					connectivePolylinePlus.g = 0; //255;
 					connectivePolylinePlus.b = 0;
 					
 					finalDrawing.push_back(connectivePolylinePlus); //---- ADD PP connective

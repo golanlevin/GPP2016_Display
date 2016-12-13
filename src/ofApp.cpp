@@ -35,7 +35,7 @@ void ofApp::setup(){
 	proxyColorImage.set(0);
 	
 	
-	bUseProxyVideoInsteadOfOSC	= true;
+	bUseProxyVideoInsteadOfOSC	= false;
 	bProxyVideoPlayerPaused		= false;
 	bGotAProxyFrame				= false;
 	
@@ -97,9 +97,12 @@ void ofApp::initializeGui(){
     inputGuiPanel.add(boneSmoothKernW.setup		("boneSmoothKernW",		2, 1, 7));
     inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		true));
     inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
-    inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			true));
+    // inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			true));
     inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		60, 20,300));
     // inputGuiPanel.add(nOptimizePasses.setup		("nOptimizePasses",		2, 1, 5));
+	
+	inputGuiPanel.add(blankCount.setup			("blankCount",			0, 0,30));
+	inputGuiPanel.add(endCount.setup			("endCount",			8, 0,30));
 }
 
 
@@ -111,8 +114,11 @@ void ofApp::propagateGui(){
     mySkeletonTracer->bDoMergeBones		= (bool)	bDoMergeBones;
 	
 	mySkeletonDisplayer.bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
-    mySkeletonDisplayer.bClosedTSP		= (bool)	bClosedTSP;
+    // mySkeletonDisplayer.bClosedTSP		= (bool)	bClosedTSP;
     mySkeletonDisplayer.maxNBonesForTSP	= (int)		maxNBonesForTSP;
+	
+	mySkeletonDisplayer.ildaFrame.params.output.blankCount = blankCount;
+	mySkeletonDisplayer.ildaFrame.params.output.endCount = endCount;
 }
 
 

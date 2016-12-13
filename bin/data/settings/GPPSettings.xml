@@ -20,5 +20,7 @@
 		<bDoOptimizeTSP>1</bDoOptimizeTSP>
 		<bClosedTSP>1</bClosedTSP>
 		<maxNBonesForTSP>60</maxNBonesForTSP>
+	<blankCount>0</blankCount>
+		<endCount>8</endCount>
 	</group>
 </Input_Settings>

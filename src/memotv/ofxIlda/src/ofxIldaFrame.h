@@ -67,8 +67,8 @@ namespace ofxIlda {
             params.draw.pointNumbers = false;
             
             params.output.color.set(1, 1, 1, 1);
-			params.output.blankCount = 1;
-            params.output.endCount = 1;
+			params.output.blankCount = 30;
+            params.output.endCount = 0;
             params.output.doCapX = false;
             params.output.doCapY = false;
             

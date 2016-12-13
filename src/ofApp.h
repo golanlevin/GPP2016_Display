@@ -114,6 +114,9 @@ class ofApp : public ofBaseApp{
 	ofxToggle		bDoOptimizeTSP;
 	ofxToggle		bClosedTSP;
 	
+	ofxIntSlider	blankCount;
+	ofxIntSlider	endCount;
+	
 	//-----------------------------------------------
 	// Skeleton tracing produces ofPolylines.
 	//
