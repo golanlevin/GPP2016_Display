@@ -2,9 +2,10 @@
 #include "ofMain.h"
 #include "ofxXmlSettings.h"
 #include "ofxZip.h"
+#include "SkeletonOptimizer.h"
 
 struct XMLFile{
-    ofxXmlSettings mXml;
+    vector<vector<PolylinePlus> > mLines;
     string mPath;
     bool bZip;
 };
@@ -19,7 +20,7 @@ public:
     void stop();
     
     void loadXml(string filename);
-    void saveXml(ofxXmlSettings xml, string filename, bool zip = true);
+    void saveXml(vector<vector<PolylinePlus> > lines, string filename, bool zip = true);
     
     
     ofEvent<ofxXmlSettings> xmlLoaded;
@@ -34,5 +35,5 @@ protected:
 
     
     ofxXmlSettings readXML;
-    ofxXmlSettings saveXML;
+    ofxXmlSettings * saveXML;
 };

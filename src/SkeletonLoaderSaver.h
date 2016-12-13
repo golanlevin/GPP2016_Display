@@ -32,7 +32,7 @@ class SkeletonLoaderSaver {//: public ofThread {
 	void	transferFromXmlToCurrentDrawing();
 	void	loadAndInitiatePlaybackOfRecording(int which);
 	
-	void	transferCurrentRecordingToXML();
+//	void	transferCurrentRecordingToXML();
 	void	saveXMLRecording (string &xmlFilename, bool bSaveAsZipped);
 	
 	void	generateBogusFrames();

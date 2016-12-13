@@ -33,8 +33,7 @@ void SkeletonLoaderSaver::initialize(int w, int h){
     bUseZippedFiles = true;
     
     readXML.clear();
-    
-    saveXML.clear();
+
     
     currentPlaybackFrameIndex = 0;
     currentPlaybackDrawing.clear();
@@ -84,12 +83,10 @@ void SkeletonLoaderSaver::toggleRecording(){
 void SkeletonLoaderSaver::saveCurrentRecording(){
     stopRecording();
     if (currentRecordingFrames.size() > 0){
-        transferCurrentRecordingToXML();
-        
+
         string xmlFilename = "recordings/recording_" + ofToString(outputFileCounter) + ".xml";
         if (bUseZippedFiles){ xmlFilename += ".zip"; }
         saveXMLRecording (xmlFilename, bUseZippedFiles);
-        outputFileCounter++;
     }
 }
 
@@ -127,7 +124,6 @@ void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRecording (int which){
     
     if(savedFiles.size() >= which && savedFiles.size() > 0){
         string xmlFilename = savedFiles[which];
-        cout<<"loading "<<xmlFilename<<endl;
         loadXMLRecording(xmlFilename, bUseZippedFiles);
     }
 }
@@ -143,11 +139,13 @@ void SkeletonLoaderSaver::loadXMLRecording (string &xmlFilename, bool bFileIsZip
 
 
 void SkeletonLoaderSaver::recordingSaved(string & filename){
-    // ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!  "<<filename<<" saved"<<endl;
+     ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!  "<<filename<<" saved"<<endl;
     savedFiles.push_back(filename);
+    outputFileCounter++;
 }
 
 void SkeletonLoaderSaver::recordingLoaded(ofxXmlSettings & xml){
+     ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!   loaded"<<endl;
     readXML = xml;
     bLoadedFileFromXML = true;
     transferFromXmlToCurrentDrawing();
@@ -286,51 +284,15 @@ void SkeletonLoaderSaver::drawCurrentPlaybackFrame(){
 
 
 //--------------------------------------------------------------
-void SkeletonLoaderSaver::transferCurrentRecordingToXML(){
-    
-    // Add currentRecordingFrames data to XML.
-    // Performed when currentRecordingFrames is 'done' being recorded.
-    
-    ofSetLogLevel(OF_LOG_NOTICE); // OF_LOG_WARNING
-    ofLog(OF_LOG_NOTICE, "Adding currentRecordingFrames data to XML.");
-    
-    saveXML.clear();
-    int nReadFrames = currentRecordingFrames.size();
-    for (int f=0; f<nReadFrames; f++){
-        
-        int mostRecentFrameTag = saveXML.addTag("FRAME");
-        saveXML.pushTag("FRAME", mostRecentFrameTag);
-        
-        vector<PolylinePlus> fthVectorOfPolylinePluses = currentRecordingFrames[f];
-        int nPolylinePlusesInFthFrame = fthVectorOfPolylinePluses.size();
-        for (int p=0; p<nPolylinePlusesInFthFrame; p++){
-            
-            int mostRecentStrokeTag = saveXML.addTag("STROKE");
-            saveXML.pushTag("STROKE", mostRecentStrokeTag);
-            
-            ofPolyline pthPolyline = fthVectorOfPolylinePluses[p].polyline;
-            int nPointsInPthPolyline = pthPolyline.size();
-            for (int i=0; i<nPointsInPthPolyline; i++){
-                
-                ofPoint ithPointInPthPolyline = pthPolyline[i];
-                double x = ithPointInPthPolyline.x;
-                double y = ithPointInPthPolyline.y;
-                
-                int mostRecentPointTag = saveXML.addTag("PT");
-                saveXML.setValue("PT:X", (double) x, mostRecentPointTag);
-                saveXML.setValue("PT:Y", (double) y, mostRecentPointTag);
-            }
-            saveXML.popTag(); // mostRecentStrokeTag
-        }
-        saveXML.popTag(); // mostRecentFrameTag
-    }
-}
+//void SkeletonLoaderSaver::transferCurrentRecordingToXML(){
+//    
+//}
 
 
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::saveXMLRecording (string &xmlFilename, bool bSaveAsZipped)
 {
-    xmlThread.saveXml(saveXML, xmlFilename, bSaveAsZipped);
+    xmlThread.saveXml(currentRecordingFrames, xmlFilename, bSaveAsZipped);
 }
 
 //--------------------------------------------------------------

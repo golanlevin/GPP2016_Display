@@ -3,10 +3,11 @@
 
 
 XMLThread::XMLThread(){
-    
+    saveXML = new ofxXmlSettings();
+    saveXML->clear();
 }
 XMLThread::~XMLThread(){
-    
+
 }
 
 void XMLThread::threadedFunction(){
@@ -43,9 +44,9 @@ void XMLThread::loadXml(string filename){
     cout<<"loading "<<filename<<endl;
     unlock();
 }
-void XMLThread::saveXml(ofxXmlSettings xml, string filename, bool zip){
+void XMLThread::saveXml(vector<vector<PolylinePlus> > lines, string filename, bool zip){
     XMLFile newFile;
-    newFile.mXml = xml;
+    newFile.mLines = lines;
     newFile.mPath = filename;
     newFile.bZip = zip;
     
@@ -94,13 +95,53 @@ void XMLThread::threadedLoad(){
 void XMLThread::threadedSave(){
     XMLFile xmlFile = saveBuffer.front();
     
+    
+    
+    // Add currentRecordingFrames data to XML.
+    // Performed when currentRecordingFrames is 'done' being recorded.
+    
+    ofSetLogLevel(OF_LOG_NOTICE); // OF_LOG_WARNING
+    ofLog(OF_LOG_NOTICE, "Adding currentRecordingFrames data to XML.");
+    
+    saveXML->clear();
+    int nReadFrames = xmlFile.mLines.size();
+    for (int f=0; f<nReadFrames; f++){
+        
+        int mostRecentFrameTag = saveXML->addTag("FRAME");
+        saveXML->pushTag("FRAME", mostRecentFrameTag);
+        
+        vector<PolylinePlus> fthVectorOfPolylinePluses =  xmlFile.mLines[f];
+        int nPolylinePlusesInFthFrame = fthVectorOfPolylinePluses.size();
+        for (int p=0; p<nPolylinePlusesInFthFrame; p++){
+            
+            int mostRecentStrokeTag = saveXML->addTag("STROKE");
+            saveXML->pushTag("STROKE", mostRecentStrokeTag);
+            
+            ofPolyline pthPolyline = fthVectorOfPolylinePluses[p].polyline;
+            int nPointsInPthPolyline = pthPolyline.size();
+            for (int i=0; i<nPointsInPthPolyline; i++){
+                
+                ofPoint ithPointInPthPolyline = pthPolyline[i];
+                double x = ithPointInPthPolyline.x;
+                double y = ithPointInPthPolyline.y;
+                
+                int mostRecentPointTag = saveXML->addTag("PT");
+                saveXML->setValue("PT:X", (double) x, mostRecentPointTag);
+                saveXML->setValue("PT:Y", (double) y, mostRecentPointTag);
+            }
+            saveXML->popTag(); // mostRecentStrokeTag
+        }
+        saveXML->popTag(); // mostRecentFrameTag
+    }
+    
+    
     bool fileSaved = false;
     
     if (xmlFile.bZip){
         
         // Create string version of the XML data.
         string stringVersionOfXML;
-        xmlFile.mXml.copyXmlToString(stringVersionOfXML);
+        saveXML->copyXmlToString(stringVersionOfXML);
         
         // Create a vector of chars version of the string data.
         // http://stackoverflow.com/questions/8247793/converting-stdstring-to-stdvectorchar
@@ -129,7 +170,7 @@ void XMLThread::threadedSave(){
         
         // Save the XML data using its internal saveFile method
         // (to a file such as "recordings/recording_test.xml")
-        fileSaved = xmlFile.mXml.saveFile(xmlFile.mPath);
+        fileSaved = saveXML->saveFile(xmlFile.mPath);
         
         // Report and tidy up.
     }
