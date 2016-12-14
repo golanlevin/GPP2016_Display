@@ -24,6 +24,7 @@ class SkeletonDisplayer {
 	bool			bDoFlipX;
 	bool			bDoFlipY;
 	
+	bool			bUseBeziersForConnectives;
 	bool			bConnectToYesterframeLastPoint;
 	ofPoint			yesterframeLastPoint;
 	
@@ -76,5 +77,6 @@ class SkeletonDisplayer {
 	float					optimizationAmount;
 	float					minDistanceForBezier;
 	float					minDistanceForConnection;
+	int						connectorResolution;
 
 };

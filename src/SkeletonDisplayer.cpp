@@ -11,6 +11,8 @@ void SkeletonDisplayer::initialize(int w, int h){
 	bClosedTSP			= true;
 	bDoFlipX			= true;
 	bDoFlipY			= false;
+	bUseBeziersForConnectives = false;
+	connectorResolution = 9;
 	
 	bConnectToYesterframeLastPoint = true;
 	yesterframeLastPoint.set(0.5, 0.5);
@@ -198,7 +200,6 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 	
 	finalDrawing.clear();
 	float bezierStrength = 3;
-	int bezierResolution = 9;
 	int nPtsForShortLine = 4;
 	
 	int nPolylinePlusses = aDrawing.size();
@@ -208,6 +209,7 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 		if (bConnectToYesterframeLastPoint){
 			// What to do when the current frame starts at a
 			// different place than where last frame left off.
+			// Must do this!
 			
 			float lastX = yesterframeLastPoint.x;
 			float lastY = yesterframeLastPoint.y;
@@ -236,13 +238,9 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 				connectivePolylinePlus.b = 0;
 				
 				finalDrawing.push_back(connectivePolylinePlus); //---- ADD yester connective
-				
 			}
 		}
-		
-		
-		
-		
+
 		
 		for (int i=0; i<nPolylinePlusses; i++){
 			PolylinePlus ithPP = aDrawing[i];
@@ -275,6 +273,14 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 						connectivePolyline.addVertex(px, py);
 					}
 					
+				} else if (bUseBeziersForConnectives == false){
+					// Generate a straight line, don't bother with bezier.
+					for (int j=0; j<=connectorResolution; j++){
+						float px = ofMap(j,0,connectorResolution, x0,x3);
+						float py = ofMap(j,0,connectorResolution, y0,y3);
+						connectivePolyline.addVertex(px, py);
+					}
+					
 				} else {
 					// Generate a bezier curve.
 					float x1 = x0 + bezierStrength*(x0 - iBone[nPointsInBonei-2].x);
@@ -283,14 +289,20 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 					float y2 = y3 + bezierStrength*(y3 - jBone[1].y);
 					
 					connectivePolyline.addVertex(x0, y0);
-					connectivePolyline.bezierTo(x1,y1, x2,y2, x3,y3, bezierResolution);
+					connectivePolyline.bezierTo(x1,y1, x2,y2, x3,y3, connectorResolution);
 				}
 				
 				if (connectivePolyline.size() >= 2){
+					// Clamp points in connectivePolyline to (0...1);
+					for (int p=0; p<connectivePolyline.size(); p++){
+						connectivePolyline[p].x = ofClamp(connectivePolyline[p].x, 0.00004,0.99996);
+						connectivePolyline[p].y = ofClamp(connectivePolyline[p].y, 0.00004,0.99996);
+					}
+					
 					PolylinePlus connectivePolylinePlus;
 					connectivePolylinePlus.polyline = connectivePolyline;
 					connectivePolylinePlus.r = 0;
-					connectivePolylinePlus.g = 0; //255;
+					connectivePolylinePlus.g = 0;
 					connectivePolylinePlus.b = 0;
 					
 					finalDrawing.push_back(connectivePolylinePlus); //---- ADD PP connective
@@ -438,7 +450,6 @@ void SkeletonDisplayer::renderVectorOfPolylinePlusesWithConnectors (vector<Polyl
 					iBone.draw();
 					
 					float bezierStrength = 3;
-					int bezierResolution = 10;
 					
 					float x0 = iBone[nPointsInBonei-1].x;
 					float y0 = iBone[nPointsInBonei-1].y;
@@ -463,7 +474,7 @@ void SkeletonDisplayer::renderVectorOfPolylinePlusesWithConnectors (vector<Polyl
 						ofPolyline connectivePolyline;
 						connectivePolyline.clear();
 						connectivePolyline.addVertex(x0, y0);
-						connectivePolyline.bezierTo(x1,y1, x2,y2, x3,y3, bezierResolution);
+						connectivePolyline.bezierTo(x1,y1, x2,y2, x3,y3, connectorResolution);
 						connectivePolyline.draw();
 					}
 				}
@@ -516,16 +527,5 @@ void SkeletonDisplayer::renderVectorOfPolylinePlusesWithConnectors (vector<Polyl
 	}
 }
 
-/*
- 
- 
- int curveResolution = 8;
- 
- ofPolyline connectivePolyline;
- connectivePolyline.clear();
- connectivePolyline.addVertex(x0, y0);
- connectivePolyline.bezierTo(cxa,cya, cxb,cyb, x1,y1, curveResolution);
-
- */
 
 

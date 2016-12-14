@@ -88,17 +88,15 @@ void ofApp::initializeGui(){
     ofxGuiSetDefaultWidth(displayW);
     inputGuiPanel.setup("Settings", "settings/GPPSettings.xml", displayM, (displayM*3)+(displayH*2));
 	
-	
 	inputGuiPanel.add(bUseProxyVideoInsteadOfOSC.setup ("bUseProxyVideoInsteadOfOSC",		true));
-	
     inputGuiPanel.add(proxyThreshold.setup		("proxyThreshold",		80, 0,254));
     inputGuiPanel.add(inputLineSmoothing.setup	("inputLineSmoothing",	5.0, 0.0, 16.0));
     inputGuiPanel.add(inputLineResample.setup	("inputLineResample",	3.0, 1.0, 11.0));
-    inputGuiPanel.add(contourThickness.setup	("contourThickness",	2, 0,8));
-    inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
+    inputGuiPanel.add(contourThickness.setup	("contourThickness",	1, 0,8));
+//	inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
 //	inputGuiPanel.add(bDrawGrayProxy.setup		("bDrawGrayProxy",		false));
     
-    inputGuiPanel.add(boneResampling.setup		("boneResampling",		3.0, 1.0, 11.0));
+    inputGuiPanel.add(boneResampling.setup		("boneResampling",		1.5, 1.0, 11.0));
     inputGuiPanel.add(boneSmoothSigma.setup		("boneSmoothSigma",		0.9, 0.0, 3.0));
     inputGuiPanel.add(boneSmoothKernW.setup		("boneSmoothKernW",		2, 1, 7));
     inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		true));
@@ -109,7 +107,15 @@ void ofApp::initializeGui(){
 	
 	inputGuiPanel.add(blankCount.setup			("blankCount",			0, 0,30));
 	inputGuiPanel.add(endCount.setup			("endCount",			8, 0,30));
-	//inputGuiPanel.add(
+
+	
+	// Inits for things that have been commented out.
+	bSmoothHolesToo		= false;
+	bDrawGrayProxy		= false;
+	bClosedTSP			= true;
+	nOptimizePasses		= 2;
+	
+	inputGuiPanel.loadFromFile("settings/GPPSettings.xml");
 }
 
 
@@ -121,11 +127,11 @@ void ofApp::propagateGui(){
     mySkeletonTracer->bDoMergeBones		= (bool)	bDoMergeBones;
 	
 	mySkeletonDisplayer.bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
-    // mySkeletonDisplayer.bClosedTSP		= (bool)	bClosedTSP;
+    mySkeletonDisplayer.bClosedTSP		= (bool)	bClosedTSP;
     mySkeletonDisplayer.maxNBonesForTSP	= (int)		maxNBonesForTSP;
 	
-	mySkeletonDisplayer.ildaFrame.params.output.blankCount = blankCount;
-	mySkeletonDisplayer.ildaFrame.params.output.endCount = endCount;
+	mySkeletonDisplayer.ildaFrame.params.output.blankCount	= blankCount;
+	mySkeletonDisplayer.ildaFrame.params.output.endCount	= endCount;
 }
 
 
@@ -611,10 +617,14 @@ void ofApp::keyPressed(int key){
         case 'S':
             inputGuiPanel.saveToFile("settings/GPPSettings.xml");
 			mySkeletonDisplayer.DQW->saveCalibration();
+			ofLog(OF_LOG_NOTICE, "GUI saved to settings/GPPSettings.xml");
             break;
         case 'L':
             inputGuiPanel.loadFromFile("settings/GPPSettings.xml");
             break;
+		case 'F':
+			ofToggleFullscreen();
+			break;
 			
 		case '1':
 			mySkeletonDisplayer.DQW->setCalibrationMode(0); break;

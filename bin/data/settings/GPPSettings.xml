@@ -10,10 +10,10 @@
 		<proxyThreshold>80</proxyThreshold>
 		<inputLineSmoothing>5</inputLineSmoothing>
 		<inputLineResample>3</inputLineResample>
-		<contourThickness>2</contourThickness>
+		<contourThickness>1</contourThickness>
 		<bSmoothHolesToo>0</bSmoothHolesToo>
 		<bDrawGrayProxy>0</bDrawGrayProxy>
-		<boneResampling>3</boneResampling>
+		<boneResampling>1.5</boneResampling>
 		<boneSmoothSigma>0.9</boneSmoothSigma>
 		<boneSmoothKernW>2</boneSmoothKernW>
 		<bDoMergeBones>1</bDoMergeBones>

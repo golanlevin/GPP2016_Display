@@ -359,6 +359,8 @@ namespace ofxIlda {
                     
                 }
             }
+			
+			// printf("points.size = %d\n", (int)points.size());
         }
         
     protected:
