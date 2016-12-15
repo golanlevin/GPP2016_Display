@@ -140,6 +140,9 @@ void ofApp::initializeGui(){
 	inputGuiPanel2.add(replayR.setup			("replayR",					0.0, 0,1));
 	inputGuiPanel2.add(replayG.setup			("replayG",					0.0, 0,1));
 	inputGuiPanel2.add(replayB.setup			("replayB",					1.0, 0,1));
+	inputGuiPanel2.add(liveR.setup				("liveR",					1.0, 0,1));
+	inputGuiPanel2.add(liveG.setup				("liveG",					0.0, 0,1));
+	inputGuiPanel2.add(liveB.setup				("liveB",					0.0, 0,1));
 
 	
 	// Inits for things that have been commented out.
@@ -179,6 +182,9 @@ void ofApp::propagateGui(){
 	mySkeletonLoaderSaver->replayColor.r = replayR;
 	mySkeletonLoaderSaver->replayColor.g = replayG;
 	mySkeletonLoaderSaver->replayColor.b = replayB;
+	mySkeletonDisplayer.liveColor.r = liveR;
+	mySkeletonDisplayer.liveColor.g = liveG;
+	mySkeletonDisplayer.liveColor.b = liveB;
 }
 
 

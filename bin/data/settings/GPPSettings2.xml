@@ -7,4 +7,7 @@
 	<overallScaleY>0.6</overallScaleY>
 <bFadeColorsAtEdges>1</bFadeColorsAtEdges>
 <bAddTestPattern>0</bAddTestPattern>
+<liveR>1</liveR>
+	<liveG>0</liveG>
+	<liveB>0</liveB>
 </group>

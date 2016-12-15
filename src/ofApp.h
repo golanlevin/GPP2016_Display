@@ -133,6 +133,9 @@ class ofApp : public ofBaseApp{
 	ofxFloatSlider	replayR;
 	ofxFloatSlider	replayG;
 	ofxFloatSlider	replayB;
+	ofxFloatSlider	liveR;
+	ofxFloatSlider	liveG;
+	ofxFloatSlider	liveB;
 	
 	//-----------------------------------------------
 	// Skeleton tracing produces ofPolylines.
