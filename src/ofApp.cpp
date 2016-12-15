@@ -6,7 +6,9 @@ using namespace cv;
 /*
 // Todo:
 // Put 60Kpps in settings of etherdream?
-// Color sliders
+// Two saver-loaders
+ // behaviors for playbackers
+ // on-the-fly saving-loading
 // Kinectv1
 */
 
