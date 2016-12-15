@@ -3,16 +3,21 @@
 using namespace ofxCv;
 using namespace cv;
 
-
-// Clamp all points coming into etherdream (beziers!)
+/*
+// Todo:
+// Put 60Kpps in settings of etherdream?
+// Color sliders
+// Kinectv1
+*/
 
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-    
+	bFullScreen = true;
+	ofSetFullscreen(bFullScreen);
     ofSetFrameRate(30);
     ofSetVerticalSync(true);
-    
+	
 
     receiver.setup(6667);
     
@@ -78,7 +83,18 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::exit(){
-	/* mySkeletonLoaderSaver->stopThread(); */
+	
+	mySkeletonDisplayer.setToHomePosition();
+	mySkeletonDisplayer.etherdream.kill();
+	
+	if (bSaveOnExit){
+		inputGuiPanel1.saveToFile("settings/GPPSettings.xml");
+		inputGuiPanel2.saveToFile("settings/GPPSettings2.xml");
+		ofLog(OF_LOG_NOTICE, "GUI saved to settings.");
+		mySkeletonDisplayer.DQW->saveCalibration();
+	}
+	
+	mySkeletonLoaderSaver->xmlThread.stop();
 }
 
 
@@ -86,36 +102,55 @@ void ofApp::exit(){
 void ofApp::initializeGui(){
     
     ofxGuiSetDefaultWidth(displayW);
-    inputGuiPanel.setup("Settings", "settings/GPPSettings.xml", displayM, (displayM*3)+(displayH*2));
+    inputGuiPanel1.setup("Settings", "settings/GPPSettings.xml", displayM, (displayM*3)+(displayH*2));
 	
-	inputGuiPanel.add(bUseProxyVideoInsteadOfOSC.setup ("bUseProxyVideoInsteadOfOSC",		true));
-    inputGuiPanel.add(proxyThreshold.setup		("proxyThreshold",		80, 0,254));
-    inputGuiPanel.add(inputLineSmoothing.setup	("inputLineSmoothing",	5.0, 0.0, 16.0));
-    inputGuiPanel.add(inputLineResample.setup	("inputLineResample",	3.0, 1.0, 11.0));
-    inputGuiPanel.add(contourThickness.setup	("contourThickness",	1, 0,8));
-//	inputGuiPanel.add(bSmoothHolesToo.setup		("bSmoothHolesToo",		false));
-//	inputGuiPanel.add(bDrawGrayProxy.setup		("bDrawGrayProxy",		false));
+	inputGuiPanel1.add(bSaveOnExit.setup			("bSaveOnExit", false));
+	inputGuiPanel1.add(bUseProxyVideoInsteadOfOSC.setup ("bUseProxyVideoInsteadOfOSC",		true));
+    inputGuiPanel1.add(proxyThreshold.setup		("proxyThreshold",		80, 0,254));
+    inputGuiPanel1.add(inputLineSmoothing.setup	("inputLineSmoothing",	5.0, 0.0, 16.0));
+    inputGuiPanel1.add(inputLineResample.setup	("inputLineResample",	3.0, 1.0, 11.0));
+    inputGuiPanel1.add(contourThickness.setup	("contourThickness",	1, 0,8));
+//	inputGuiPanel1.add(bSmoothHolesToo.setup	("bSmoothHolesToo",		false));
+//	inputGuiPanel1.add(bDrawGrayProxy.setup		("bDrawGrayProxy",		false));
     
-    inputGuiPanel.add(boneResampling.setup		("boneResampling",		1.5, 1.0, 11.0));
-    inputGuiPanel.add(boneSmoothSigma.setup		("boneSmoothSigma",		0.9, 0.0, 3.0));
-    inputGuiPanel.add(boneSmoothKernW.setup		("boneSmoothKernW",		2, 1, 7));
-    inputGuiPanel.add(bDoMergeBones.setup		("bDoMergeBones",		true));
-    inputGuiPanel.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
-//	inputGuiPanel.add(bClosedTSP.setup			("bClosedTSP",			true));
-    inputGuiPanel.add(maxNBonesForTSP.setup		("maxNBonesForTSP",		60, 20,300));
-//	inputGuiPanel.add(nOptimizePasses.setup		("nOptimizePasses",		2, 1, 5));
+    inputGuiPanel1.add(boneResampling.setup		("boneResampling",		1.5, 1.0, 11.0));
+    inputGuiPanel1.add(boneSmoothSigma.setup	("boneSmoothSigma",		0.9, 0.0, 3.0));
+    inputGuiPanel1.add(boneSmoothKernW.setup	("boneSmoothKernW",		2, 1, 7));
+    inputGuiPanel1.add(bDoMergeBones.setup		("bDoMergeBones",		true));
+//	inputGuiPanel1.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
+//	inputGuiPanel1.add(bClosedTSP.setup			("bClosedTSP",			true));
+//	inputGuiPanel1.add(nOptimizePasses.setup	("nOptimizePasses",		2, 1, 5));
+    inputGuiPanel1.add(maxNBonesForTSP.setup	("maxNBonesForTSP",		60, 20,300));
 	
-	inputGuiPanel.add(blankCount.setup			("blankCount",			0, 0,30));
-	inputGuiPanel.add(endCount.setup			("endCount",			8, 0,30));
+	inputGuiPanel1.add(targetPointCount.setup	("targetPointCount",		500, 100,2500));
+	inputGuiPanel1.add(preBlankCount.setup		("preBlankCount",			0, 0,30));
+	inputGuiPanel1.add(preRepeatCount.setup		("preRepeatCount",			0, 0,30));
+	inputGuiPanel1.add(postRepeatCount.setup	("postRepeatCount",			0, 0,30));
+	inputGuiPanel1.add(postBlankCount.setup		("postBlankCount",			8, 0,30));
+	
+	//-----------------------------------
+	// SETTINGS 2:
+	inputGuiPanel2.setup("Settings2", "settings/GPPSettings2.xml",
+						 (displayM*2)+(displayW*1),
+						 (displayM*3)+(displayH*2));
+	inputGuiPanel2.add(overallScaleX.setup		("overallScaleX",			0.25, 0.0,1.0));
+	inputGuiPanel2.add(overallScaleY.setup		("overallScaleY",			0.25, 0.0,1.0));
+	inputGuiPanel2.add(bFadeColorsAtEdges.setup	("bFadeColorsAtEdges",		true));
+	inputGuiPanel2.add(bAddTestPattern.setup	("bAddTestPattern",			false));
+	inputGuiPanel2.add(replayR.setup			("replayR",					0.0, 0,1));
+	inputGuiPanel2.add(replayG.setup			("replayG",					0.0, 0,1));
+	inputGuiPanel2.add(replayB.setup			("replayB",					1.0, 0,1));
 
 	
 	// Inits for things that have been commented out.
 	bSmoothHolesToo		= false;
 	bDrawGrayProxy		= false;
+	bDoOptimizeTSP		= true;
 	bClosedTSP			= true;
 	nOptimizePasses		= 2;
 	
-	inputGuiPanel.loadFromFile("settings/GPPSettings.xml");
+	inputGuiPanel1.loadFromFile("settings/GPPSettings.xml");
+	inputGuiPanel2.loadFromFile("settings/GPPSettings2.xml");
 }
 
 
@@ -129,9 +164,21 @@ void ofApp::propagateGui(){
 	mySkeletonDisplayer.bDoOptimizeTSP	= (bool)	bDoOptimizeTSP;
     mySkeletonDisplayer.bClosedTSP		= (bool)	bClosedTSP;
     mySkeletonDisplayer.maxNBonesForTSP	= (int)		maxNBonesForTSP;
+
+	mySkeletonDisplayer.ildaFrame.polyProcessor.params.targetPointCount = targetPointCount;
+	mySkeletonDisplayer.ildaFrame.params.output.preBlankCount	= preBlankCount;
+	mySkeletonDisplayer.ildaFrame.params.output.preRepeatCount	= preRepeatCount;
+	mySkeletonDisplayer.ildaFrame.params.output.postBlankCount	= postRepeatCount;
+	mySkeletonDisplayer.ildaFrame.params.output.postRepeatCount	= postBlankCount;
 	
-	mySkeletonDisplayer.ildaFrame.params.output.blankCount	= blankCount;
-	mySkeletonDisplayer.ildaFrame.params.output.endCount	= endCount;
+	mySkeletonDisplayer.overallScaleX = overallScaleX;
+	mySkeletonDisplayer.overallScaleY = overallScaleY;
+	mySkeletonDisplayer.bFadeColorsAtEdges = bFadeColorsAtEdges;
+	mySkeletonDisplayer.bAddTestPattern = bAddTestPattern;
+	
+	mySkeletonLoaderSaver->replayColor.r = replayR;
+	mySkeletonLoaderSaver->replayColor.g = replayG;
+	mySkeletonLoaderSaver->replayColor.b = replayB;
 }
 
 
@@ -531,7 +578,7 @@ void ofApp::draw(){
 	}
 	
 	
-    // 4. Draw the skeleton image.
+    // 4. Draw the skeleton image, and a data report
     displayX = 1*displayW + 2*displayM;
     displayY = 1*displayH + 2*displayM;
     ofPushMatrix();
@@ -539,33 +586,30 @@ void ofApp::draw(){
 	ofScale(displayScale,displayScale);
     mySkeletonizer.draw();
     ofPopMatrix();
-    int durMicros = (int)(mySkeletonizer.skeletonizationDuration);
-    ofSetColor(255,255,0);
-    ofDrawBitmapString( "Skl: " + ofToString(durMicros) + " us", displayX+5,displayY+16);
 	
-	
-    // 5. Draw the skeleton-tracer state image.
-    ofSetHexColor(0xffffff);
-    displayX = 1*displayW + 2*displayM;
-    displayY = 2*displayH + 3*displayM;
-    ofPushMatrix();
-    ofTranslate(displayX,displayY);
-	ofScale(displayScale,displayScale);
-    mySkeletonTracer->drawStateImage();
-    ofPopMatrix();
-    int tspMicros	= (int)(mySkeletonDisplayer.tspElapsed);
+	int durMicros	= (int)(mySkeletonizer.skeletonizationDuration);
+	int tspMicros	= (int)(mySkeletonDisplayer.tspElapsed);
 	int totalNPts	= mySkeletonDisplayer.totalNPoints;
 	int nTspBones	= mySkeletonDisplayer.nCombinedPolylinePluses;
 	int optim		= (int)(100.0 * mySkeletonDisplayer.optimizationAmount);
+	int nIldaPts	= mySkeletonDisplayer.ildaFrame.getNPoints();
 	
-    ofSetColor(255,255,0);
-    ofDrawBitmapString( "TSP: " + ofToString(tspMicros) + " us", displayX+5,displayY+16);
-	ofDrawBitmapString( "#Pt: " + ofToString(totalNPts)        , displayX+5,displayY+30);
-	ofDrawBitmapString( "#PP: " + ofToString(nTspBones)        , displayX+5,displayY+44);
-	ofDrawBitmapString( "%Op: " + ofToString(optim)		+ "%"  , displayX+5,displayY+58);
+	float ty = 16;
+	float dy = 14;
+	ofSetColor(255,255,0);
+	ofDrawBitmapString( "Skl: " + ofToString(durMicros) + " us", displayX+5,displayY+ty); ty+=dy;
+	ofDrawBitmapString( "TSP: " + ofToString(tspMicros) + " us", displayX+5,displayY+ty); ty+=dy;
+	ofDrawBitmapString( "#Pt: " + ofToString(totalNPts)        , displayX+5,displayY+ty); ty+=dy;
+	ofDrawBitmapString( "#PP: " + ofToString(nTspBones)        , displayX+5,displayY+ty); ty+=dy;
+	ofDrawBitmapString( "%Op: " + ofToString(optim)		+ "%"  , displayX+5,displayY+ty); ty+=dy;
+	ofDrawBitmapString( "#IP: " + ofToString(nIldaPts)	       , displayX+5,displayY+ty); ty+=dy;
+	
+	
+
+	
 	
 	//-------------------------
-    // 6. Draw the bones.
+    // 5. Draw the bones.
     ofPushMatrix();
     displayX = 2*displayW + 3*displayM;
     displayY = 0*displayH + 1*displayM;
@@ -585,12 +629,11 @@ void ofApp::draw(){
 	mySkeletonDisplayer.bShowPathBetweenBones = true;
 	mySkeletonDisplayer.renderToScreen();
 	mySkeletonDisplayer.renderDisplayQuadWarper(); 
-	
-	// mySkeletonLoaderSaver->drawCurrentPlaybackFrame();
     ofPopMatrix();
 	
 	// 0. Draw the GUI.
-	inputGuiPanel.draw();
+	inputGuiPanel1.draw();
+	inputGuiPanel2.draw();
 
 }
 
@@ -615,15 +658,22 @@ void ofApp::keyPressed(int key){
             break;
             
         case 'S':
-            inputGuiPanel.saveToFile("settings/GPPSettings.xml");
+            inputGuiPanel1.saveToFile("settings/GPPSettings.xml");
+			inputGuiPanel2.saveToFile("settings/GPPSettings2.xml");
+			ofLog(OF_LOG_NOTICE, "GUI saved to settings.");
 			mySkeletonDisplayer.DQW->saveCalibration();
-			ofLog(OF_LOG_NOTICE, "GUI saved to settings/GPPSettings.xml");
             break;
         case 'L':
-            inputGuiPanel.loadFromFile("settings/GPPSettings.xml");
+            inputGuiPanel1.loadFromFile("settings/GPPSettings.xml");
+			inputGuiPanel2.loadFromFile("settings/GPPSettings2.xml");
             break;
 		case 'F':
-			ofToggleFullscreen();
+		case 'f':
+			bFullScreen = !bFullScreen;
+			ofSetFullscreen(bFullScreen);
+			if (!bFullScreen){
+				ofSetWindowShape(1280,720);
+			}
 			break;
 			
 		case '1':

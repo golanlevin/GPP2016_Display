@@ -139,7 +139,6 @@ void ofxEtherdream::setPoints(const vector<ofxIlda::Point>& _points) {
     }
 }
 
-
 //--------------------------------------------------------------
 void ofxEtherdream::setPoints(const ofxIlda::Frame &ildaFrame) {
     setPoints(ildaFrame.getPoints());

@@ -35,6 +35,7 @@ void XMLThread::start(){
     startThread(false);
 }
 void XMLThread::stop(){
+	ofLog(OF_LOG_WARNING, "Stopping XMLThread.");
     waitForThread(true);
 }
 

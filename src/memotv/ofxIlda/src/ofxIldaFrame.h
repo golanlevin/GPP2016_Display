@@ -31,8 +31,16 @@ namespace ofxIlda {
             
             struct {
                 ofFloatColor color; // color
+				
+				int preBlankCount;
+				int preRepeatCount;
+				int postRepeatCount;
+				int postBlankCount;
+				/*
                 int blankCount;     // how many blank points to send at path ends
                 int endCount;       // how many end repeats to send
+				 */
+				
                 bool doCapX;        // cap out of range on x (otherwise wraps around)
                 bool doCapY;        // cap out of range on y (otherwise wraps around)
                 struct {
@@ -54,6 +62,7 @@ namespace ofxIlda {
         
         //--------------------------------------------------------------
         Frame() {
+			nPoints = 0; 
             setDefaultParams();
         }
         
@@ -67,8 +76,21 @@ namespace ofxIlda {
             params.draw.pointNumbers = false;
             
             params.output.color.set(1, 1, 1, 1);
+			
+			
+			int preBlankCount;
+			int preRepeatCount;
+			int postRepeatCount;
+			int postBlankCount;
+			
+			params.output.preBlankCount		= 10;
+			params.output.preRepeatCount	= 10;
+			params.output.postRepeatCount	= 10;
+			params.output.postBlankCount	= 10;
+			/*
 			params.output.blankCount = 30;
             params.output.endCount = 0;
+			 */
             params.output.doCapX = false;
             params.output.doCapY = false;
             
@@ -90,8 +112,16 @@ namespace ofxIlda {
             s << "draw.pointNumbers : " << params.draw.pointNumbers << endl;
             
             s << "output.color : " << params.output.color << endl;
+			
+			s << "output.preBlankCount : "  << params.output.preBlankCount << endl;
+			s << "output.preRepeatCount : " << params.output.preRepeatCount << endl;
+			s << "output.postRepeatCount : "<< params.output.postRepeatCount << endl;
+			s << "output.postBlankCount : " << params.output.postBlankCount << endl;
+			
+			/*
             s << "output.blankCount : " << params.output.blankCount << endl;
             s << "output.endCount : " << params.output.endCount << endl;
+			 */
             s << "output.doCapX : " << params.output.doCapX << endl;
             s << "output.doCapY : " << params.output.doCapY << endl;
             s << "output.transform.doFlipX : " << params.output.transform.doFlipX << endl;
@@ -320,6 +350,11 @@ namespace ofxIlda {
 			processedPolys = newPolys;
 		}
 		
+		//--------------------------------------------------------------
+		int getNPoints(){
+			return nPoints; 
+		}
+		
         //--------------------------------------------------------------
         void updateFinalPoints() {
             points.clear();
@@ -333,12 +368,12 @@ namespace ofxIlda {
                     ofPoint endPoint = transformPoint(poly.getVertices().back());
                     
                     // blanking at start
-                    for(int n=0; n<params.output.blankCount; n++) {
+                    for(int n=0; n<params.output.preBlankCount; n++) {
                         points.push_back( Point(startPoint, ofFloatColor(0, 0, 0, 0)));
                     }
                     
                     // repeat at start
-                    for(int n=0; n<params.output.endCount; n++) {
+                    for(int n=0; n<params.output.preRepeatCount; n++) {
                         points.push_back( Point(startPoint, pcolor) );
                     }
                     
@@ -348,24 +383,25 @@ namespace ofxIlda {
                     }
                     
                     // repeat at end
-                    for(int n=0; n<params.output.endCount; n++) {
+                    for(int n=0; n<params.output.postRepeatCount; n++) {
                         points.push_back( Point(endPoint, pcolor) );
                     }
                     
                     // blanking at end
-                    for(int n=0; n<params.output.blankCount; n++) {
+                    for(int n=0; n<params.output.postBlankCount; n++) {
                         points.push_back( Point(endPoint, ofFloatColor(0, 0, 0, 0) ));
                     }
                     
                 }
             }
 			
-			// printf("points.size = %d\n", (int)points.size());
+			nPoints = (int)points.size();
         }
         
     protected:
         vector<Poly> origPolys;   // stores the original polys
         vector<Poly> processedPolys;  // stores the processed (smoothed, collapsed, optimized, resampled etc).
         vector<Point> points;   // final points to send
+		int nPoints; 
     };
 }

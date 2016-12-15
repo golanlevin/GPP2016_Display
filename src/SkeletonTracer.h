@@ -108,7 +108,6 @@ class SkeletonTracer {
 	//-----------------
 	// Use Bryce's TSP algorithm to reorder bones.
 	int						liveColor;
-	int						replayColor;
 	
 	void					compileLiveBonesIntoRawDrawing();
 	void					normalizeTheRawDrawing();

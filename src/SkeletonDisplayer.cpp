@@ -11,8 +11,14 @@ void SkeletonDisplayer::initialize(int w, int h){
 	bClosedTSP			= true;
 	bDoFlipX			= true;
 	bDoFlipY			= false;
+	bFadeColorsAtEdges	= true;
+	bAddTestPattern		= false;
 	bUseBeziersForConnectives = false;
 	connectorResolution = 9;
+	
+	overallScaleX		= 0.25;
+	overallScaleY		= 0.25;
+	liveColor.set(1.0, 0.0, 0.0);
 	
 	bConnectToYesterframeLastPoint = true;
 	yesterframeLastPoint.set(0.5, 0.5);
@@ -37,6 +43,11 @@ void SkeletonDisplayer::initialize(int w, int h){
 		etherdream.setPPS(30000);
 		ofSetLogLevel(OF_LOG_NOTICE);
 	}
+	
+	MIN_POINT_VALUE = 2.0/(pow(2, 16));
+	MAX_POINT_VALUE = 1.0 - MIN_POINT_VALUE;
+	
+	
 
 }
 
@@ -68,27 +79,15 @@ void SkeletonDisplayer::compileFinalDrawing(){
 	vector<PolylinePlus> &currentPlaybackDrawing	= mySkeletonLoaderSaver->currentPlaybackDrawing;
 	
 	//--------------------
-	// 3. Combine these into combinedDrawing, producing: vector<PolylinePlus>
-	combinedDrawing.clear();
-	
+	// 3. Combine these into combinedDrawing, producing: vector<PolylinePlus>.
 	// Apply offsets (scale & translation) to various parts NOW
 	
-	// Add mySkeletonTracer's theRawDrawing;
-	if (theRawDrawing.size() > 0){
-		for (int i=0; i<theRawDrawing.size(); i++){
-			// PolylinePlus ithPP = theRawDrawing[i];
-			combinedDrawing.push_back(theRawDrawing[i]); //ithPP);
-		}
-	}
-	
-	// Add mySkeletonLoaderSaver's currentPlaybackDrawing;
-	if (currentPlaybackDrawing.size() > 0){
-		for (int i=0; i<currentPlaybackDrawing.size(); i++){
-			// PolylinePlus ithPP = currentPlaybackDrawing[i];
-			combinedDrawing.push_back(currentPlaybackDrawing[i]); //ithPP);
-		}
-	}
-	
+	combinedDrawing.clear();
+	bool bPaused = mySkeletonLoaderSaver->bPlaybackPaused;
+	addDrawing (theRawDrawing,liveColor, bPaused, THE_LIVE_DRAWING);
+	addDrawing (currentPlaybackDrawing, mySkeletonLoaderSaver->replayColor, bPaused, PLAYBACK_DRAWING);
+	addTestPattern();
+
 	// Count total number of points in combinedDrawing
 	countTotalPoints();
 	
@@ -110,6 +109,144 @@ void SkeletonDisplayer::compileFinalDrawing(){
 	
 
 }
+
+//------------------------------------------------------------
+void SkeletonDisplayer::addDrawingSimple (vector<PolylinePlus> &aDrawing){
+	if (aDrawing.size() > 0){
+		for (int i=0; i<aDrawing.size(); i++){
+			combinedDrawing.push_back(aDrawing[i]);
+		}
+	}
+}
+
+//------------------------------------------------------------
+void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
+									ofFloatColor &drawingColor,
+									bool bPaused, int which){
+	
+	// Add mySkeletonLoaderSaver's currentPlaybackDrawing;
+	// vector<PolylinePlus> &aDrawing = aSLS->currentPlaybackDrawing;
+	if (aDrawing.size() > 0){
+		
+		// Animation of scale & position of the playback happens here.
+		float scaleX = overallScaleX;
+		float scaleY = overallScaleY;
+		float transX = 0.0;
+		float transY = 0.0;
+		
+		if (which == PLAYBACK_DRAWING){
+			if (!bPaused){
+				transX += 0.3 * sin(ofGetElapsedTimeMillis()/2000.0);
+			}
+		}
+		
+		if (which == THE_LIVE_DRAWING){
+			scaleX *= 1.15;
+			scaleY *= 1.15;
+		}
+		
+		
+		for (int i=0; i<aDrawing.size(); i++){
+			PolylinePlus ithPP = aDrawing[i];
+			ofPolyline ithPolyline = ithPP.polyline;
+			
+			ofPolyline scaledShiftedPolyline;
+			scaledShiftedPolyline.clear();
+			
+			int nPoints = ithPolyline.size();
+			for (int p=0; p<nPoints; p++){
+				ofPoint pthPoint = ithPolyline[p];
+				float px = pthPoint.x;
+				float py = pthPoint.y;
+				
+				px -= 0.5;
+				py -= 0.5;
+				px *= scaleX;
+				py *= scaleY;
+				px += 0.5;
+				py += 0.5;
+				px += transX;
+				py += transY;
+				
+				px = ofClamp(px, MIN_POINT_VALUE,MAX_POINT_VALUE);
+				py = ofClamp(py, MIN_POINT_VALUE,MAX_POINT_VALUE);
+				px += ofRandom(-0.000001,0.000001); // paranoid epsilon to avoid divzero
+				py += ofRandom(-0.000001,0.000001);
+				scaledShiftedPolyline.addVertex(px, py);
+			}
+			
+			PolylinePlus scaledShiftedPP;
+			scaledShiftedPP.polyline = scaledShiftedPolyline;
+			
+			float colorFade = 1.0;
+			if (bFadeColorsAtEdges){
+				float tukeyWindowAmount = 0.08;
+				ofPoint centroid = scaledShiftedPolyline.getCentroid2D();
+				float centX01 = ofClamp(centroid.x, 0,1);
+				float centY01 = ofClamp(centroid.y, 0,1);
+				float fadeX = function_TukeyWindow (centX01, tukeyWindowAmount);
+				float fadeY = function_TukeyWindow (centY01, tukeyWindowAmount);
+				colorFade = fadeX * fadeY;
+			}
+			scaledShiftedPP.r = 255.0 * colorFade * drawingColor.r; //aSLS->replayColor.r;
+			scaledShiftedPP.g = 255.0 * colorFade * drawingColor.g; //aSLS->replayColor.g;
+			scaledShiftedPP.b = 255.0 * colorFade * drawingColor.b; //aSLS->replayColor.b;
+
+			combinedDrawing.push_back(scaledShiftedPP);
+		}
+	}
+}
+
+
+
+//------------------------------------------------------------
+void SkeletonDisplayer::addTestPattern(){
+	if (bAddTestPattern){
+		
+		ofPolyline testpatternPolyline;
+		testpatternPolyline.clear();
+		
+		int nPointsPerSide = 20;
+		for (int i=0; i<nPointsPerSide; i++){
+			float x0 = MIN_POINT_VALUE; float y0 = MIN_POINT_VALUE;
+			float x1 = MIN_POINT_VALUE; float y1 = MAX_POINT_VALUE;
+			float px = MIN_POINT_VALUE;
+			float py = ofMap(i, 0,nPointsPerSide, y0,y1);
+			testpatternPolyline.addVertex(px,py);
+		}
+		for (int i=0; i<nPointsPerSide; i++){
+			float x0 = MIN_POINT_VALUE; float y0 = MAX_POINT_VALUE;
+			float x1 = MAX_POINT_VALUE; float y1 = MAX_POINT_VALUE;
+			float px = ofMap(i, 0,nPointsPerSide, x0,x1);
+			float py = MAX_POINT_VALUE;
+			testpatternPolyline.addVertex(px,py);
+		}
+		for (int i=0; i<nPointsPerSide; i++){
+			float x0 = MAX_POINT_VALUE; float y0 = MAX_POINT_VALUE;
+			float x1 = MAX_POINT_VALUE; float y1 = MIN_POINT_VALUE;
+			float px = MAX_POINT_VALUE;
+			float py = ofMap(i, 0,nPointsPerSide, y0,y1);
+			testpatternPolyline.addVertex(px,py);
+		}
+		for (int i=0; i<nPointsPerSide; i++){
+			float x0 = MAX_POINT_VALUE; float y0 = MIN_POINT_VALUE;
+			float x1 = MIN_POINT_VALUE; float y1 = MIN_POINT_VALUE;
+			float px = ofMap(i, 0,nPointsPerSide, x0,x1);
+			float py = MIN_POINT_VALUE;
+			testpatternPolyline.addVertex(px,py);
+		}
+		testpatternPolyline.addVertex(MIN_POINT_VALUE+0.00004,MIN_POINT_VALUE+0.00004);
+		
+		PolylinePlus testpatternPP;
+		testpatternPP.polyline = testpatternPolyline;
+		testpatternPP.r = 255;
+		testpatternPP.g = 255;
+		testpatternPP.b = 0;
+		
+		combinedDrawing.push_back(testpatternPP);
+	}
+}
+
 
 
 //------------------------------------------------------------
@@ -234,7 +371,7 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 				PolylinePlus connectivePolylinePlus;
 				connectivePolylinePlus.polyline = connectivePolyline;
 				connectivePolylinePlus.r = 0;
-				connectivePolylinePlus.g = 0; //255;
+				connectivePolylinePlus.g = 0; 
 				connectivePolylinePlus.b = 0;
 				
 				finalDrawing.push_back(connectivePolylinePlus); //---- ADD yester connective
@@ -295,8 +432,10 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 				if (connectivePolyline.size() >= 2){
 					// Clamp points in connectivePolyline to (0...1);
 					for (int p=0; p<connectivePolyline.size(); p++){
-						connectivePolyline[p].x = ofClamp(connectivePolyline[p].x, 0.00004,0.99996);
-						connectivePolyline[p].y = ofClamp(connectivePolyline[p].y, 0.00004,0.99996);
+						float px = connectivePolyline[p].x;
+						float py = connectivePolyline[p].y;
+						connectivePolyline[p].x = ofClamp(px, MIN_POINT_VALUE,MAX_POINT_VALUE);
+						connectivePolyline[p].y = ofClamp(py, MIN_POINT_VALUE,MAX_POINT_VALUE);
 					}
 					
 					PolylinePlus connectivePolylinePlus;
@@ -527,5 +666,46 @@ void SkeletonDisplayer::renderVectorOfPolylinePlusesWithConnectors (vector<Polyl
 	}
 }
 
+//--------------------------------------------------------------
+void SkeletonDisplayer::setToHomePosition(){
+	
+	if (bUsingLaser){
+		ildaFrame.clear();
+		
+		ofPolyline centerPolyline;
+		for (int i=0; i<1000; i++){
+			centerPolyline.addVertex(0.5, 0.5);
+		}
+	
+		ildaFrame.addPoly(centerPolyline);
+		ildaFrame.update();
+		etherdream.setPoints(ildaFrame);
+	}
+}
 
+
+
+
+//------------------------------------------------------------------
+float SkeletonDisplayer::function_TukeyWindow (float x, float a) {
+	
+	// functionName = "Tukey Window";
+	// http://en.wikipedia.org/wiki/Window_function
+	// The Tukey window, also known as the tapered cosine window,
+	// can be regarded as a cosine lobe of width \tfrac{\alpha N}{2}
+	// that is convolved with a rectangle window of width \left(1 -\tfrac{\alpha}{2}\right)N.
+	// At alpha=0 it becomes rectangular, and at alpha=1 it becomes a Hann window.
+	
+	float ah = a/2.0;
+	float omah = 1.0 - ah;
+	
+	float y = 1.0;
+	if (x <= ah) {
+		y = 0.5 * (1.0 + cos(PI* ((2*x/a) - 1.0)));
+	}
+	else if (x > omah) {
+		y = 0.5 * (1.0 + cos(PI* ((2*x/a) - (2/a) + 1.0)));
+	}
+	return y;
+}
 

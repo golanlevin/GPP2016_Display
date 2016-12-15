@@ -7,21 +7,25 @@
 <Input_Settings/>
 <bSmoothHolesToo>0</bSmoothHolesToo>
 <group>
-		<proxyThreshold>80</proxyThreshold>
-		<inputLineSmoothing>5</inputLineSmoothing>
-		<inputLineResample>3</inputLineResample>
-		<contourThickness>1</contourThickness>
-		<bSmoothHolesToo>0</bSmoothHolesToo>
-		<bDrawGrayProxy>0</bDrawGrayProxy>
-		<boneResampling>1.5</boneResampling>
-		<boneSmoothSigma>0.9</boneSmoothSigma>
-		<boneSmoothKernW>2</boneSmoothKernW>
-		<bDoMergeBones>1</bDoMergeBones>
-		<bDoOptimizeTSP>1</bDoOptimizeTSP>
-		<bClosedTSP>1</bClosedTSP>
-		<maxNBonesForTSP>60</maxNBonesForTSP>
-	<blankCount>0</blankCount>
-		<endCount>8</endCount>
+	<proxyThreshold>80</proxyThreshold>
+	<inputLineSmoothing>5</inputLineSmoothing>
+	<inputLineResample>3</inputLineResample>
+	<contourThickness>1</contourThickness>
+	<bSmoothHolesToo>0</bSmoothHolesToo>
+	<bDrawGrayProxy>0</bDrawGrayProxy>
+	<boneResampling>1.5</boneResampling>
+	<boneSmoothSigma>0.9</boneSmoothSigma>
+	<boneSmoothKernW>2</boneSmoothKernW>
+	<bDoMergeBones>1</bDoMergeBones>
+	<bDoOptimizeTSP>1</bDoOptimizeTSP>
+	<bClosedTSP>1</bClosedTSP>
+	<maxNBonesForTSP>60</maxNBonesForTSP>
 	<bUseProxyVideoInsteadOfOSC>1</bUseProxyVideoInsteadOfOSC>
+	<bSaveOnExit>1</bSaveOnExit>
+	<preBlankCount>0</preBlankCount>
+		<preRepeatCount>0</preRepeatCount>
+		<postRepeatCount>0</postRepeatCount>
+		<postBlankCount>8</postBlankCount>
+	<targetPointCount>500</targetPointCount>
 	</group>
 </Input_Settings>

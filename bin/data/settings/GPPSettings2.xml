@@ -1,0 +1,10 @@
+<group>
+	<replayR>0</replayR>
+	<replayG>0.4</replayG>
+	<replayB>1</replayB>
+<group/>
+	<overallScaleX>0.25</overallScaleX>
+	<overallScaleY>0.6</overallScaleY>
+<bFadeColorsAtEdges>1</bFadeColorsAtEdges>
+<bAddTestPattern>0</bAddTestPattern>
+</group>

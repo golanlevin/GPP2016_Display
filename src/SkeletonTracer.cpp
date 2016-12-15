@@ -37,7 +37,6 @@ void SkeletonTracer::initialize (int w, int h){
 	bDoMergeBones	= true;
 	bNormalizeTheRawDrawing = true;
 	
-	replayColor		= 0x0000FF;
 	liveColor		= 0xFF0000;
 }
 

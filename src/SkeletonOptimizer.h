@@ -6,13 +6,9 @@
 #include "LaserMain.h"
 #include "LaserDefs.h"
 
+#include "SkeletonDefs.h"
 
-struct PolylinePlus {
-	ofPolyline polyline; // assume there will always be a field called 'polyline'
-	float r;
-	float g;
-	float b;
-};
+
 
 //------------------------------------------------------
 class SkeletonOptimizer {

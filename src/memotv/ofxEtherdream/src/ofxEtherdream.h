@@ -23,6 +23,8 @@ public:
     bool stateIsFound();
     
     void kill() {
+		usleep(100000); // 0.1 second
+		ofLog(OF_LOG_WARNING, "Shutting down Etherdream.\n"); 
         clear();
         stop();
         if(stateIsFound()) {
@@ -51,10 +53,12 @@ public:
     void send();
     
     void setPPS(int i);
-    int getPPS() const;
+    int	 getPPS() const;
     
     void setWaitBeforeSend(bool b);
     bool getWaitBeforeSend() const;
+	
+	
     
 private:
     void init();

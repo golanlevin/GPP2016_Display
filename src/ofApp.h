@@ -5,12 +5,14 @@
 #include "ofxCv.h"
 #include "ofxGui.h"
 #include "ofxOsc.h"
+#include "ofxKinect.h"
 #include "ofxXmlSettings.h"
 #include "Skeletonizer.h"
 #include "SkeletonTracer.h"
 #include "SkeletonLoaderSaver.h"
 #include "SkeletonDisplayer.h"
 #include "LaserMain.h" // Bryce
+
 
 
 class ofApp : public ofBaseApp{
@@ -33,6 +35,7 @@ class ofApp : public ofBaseApp{
 	void 	windowResized(int w, int h);
 	void 	dragEvent(ofDragInfo dragInfo);
 	void 	gotMessage(ofMessage msg);
+	bool	bFullScreen;
 	
 	int		displayW;
 	int		displayH;
@@ -96,8 +99,11 @@ class ofApp : public ofBaseApp{
 	void			initializeGui();
 	void			propagateGui();
 	
+	ofxToggle		bSaveOnExit;
 	ofxToggle		bUseProxyVideoInsteadOfOSC;
-	ofxPanel		inputGuiPanel;
+	ofxPanel		inputGuiPanel1;
+	ofxPanel		inputGuiPanel2;
+	
 	ofxIntSlider	proxyThreshold;
 	ofxFloatSlider	inputLineSmoothing;
 	ofxFloatSlider	inputLineResample;
@@ -114,8 +120,19 @@ class ofApp : public ofBaseApp{
 	ofxToggle		bDoOptimizeTSP;
 	ofxToggle		bClosedTSP;
 	
-	ofxIntSlider	blankCount;
-	ofxIntSlider	endCount;
+	ofxIntSlider	targetPointCount;
+	ofxIntSlider	preBlankCount;
+	ofxIntSlider	preRepeatCount;
+	ofxIntSlider	postRepeatCount;
+	ofxIntSlider	postBlankCount;
+	
+	ofxFloatSlider	overallScaleX;
+	ofxFloatSlider	overallScaleY;
+	ofxToggle		bFadeColorsAtEdges;
+	ofxToggle		bAddTestPattern; 
+	ofxFloatSlider	replayR;
+	ofxFloatSlider	replayG;
+	ofxFloatSlider	replayB;
 	
 	//-----------------------------------------------
 	// Skeleton tracing produces ofPolylines.

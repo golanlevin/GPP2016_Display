@@ -10,20 +10,8 @@ SkeletonLoaderSaver::SkeletonLoaderSaver(){
 SkeletonLoaderSaver::~SkeletonLoaderSaver(){
     
 }
-//
-//void SkeletonLoaderSaver::threadedFunction(){
-//    while(isThreadRunning()){
-//        sleep(1);
-//    }
-//}
-//
-//void SkeletonLoaderSaver::stop(){
-//    waitForThread(true);
-//}
-//
-//void SkeletonLoaderSaver::start(){
-//    startThread();
-//}
+
+int SkeletonLoaderSaver::outputFileCounter = 0;
 
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::initialize(int w, int h){
@@ -34,6 +22,7 @@ void SkeletonLoaderSaver::initialize(int w, int h){
     
     readXML.clear();
 
+	replayColor.set(0.0, 40.0/255.0, 1.0);
     
     currentPlaybackFrameIndex = 0;
     currentPlaybackDrawing.clear();
@@ -43,7 +32,6 @@ void SkeletonLoaderSaver::initialize(int w, int h){
     bCurrentlyRecording	= false;
     bLoadedFileFromXML	= false;
     bPlaybackPaused		= false;
-    outputFileCounter	= 0;
     
     bUseNormalizedDrawings = true;
     buffer_w = w;
@@ -84,7 +72,8 @@ void SkeletonLoaderSaver::saveCurrentRecording(){
     stopRecording();
     if (currentRecordingFrames.size() > 0){
 
-        string xmlFilename = "recordings/recording_" + ofToString(outputFileCounter) + ".xml";
+		int outn = SkeletonLoaderSaver::outputFileCounter;
+        string xmlFilename = "recordings/recording_" + ofToString(outn) + ".xml";
         if (bUseZippedFiles){ xmlFilename += ".zip"; }
         saveXMLRecording (xmlFilename, bUseZippedFiles);
     }
@@ -141,7 +130,7 @@ void SkeletonLoaderSaver::loadXMLRecording (string &xmlFilename, bool bFileIsZip
 void SkeletonLoaderSaver::recordingSaved(string & filename){
      ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!  "<<filename<<" saved"<<endl;
     savedFiles.push_back(filename);
-    outputFileCounter++;
+    SkeletonLoaderSaver::outputFileCounter++;
 }
 
 void SkeletonLoaderSaver::recordingLoaded(ofxXmlSettings & xml){
@@ -192,9 +181,9 @@ void SkeletonLoaderSaver::transferFromXmlToCurrentDrawing(){
                         
                         PolylinePlus aPolylinePlus;
                         aPolylinePlus.polyline = aPolyline;
-                        aPolylinePlus.r = 0;
-                        aPolylinePlus.g = 0;
-                        aPolylinePlus.b = 255;
+                        aPolylinePlus.r = replayColor.r * 255.0;
+                        aPolylinePlus.g = replayColor.g * 255.0;
+                        aPolylinePlus.b = replayColor.b * 255.0;
                         
                         aVectorOfPolylinePluses.push_back(aPolylinePlus);
                         readXML.popTag(); // STROKE
@@ -235,58 +224,6 @@ void SkeletonLoaderSaver::retrieveAndAdvanceCurrentPlaybackDrawing(){
         }
     }
 }
-
-
-
-//--------------------------------------------------------------
-// This function is soon to be retired.
-//
-void SkeletonLoaderSaver::drawCurrentPlaybackFrame(){
-    
-    
-    int nFramesInThisRecording = currentPlaybackFrames.size();
-    if ((nFramesInThisRecording > 0) && (bLoadedFileFromXML) &&
-        (currentPlaybackFrameIndex < nFramesInThisRecording)){
-        
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_SRC_ALPHA);
-        
-        vector<PolylinePlus> aVectorOfPolylinePluses;
-        aVectorOfPolylinePluses = currentPlaybackFrames[currentPlaybackFrameIndex];
-        int nStrokesInThisFrame = aVectorOfPolylinePluses.size();
-        if (nStrokesInThisFrame > 0){
-            
-            ofPushMatrix();
-            if (bUseNormalizedDrawings){ ofScale(buffer_w, buffer_w); }
-            
-            // Draw the currentPlayback Frame to the screen
-            for (int i=0; i<nStrokesInThisFrame; i++){
-                PolylinePlus ithPP = aVectorOfPolylinePluses[i];
-                ofPolyline ithPolyline = ithPP.polyline;
-                ofSetLineWidth(2.0);
-                ofSetColor(ithPP.r, ithPP.g, ithPP.b);
-                ithPolyline.draw();
-            }
-            
-            ofPopMatrix();
-        }
-        
-        // advance currentPlaybackFrameIndex
-        if (!bPlaybackPaused){
-            currentPlaybackFrameIndex ++;
-            currentPlaybackFrameIndex %= nFramesInThisRecording;
-        }
-        
-        glPopAttrib(); // Restore blend mode default.
-    }
-}
-
-
-//--------------------------------------------------------------
-//void SkeletonLoaderSaver::transferCurrentRecordingToXML(){
-//    
-//}
 
 
 //--------------------------------------------------------------
