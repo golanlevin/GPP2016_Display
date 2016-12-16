@@ -129,6 +129,7 @@ class ofApp : public ofBaseApp{
 	ofxFloatSlider	overallScaleX;
 	ofxFloatSlider	overallScaleY;
 	ofxToggle		bFadeColorsAtEdges;
+	ofxToggle		bFadeColorsAtEnds;
 	ofxToggle		bAddTestPattern; 
 	ofxFloatSlider	replayR;
 	ofxFloatSlider	replayG;

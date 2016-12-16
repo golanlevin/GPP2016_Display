@@ -19,6 +19,10 @@ void ofxEtherdream::setup(bool bStartThread, int idEtherdream) {
     if(bStartThread) start();
 }
 
+//--------------------------------------------------------------
+int ofxEtherdream::getState(){
+	return ((int) state);
+}
 
 //--------------------------------------------------------------
 bool ofxEtherdream::stateIsFound() {
@@ -43,7 +47,7 @@ bool ofxEtherdream::checkConnection(bool bForceReconnect) {
 void ofxEtherdream::init() {
     int device_num = etherdream_dac_count();
 	if (!device_num || idEtherdreamConnection>device_num) {
-		ofLogWarning() << "ofxEtherdream::init - No DACs found";
+		// ofLogWarning() << "ofxEtherdream::init - No DACs found";
 		return 0;
 	}
     

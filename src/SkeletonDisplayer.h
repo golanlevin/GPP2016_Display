@@ -25,6 +25,7 @@ class SkeletonDisplayer {
 	bool			bDoFlipX;
 	bool			bDoFlipY;
 	bool			bFadeColorsAtEdges;
+	bool			bFadeColorsAtEnds;
 	bool			bAddTestPattern;
 	ofFloatColor	liveColor;
 
@@ -39,7 +40,8 @@ class SkeletonDisplayer {
 	
 	void	update();
 	void	compileFinalDrawing();
-	void	addDrawing (vector<PolylinePlus> &aDrawing, ofFloatColor &drawingColor, bool bPaused, int which);
+	void	addDrawing (vector<PolylinePlus> &aDrawing, ofFloatColor &drawingColor,
+						bool bPaused, int whichType, float timePercent, int whichRecording);
 	void	addDrawingSimple (vector<PolylinePlus> &aDrawing);
 	void	addTestPattern();
 	void	renderToScreen();

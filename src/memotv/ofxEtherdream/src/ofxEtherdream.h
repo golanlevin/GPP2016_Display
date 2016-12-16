@@ -58,7 +58,7 @@ public:
     void setWaitBeforeSend(bool b);
     bool getWaitBeforeSend() const;
 	
-	
+	int	 getState();
     
 private:
     void init();

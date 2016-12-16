@@ -138,6 +138,7 @@ void ofApp::initializeGui(){
 	inputGuiPanel2.add(overallScaleX.setup		("overallScaleX",			0.25, 0.0,1.0));
 	inputGuiPanel2.add(overallScaleY.setup		("overallScaleY",			0.25, 0.0,1.0));
 	inputGuiPanel2.add(bFadeColorsAtEdges.setup	("bFadeColorsAtEdges",		true));
+	inputGuiPanel2.add(bFadeColorsAtEnds.setup	("bFadeColorsAtEnds",		true));
 	inputGuiPanel2.add(bAddTestPattern.setup	("bAddTestPattern",			false));
 	inputGuiPanel2.add(replayR.setup			("replayR",					0.0, 0,1));
 	inputGuiPanel2.add(replayG.setup			("replayG",					0.0, 0,1));
@@ -179,6 +180,7 @@ void ofApp::propagateGui(){
 	mySkeletonDisplayer.overallScaleX = overallScaleX;
 	mySkeletonDisplayer.overallScaleY = overallScaleY;
 	mySkeletonDisplayer.bFadeColorsAtEdges = bFadeColorsAtEdges;
+	mySkeletonDisplayer.bFadeColorsAtEnds = bFadeColorsAtEnds;
 	mySkeletonDisplayer.bAddTestPattern = bAddTestPattern;
 	
 	mySkeletonLoaderSaver->replayColor.r = replayR;
@@ -613,9 +615,6 @@ void ofApp::draw(){
 	ofDrawBitmapString( "#IP: " + ofToString(nIldaPts)	       , displayX+5,displayY+ty); ty+=dy;
 	
 	
-
-	
-	
 	//-------------------------
     // 5. Draw the bones.
     ofPushMatrix();
@@ -638,6 +637,18 @@ void ofApp::draw(){
 	mySkeletonDisplayer.renderToScreen();
 	mySkeletonDisplayer.renderDisplayQuadWarper(); 
     ofPopMatrix();
+	
+	
+	int laserstate = mySkeletonDisplayer.etherdream.getState();
+	if (laserstate == 0){
+		ofSetColor(255,0,0);
+		ofDrawBitmapString( "ETHERDREAM_NOTFOUND", displayX+5,displayY+14);
+	} else {
+		ofSetColor(0,255,0);
+		ofDrawBitmapString( "ETHERDREAM_FOUND: id-" + ofToString(laserstate), displayX+5,displayY+14);
+	}
+	
+
 	
 	// 0. Draw the GUI.
 	inputGuiPanel1.draw();
@@ -714,7 +725,9 @@ void ofApp::keyPressed(int key){
 			}
 			break;
 		case 'p':
-			mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRecording(0);
+			//mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRecording(0);
+			mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRandomRecording();
+			printf("-------\n");
 			break;
     }
 }

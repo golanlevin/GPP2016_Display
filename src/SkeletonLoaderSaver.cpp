@@ -15,10 +15,24 @@ int SkeletonLoaderSaver::outputFileCounter = 0;
 
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::initialize(int w, int h){
+	bUseZippedFiles = true;
+	
+	string path = "recordings";
+	recordingsDirectory.open(path);
+	if (bUseZippedFiles){
+		recordingsDirectory.allowExt("zip");
+	} else {
+		recordingsDirectory.allowExt("xml");
+	}
+	recordingsDirectory.listDir();
+	for (int i=0; i< recordingsDirectory.size(); i++){
+		ofLogNotice(recordingsDirectory.getPath(i));
+	}
+
 
     maxNRecordingFrames = 1000;
     bDeleteOldestFramesWhenRecording = true;
-    bUseZippedFiles = true;
+	recordingIndex = 0;
     
     readXML.clear();
 
@@ -44,6 +58,8 @@ void SkeletonLoaderSaver::initialize(int w, int h){
     ofAddListener(xmlThread.xmlSaved, this,  &SkeletonLoaderSaver::recordingSaved);
     ofAddListener(xmlThread.xmlLoaded, this,  &SkeletonLoaderSaver::recordingLoaded);
 }
+
+
 
 
 //--------------------------------------------------------------
@@ -108,12 +124,26 @@ void SkeletonLoaderSaver::addFrameToCurrentRecording (vector<PolylinePlus> &theR
     }
 }
 
+
+//---------------------------------
+void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRandomRecording(){
+	recordingsDirectory.listDir();
+	int randomIndex = (int) ofRandom(0.999999 * recordingsDirectory.size());
+	string xmlFilename = recordingsDirectory.getPath(randomIndex);
+	loadXMLRecording(xmlFilename, bUseZippedFiles);
+	
+	currentPlaybackFrameIndex = 0;
+	recordingIndex = randomIndex;
+}
+
 //---------------------------------
 void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRecording (int which){
     
     if(savedFiles.size() >= which && savedFiles.size() > 0){
         string xmlFilename = savedFiles[which];
         loadXMLRecording(xmlFilename, bUseZippedFiles);
+		currentPlaybackFrameIndex = 0;
+		recordingIndex = which;
     }
 }
 
@@ -147,6 +177,7 @@ void SkeletonLoaderSaver::transferFromXmlToCurrentDrawing(){
     // Here, we copy the data from the XML object into currentPlaybackFrames.
     
     currentPlaybackFrameIndex = 0;
+	currentPlaybackFramePercent = 0;
     currentPlaybackFrames.clear();
     
     if (bLoadedFileFromXML){
@@ -221,6 +252,8 @@ void SkeletonLoaderSaver::retrieveAndAdvanceCurrentPlaybackDrawing(){
                 currentPlaybackFrameIndex ++;
                 currentPlaybackFrameIndex %= nFramesInThisRecording;
             }
+			
+			currentPlaybackFramePercent = (float)currentPlaybackFrameIndex/(float)nFramesInThisRecording;
         }
     }
 }

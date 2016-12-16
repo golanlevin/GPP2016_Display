@@ -830,7 +830,7 @@ int etherdream_dac_count(void) {
 	}
 
 	pthread_mutex_unlock(&dac_list_lock);
-	trace(NULL, "== etherdream_lib_get_dac_count(): %d\n", count);
+	/// trace(NULL, "== etherdream_lib_get_dac_count(): %d\n", count); /// GOLAN commented out, not so wise
 	return count;
 }
 

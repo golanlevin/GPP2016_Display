@@ -84,8 +84,11 @@ void SkeletonDisplayer::compileFinalDrawing(){
 	
 	combinedDrawing.clear();
 	bool bPaused = mySkeletonLoaderSaver->bPlaybackPaused;
-	addDrawing (theRawDrawing,liveColor, bPaused, THE_LIVE_DRAWING);
-	addDrawing (currentPlaybackDrawing, mySkeletonLoaderSaver->replayColor, bPaused, PLAYBACK_DRAWING);
+	float timePercent = mySkeletonLoaderSaver->currentPlaybackFramePercent;
+	int whichRecording = mySkeletonLoaderSaver->recordingIndex;
+	addDrawing (theRawDrawing,liveColor, bPaused, THE_LIVE_DRAWING, 0.5, 0);
+	addDrawing (currentPlaybackDrawing, mySkeletonLoaderSaver->replayColor,
+				bPaused, PLAYBACK_DRAWING, timePercent, whichRecording);
 	addTestPattern();
 
 	// Count total number of points in combinedDrawing
@@ -122,7 +125,8 @@ void SkeletonDisplayer::addDrawingSimple (vector<PolylinePlus> &aDrawing){
 //------------------------------------------------------------
 void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 									ofFloatColor &drawingColor,
-									bool bPaused, int which){
+									bool bPaused, int whichType,
+									float timePercent, int whichRecording){
 	
 	// Add mySkeletonLoaderSaver's currentPlaybackDrawing;
 	// vector<PolylinePlus> &aDrawing = aSLS->currentPlaybackDrawing;
@@ -134,13 +138,14 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 		float transX = 0.0;
 		float transY = 0.0;
 		
-		if (which == PLAYBACK_DRAWING){
-			if (!bPaused){
-				transX += 0.3 * sin(ofGetElapsedTimeMillis()/2000.0);
-			}
+		if ((whichType == PLAYBACK_DRAWING) && (!bPaused)){
+			float t = ofGetElapsedTimeMillis()/10000.0;
+			transX += 0.750 * (ofNoise(t+whichRecording) - 0.5);
+			transX += ofMap((whichRecording % 10),0,9, -0.25,0.25);
+			transY += 0.060 * (ofNoise(t+whichRecording+10) - 0.5);
 		}
 		
-		if (which == THE_LIVE_DRAWING){
+		if (whichType == THE_LIVE_DRAWING){
 			scaleX *= 1.15;
 			scaleY *= 1.15;
 		}
@@ -178,6 +183,9 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 			PolylinePlus scaledShiftedPP;
 			scaledShiftedPP.polyline = scaledShiftedPolyline;
 			
+			// Fade the colors depending on
+			// (A) whether the drawing is too close to the edge of the screen, and
+			// (B) at the start and end of the drawing loop.
 			float colorFade = 1.0;
 			if (bFadeColorsAtEdges){
 				float tukeyWindowAmount = 0.08;
@@ -186,8 +194,15 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 				float centY01 = ofClamp(centroid.y, 0,1);
 				float fadeX = function_TukeyWindow (centX01, tukeyWindowAmount);
 				float fadeY = function_TukeyWindow (centY01, tukeyWindowAmount);
-				colorFade = fadeX * fadeY;
+				colorFade *= fadeX * fadeY;
 			}
+			if (bFadeColorsAtEnds && (whichType == PLAYBACK_DRAWING)){
+				float tukeyWindowAmount = 0.12;
+				float fadeT = function_TukeyWindow(timePercent, tukeyWindowAmount);
+				colorFade *= fadeT;
+			}
+			
+			
 			scaledShiftedPP.r = 255.0 * colorFade * drawingColor.r; //aSLS->replayColor.r;
 			scaledShiftedPP.g = 255.0 * colorFade * drawingColor.g; //aSLS->replayColor.g;
 			scaledShiftedPP.b = 255.0 * colorFade * drawingColor.b; //aSLS->replayColor.b;
