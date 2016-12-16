@@ -54,6 +54,8 @@ class SkeletonDisplayer {
 	
 	float	overallScaleX;
 	float	overallScaleY;
+	float	overallTransX;
+	float	overallTransY;
 	
 	
 	vector<PolylinePlus> combinedDrawing;		// 1. Combination of live & playback

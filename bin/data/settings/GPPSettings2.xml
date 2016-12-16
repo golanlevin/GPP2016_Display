@@ -1,14 +1,16 @@
 <group>
-	<replayR>0</replayR>
-	<replayG>0.4</replayG>
+	<overallScaleX>0.3625</overallScaleX>
+	<overallScaleY>1</overallScaleY>
+	<overallTransX>0</overallTransX>
+	<overallTransY>0</overallTransY>
+	<bFadeColorsAtEdges>1</bFadeColorsAtEdges>
+	<bFadeColorsAtEnds>0</bFadeColorsAtEnds>
+	<bAddTestPattern>0</bAddTestPattern>
+	<replayR>0.75</replayR>
+	<replayG>0.75</replayG>
 	<replayB>1</replayB>
+	<liveR>1</liveR>
+	<liveG>1</liveG>
+	<liveB>1</liveB>
 <group/>
-	<overallScaleX>0.25</overallScaleX>
-	<overallScaleY>0.6</overallScaleY>
-<bFadeColorsAtEdges>1</bFadeColorsAtEdges>
-<bAddTestPattern>0</bAddTestPattern>
-<liveR>1</liveR>
-	<liveG>0</liveG>
-	<liveB>0</liveB>
-<bFadeColorsAtEnds>1</bFadeColorsAtEnds>
 </group>

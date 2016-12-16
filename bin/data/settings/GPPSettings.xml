@@ -25,7 +25,7 @@
 	<preBlankCount>0</preBlankCount>
 		<preRepeatCount>0</preRepeatCount>
 		<postRepeatCount>0</postRepeatCount>
-		<postBlankCount>8</postBlankCount>
+		<postBlankCount>3</postBlankCount>
 	<targetPointCount>500</targetPointCount>
 	</group>
 </Input_Settings>

@@ -137,16 +137,21 @@ void ofApp::initializeGui(){
 						 (displayM*3)+(displayH*2));
 	inputGuiPanel2.add(overallScaleX.setup		("overallScaleX",			0.25, 0.0,1.0));
 	inputGuiPanel2.add(overallScaleY.setup		("overallScaleY",			0.25, 0.0,1.0));
+	inputGuiPanel2.add(overallTransX.setup		("overallTransX",			0.00, -0.5,0.5));
+	inputGuiPanel2.add(overallTransY.setup		("overallTransY",			0.00, -0.5,0.5));
+	
 	inputGuiPanel2.add(bFadeColorsAtEdges.setup	("bFadeColorsAtEdges",		true));
 	inputGuiPanel2.add(bFadeColorsAtEnds.setup	("bFadeColorsAtEnds",		true));
 	inputGuiPanel2.add(bAddTestPattern.setup	("bAddTestPattern",			false));
-	inputGuiPanel2.add(replayR.setup			("replayR",					0.0, 0,1));
-	inputGuiPanel2.add(replayG.setup			("replayG",					0.0, 0,1));
-	inputGuiPanel2.add(replayB.setup			("replayB",					1.0, 0,1));
-	inputGuiPanel2.add(liveR.setup				("liveR",					1.0, 0,1));
-	inputGuiPanel2.add(liveG.setup				("liveG",					0.0, 0,1));
-	inputGuiPanel2.add(liveB.setup				("liveB",					0.0, 0,1));
-
+	
+	/*
+	inputGuiPanel2.add(replayR.setup			("replayR",					0.75, 0,1));
+	inputGuiPanel2.add(replayG.setup			("replayG",					0.75, 0,1));
+	inputGuiPanel2.add(replayB.setup			("replayB",					1.00, 0,1));
+	inputGuiPanel2.add(liveR.setup				("liveR",					1.00, 0,1));
+	inputGuiPanel2.add(liveG.setup				("liveG",					1.00, 0,1));
+	inputGuiPanel2.add(liveB.setup				("liveB",					1.00, 0,1));
+	 */
 	
 	// Inits for things that have been commented out.
 	bSmoothHolesToo		= false;
@@ -154,6 +159,13 @@ void ofApp::initializeGui(){
 	bDoOptimizeTSP		= true;
 	bClosedTSP			= true;
 	nOptimizePasses		= 2;
+	
+	replayR				= 0.75;
+	replayG				= 0.75;
+	replayB				= 1.00;
+	liveR				= 1.00;
+	liveG				= 1.00;
+	liveB				= 1.00;
 	
 	inputGuiPanel1.loadFromFile("settings/GPPSettings.xml");
 	inputGuiPanel2.loadFromFile("settings/GPPSettings2.xml");
@@ -179,6 +191,8 @@ void ofApp::propagateGui(){
 	
 	mySkeletonDisplayer.overallScaleX = overallScaleX;
 	mySkeletonDisplayer.overallScaleY = overallScaleY;
+	mySkeletonDisplayer.overallTransX = overallTransX;
+	mySkeletonDisplayer.overallTransY = overallTransY;
 	mySkeletonDisplayer.bFadeColorsAtEdges = bFadeColorsAtEdges;
 	mySkeletonDisplayer.bFadeColorsAtEnds = bFadeColorsAtEnds;
 	mySkeletonDisplayer.bAddTestPattern = bAddTestPattern;
@@ -638,14 +652,20 @@ void ofApp::draw(){
 	mySkeletonDisplayer.renderDisplayQuadWarper(); 
     ofPopMatrix();
 	
-	
+	ty = displayY;
+	dy = 14;
 	int laserstate = mySkeletonDisplayer.etherdream.getState();
 	if (laserstate == 0){
 		ofSetColor(255,0,0);
-		ofDrawBitmapString( "ETHERDREAM_NOTFOUND", displayX+5,displayY+14);
+		ofDrawBitmapString( "ETHERDREAM_NOTFOUND", displayX+5,ty+dy); ty+=dy;
 	} else {
 		ofSetColor(0,255,0);
-		ofDrawBitmapString( "ETHERDREAM_FOUND: id-" + ofToString(laserstate), displayX+5,displayY+14);
+		ofDrawBitmapString( "ETHERDREAM_FOUND: id-" + ofToString(laserstate), displayX+5,ty+dy); ty+=dy;
+	}
+	if (bUseProxyVideoInsteadOfOSC){
+		int frameIndex = proxyVideoPlayer.getCurrentFrame();
+		ofSetColor(160,160,160);
+		ofDrawBitmapString( "Frame: " + ofToString(frameIndex), displayX+5,ty+dy); ty+=dy;
 	}
 	
 
@@ -727,7 +747,13 @@ void ofApp::keyPressed(int key){
 		case 'p':
 			//mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRecording(0);
 			mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRandomRecording();
-			printf("-------\n");
+			break;
+		case 't':
+		case 'T':
+			bAddTestPattern = !bAddTestPattern;
+			break;
+		case 'q':
+			proxyVideoPlayer.setFrame(700);
 			break;
     }
 }

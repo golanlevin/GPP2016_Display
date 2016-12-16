@@ -18,6 +18,8 @@ void SkeletonDisplayer::initialize(int w, int h){
 	
 	overallScaleX		= 0.25;
 	overallScaleY		= 0.25;
+	overallTransX		= 0;
+	overallTransY		= 0; 
 	liveColor.set(1.0, 0.0, 0.0);
 	
 	bConnectToYesterframeLastPoint = true;
@@ -135,11 +137,11 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 		// Animation of scale & position of the playback happens here.
 		float scaleX = overallScaleX;
 		float scaleY = overallScaleY;
-		float transX = 0.0;
-		float transY = 0.0;
+		float transX = overallTransX;
+		float transY = overallTransY;
 		
 		if ((whichType == PLAYBACK_DRAWING) && (!bPaused)){
-			float t = ofGetElapsedTimeMillis()/10000.0;
+			float t = ofGetElapsedTimeMillis()/700000.0;
 			transX += 0.750 * (ofNoise(t+whichRecording) - 0.5);
 			transX += ofMap((whichRecording % 10),0,9, -0.25,0.25);
 			transY += 0.060 * (ofNoise(t+whichRecording+10) - 0.5);
@@ -149,6 +151,7 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 			scaleX *= 1.15;
 			scaleY *= 1.15;
 		}
+		
 		
 		
 		for (int i=0; i<aDrawing.size(); i++){
@@ -188,10 +191,11 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 			// (B) at the start and end of the drawing loop.
 			float colorFade = 1.0;
 			if (bFadeColorsAtEdges){
-				float tukeyWindowAmount = 0.08;
-				ofPoint centroid = scaledShiftedPolyline.getCentroid2D();
-				float centX01 = ofClamp(centroid.x, 0,1);
-				float centY01 = ofClamp(centroid.y, 0,1);
+				float tukeyWindowAmount = 0.12;
+				// Note: ofPolyline's centroid() has a bug for S-shaped curves; use bbox-center.
+				ofPoint boxCenter = scaledShiftedPolyline.getBoundingBox().getCenter();
+				float centX01 = ofClamp(boxCenter.x, 0,1);
+				float centY01 = ofClamp(boxCenter.y, 0,1);
 				float fadeX = function_TukeyWindow (centX01, tukeyWindowAmount);
 				float fadeY = function_TukeyWindow (centY01, tukeyWindowAmount);
 				colorFade *= fadeX * fadeY;
@@ -386,7 +390,7 @@ void SkeletonDisplayer::computeFinalDrawing (vector<PolylinePlus> &aDrawing){
 				PolylinePlus connectivePolylinePlus;
 				connectivePolylinePlus.polyline = connectivePolyline;
 				connectivePolylinePlus.r = 0;
-				connectivePolylinePlus.g = 0; 
+				connectivePolylinePlus.g = 0;
 				connectivePolylinePlus.b = 0;
 				
 				finalDrawing.push_back(connectivePolylinePlus); //---- ADD yester connective
