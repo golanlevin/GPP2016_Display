@@ -36,7 +36,9 @@ class SkeletonDisplayer {
 	
 	
 	void	initialize(int w, int h);
-	void	givePointers(SkeletonTracer *ST, SkeletonLoaderSaver *SLS);
+	void	givePointers(SkeletonTracer *ST,
+						 SkeletonLoaderSaver *SLS0,
+						 SkeletonLoaderSaver *SLS1);
 	
 	void	update();
 	void	compileFinalDrawing();
@@ -56,6 +58,10 @@ class SkeletonDisplayer {
 	float	overallScaleY;
 	float	overallTransX;
 	float	overallTransY;
+	float	liveDrawingScale;
+	float	noiseDiv;
+	float	noiseAmt;
+	float	positionAmt;
 	
 	
 	vector<PolylinePlus> combinedDrawing;		// 1. Combination of live & playback
@@ -65,7 +71,8 @@ class SkeletonDisplayer {
 	
 	
 	SkeletonTracer		*mySkeletonTracer;
-	SkeletonLoaderSaver	*mySkeletonLoaderSaver;
+	SkeletonLoaderSaver	*mySkeletonLoaderSaver0;
+	SkeletonLoaderSaver	*mySkeletonLoaderSaver1;
 	
 	bool	bUseNormalizedDrawings;
 	bool	bShowPathBetweenBones;

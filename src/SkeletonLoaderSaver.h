@@ -27,7 +27,8 @@ class SkeletonLoaderSaver {
 	void	loadXMLRecording (string &xmlFilename, bool bFileIsZipped);
 	void	transferFromXmlToCurrentDrawing();
 	void	loadAndInitiatePlaybackOfRecording(int which);
-	void	loadAndInitiatePlaybackOfRandomRecording(); 
+	void	loadAndInitiatePlaybackOfRandomRecording();
+	void	loadAndInitiatePlaybackOfNextRecording();
 
 	void	saveXMLRecording (string &xmlFilename, bool bSaveAsZipped);
 	

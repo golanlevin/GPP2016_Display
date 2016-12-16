@@ -42,7 +42,7 @@ void XMLThread::stop(){
 void XMLThread::loadXml(string filename){
     lock();
     loadBuffer.push_back(filename);
-    cout<<"loading "<<filename<<endl;
+    // cout<<"loading "<<filename<<endl;
     unlock();
 }
 void XMLThread::saveXml(vector<vector<PolylinePlus> > lines, string filename, bool zip){
@@ -60,7 +60,7 @@ void XMLThread::threadedLoad(){
     string xmlFilename = loadBuffer.front();
     bool bLoadedFileFromXML = false;
     readXML.clear();
-    cout<<"loading "<<xmlFilename<<endl;
+    cout<<" loading "<<xmlFilename<<endl;
     bool bFileIsZipped = ofIsStringInString(xmlFilename, "zip");
     if (bFileIsZipped){
         // Load *zipped* XML into an ofBuffer
@@ -82,7 +82,6 @@ void XMLThread::threadedLoad(){
         bLoadedFileFromXML = readXML.loadFromBuffer(unzippedXMLString);
         
     } else { // if the input file is not zipped
-        
         bLoadedFileFromXML = readXML.loadFile(xmlFilename);
     }
     

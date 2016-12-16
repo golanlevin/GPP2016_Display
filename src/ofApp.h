@@ -87,6 +87,8 @@ class ofApp : public ofBaseApp{
 	Skeletonizer				mySkeletonizer;
 	int		kinectV2DepthW;
 	int		kinectV2DepthH;
+	int		kinectV1DepthW;
+	int		kinectV1DepthH;
 	int		skeletonBufW;
 	int		skeletonBufH;
 	float	skeletonScale;
@@ -130,9 +132,14 @@ class ofApp : public ofBaseApp{
 	ofxFloatSlider	overallScaleY;
 	ofxFloatSlider	overallTransX;
 	ofxFloatSlider	overallTransY;
+	ofxFloatSlider	liveDrawingScale;
+	ofxFloatSlider	noiseDiv;
+	ofxFloatSlider	noiseAmt;
+	ofxFloatSlider	positionAmt; 
+	
 	ofxToggle		bFadeColorsAtEdges;
 	ofxToggle		bFadeColorsAtEnds;
-	ofxToggle		bAddTestPattern; 
+	ofxToggle		bAddTestPattern;
 	ofxFloatSlider	replayR;
 	ofxFloatSlider	replayG;
 	ofxFloatSlider	replayB;
@@ -146,7 +153,10 @@ class ofApp : public ofBaseApp{
 	SkeletonTracer	*mySkeletonTracer;
 	bool bGotAProxyFrame;
 	
-	SkeletonLoaderSaver		*mySkeletonLoaderSaver;
+	SkeletonLoaderSaver		*mySkeletonLoaderSaver0;
+	SkeletonLoaderSaver		*mySkeletonLoaderSaver1;
+	int						currentLoaderSaverIndex;
+	
 	SkeletonDisplayer		mySkeletonDisplayer;
 	float					mainDisplayAreaScale;
 

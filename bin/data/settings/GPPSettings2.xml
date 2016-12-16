@@ -2,15 +2,19 @@
 	<overallScaleX>0.3625</overallScaleX>
 	<overallScaleY>1</overallScaleY>
 	<overallTransX>0</overallTransX>
-	<overallTransY>0</overallTransY>
+	<overallTransY>0.05</overallTransY>
 	<bFadeColorsAtEdges>1</bFadeColorsAtEdges>
 	<bFadeColorsAtEnds>0</bFadeColorsAtEnds>
 	<bAddTestPattern>0</bAddTestPattern>
-	<replayR>0.75</replayR>
-	<replayG>0.75</replayG>
+	<replayR>0.7</replayR>
+	<replayG>0.7</replayG>
 	<replayB>1</replayB>
 	<liveR>1</liveR>
 	<liveG>1</liveG>
 	<liveB>1</liveB>
+	<liveDrawingScale>1.25</liveDrawingScale>
+	<noiseDiv>4.125</noiseDiv>
+	<noiseAmt>0.325</noiseAmt>
+	<positionAmt>0.5</positionAmt>
 <group/>
 </group>

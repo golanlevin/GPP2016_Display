@@ -5,7 +5,6 @@ using namespace cv;
 
 /*
 // Todo:
-// Put 60Kpps in settings of etherdream?
 // Two saver-loaders
  // behaviors for playbackers
  // on-the-fly saving-loading
@@ -20,7 +19,6 @@ void ofApp::setup(){
     ofSetFrameRate(30);
     ofSetVerticalSync(true);
 	
-
     receiver.setup(6667);
     
 	proxyCaptureW = 320;
@@ -57,8 +55,11 @@ void ofApp::setup(){
 	myOfxCvContourFinder.setMinArea(minBlobSize);
 	myOfxCvContourFinder.setMaxArea(maxBlobSize);
 	
+	kinectV1DepthW		= 640;
+	kinectV1DepthH		= 480;
 	kinectV2DepthW		= 512;
 	kinectV2DepthH		= 424;
+	
 	
 	skeletonBufW		= 320; // Note: the Kinectv2 depth image is 512 x 424.
 	skeletonBufH		= 240; // 320x265 would preserve the aspect ratio of Kinectv2 depth image.
@@ -74,11 +75,18 @@ void ofApp::setup(){
 
 	
 	//---------------------------------
-	mySkeletonLoaderSaver = new SkeletonLoaderSaver();
-	mySkeletonLoaderSaver->initialize(skeletonBufW, skeletonBufH);
+	currentLoaderSaverIndex = 0;
+	
+	mySkeletonLoaderSaver0 = new SkeletonLoaderSaver();
+	mySkeletonLoaderSaver0->initialize(skeletonBufW, skeletonBufH);
+	
+	mySkeletonLoaderSaver1 = new SkeletonLoaderSaver();
+	mySkeletonLoaderSaver1->initialize(skeletonBufW, skeletonBufH);
 	
 	mySkeletonDisplayer.initialize(skeletonBufW, skeletonBufH);
-	mySkeletonDisplayer.givePointers(mySkeletonTracer, mySkeletonLoaderSaver);
+	mySkeletonDisplayer.givePointers(mySkeletonTracer,
+									 mySkeletonLoaderSaver0,
+									 mySkeletonLoaderSaver1);
 	
 	
 }
@@ -96,7 +104,8 @@ void ofApp::exit(){
 		mySkeletonDisplayer.DQW->saveCalibration();
 	}
 	
-	mySkeletonLoaderSaver->xmlThread.stop();
+	mySkeletonLoaderSaver0->xmlThread.stop();
+	mySkeletonLoaderSaver1->xmlThread.stop();
 }
 
 
@@ -139,6 +148,10 @@ void ofApp::initializeGui(){
 	inputGuiPanel2.add(overallScaleY.setup		("overallScaleY",			0.25, 0.0,1.0));
 	inputGuiPanel2.add(overallTransX.setup		("overallTransX",			0.00, -0.5,0.5));
 	inputGuiPanel2.add(overallTransY.setup		("overallTransY",			0.00, -0.5,0.5));
+	inputGuiPanel2.add(liveDrawingScale.setup	("liveDrawingScale",		1.10, 1.0, 1.5));
+	inputGuiPanel2.add(noiseDiv.setup			("noiseDiv",				5.00, 2.0, 7.0));
+	inputGuiPanel2.add(noiseAmt.setup			("noiseAmt",				0.75, 0.0, 1.0));
+	inputGuiPanel2.add(positionAmt.setup		("positionAmt",				0.50, 0.0, 1.0));
 	
 	inputGuiPanel2.add(bFadeColorsAtEdges.setup	("bFadeColorsAtEdges",		true));
 	inputGuiPanel2.add(bFadeColorsAtEnds.setup	("bFadeColorsAtEnds",		true));
@@ -164,8 +177,8 @@ void ofApp::initializeGui(){
 	replayG				= 0.75;
 	replayB				= 1.00;
 	liveR				= 1.00;
-	liveG				= 1.00;
-	liveB				= 1.00;
+	liveG				= 0.99;
+	liveB				= 0.98;
 	
 	inputGuiPanel1.loadFromFile("settings/GPPSettings.xml");
 	inputGuiPanel2.loadFromFile("settings/GPPSettings2.xml");
@@ -193,13 +206,21 @@ void ofApp::propagateGui(){
 	mySkeletonDisplayer.overallScaleY = overallScaleY;
 	mySkeletonDisplayer.overallTransX = overallTransX;
 	mySkeletonDisplayer.overallTransY = overallTransY;
+	mySkeletonDisplayer.liveDrawingScale = liveDrawingScale;
+	mySkeletonDisplayer.noiseDiv = noiseDiv;
+	mySkeletonDisplayer.noiseAmt = noiseAmt;
+	mySkeletonDisplayer.positionAmt = positionAmt;
+	
 	mySkeletonDisplayer.bFadeColorsAtEdges = bFadeColorsAtEdges;
 	mySkeletonDisplayer.bFadeColorsAtEnds = bFadeColorsAtEnds;
 	mySkeletonDisplayer.bAddTestPattern = bAddTestPattern;
 	
-	mySkeletonLoaderSaver->replayColor.r = replayR;
-	mySkeletonLoaderSaver->replayColor.g = replayG;
-	mySkeletonLoaderSaver->replayColor.b = replayB;
+	mySkeletonLoaderSaver0->replayColor.r = replayR;
+	mySkeletonLoaderSaver0->replayColor.g = replayG;
+	mySkeletonLoaderSaver0->replayColor.b = replayB;
+	mySkeletonLoaderSaver1->replayColor.r = replayR;
+	mySkeletonLoaderSaver1->replayColor.g = replayG;
+	mySkeletonLoaderSaver1->replayColor.b = replayB;
 	mySkeletonDisplayer.liveColor.r = liveR;
 	mySkeletonDisplayer.liveColor.g = liveG;
 	mySkeletonDisplayer.liveColor.b = liveB;
@@ -254,10 +275,14 @@ void ofApp::update(){
         // Trace the (polyline) skeleton bones from the (pixel) skeleton image.
         mySkeletonTracer->computeVectorSkeleton (mySkeletonizer.skeletonBuffer, nRawContours);
 		
-		// If mySkeletonLoaderSaver is recording, add in the most recent frame
-		if (mySkeletonLoaderSaver->isRecording()){
+		// If mySkeletonLoaderSaver is recording, add in the most recent frame.
+		// Only record to one loader-saver at a time!
+		if (mySkeletonLoaderSaver0->isRecording()){
 			vector<PolylinePlus> &theRawDrawing = mySkeletonTracer->theRawDrawing;
-			mySkeletonLoaderSaver->addFrameToCurrentRecording(theRawDrawing);
+			mySkeletonLoaderSaver0->addFrameToCurrentRecording(theRawDrawing);
+		} else if (mySkeletonLoaderSaver1->isRecording()){
+			vector<PolylinePlus> &theRawDrawing = mySkeletonTracer->theRawDrawing;
+			mySkeletonLoaderSaver1->addFrameToCurrentRecording(theRawDrawing);
 		}
 		
 		
@@ -307,6 +332,8 @@ vector<vector<cv::Point>> ofApp::obtainRawContours(){
                 rawContours.push_back(points);
                 isHole.push_back(m.getArgAsInt(1));
             }
+			
+			//if(m.getAddress() == "/blob"){  "/metadata/kinect");
         }
     }
     return rawContours;
@@ -498,8 +525,8 @@ void ofApp::filterContoursBeforeReconstitutionOSC(vector<vector<cv::Point>> &raw
                 float jyf = (float)jthRawPoint.y;
 				
 				// if (bScaleProxyToKinect){
-				jxf *= (float) skeletonBufW / (float) kinectV2DepthW; //(320.0/512.0);
-				jyf *= (float) skeletonBufH / (float) kinectV2DepthH; //(320.0/512.0);
+				jxf *= (float) skeletonBufW / (float) kinectV1DepthW; //(320.0/512.0);
+				jyf *= (float) skeletonBufH / (float) kinectV1DepthH; //(320.0/512.0);
 				// }
                 
                 ithNewPolyline.addVertex(jxf, jyf);
@@ -593,12 +620,20 @@ void ofApp::draw(){
     displayX = 1*displayW + 2*displayM;
     displayY = 0*displayH + 1*displayM;
     filledContourImage.draw(displayX,displayY, displayW,displayH);
-	if (mySkeletonLoaderSaver->isRecording()){
+	if (mySkeletonLoaderSaver0->isRecording() ||
+		mySkeletonLoaderSaver1->isRecording()){
 		ofFill();
 		ofSetColor(255,0,0);
 		ofDrawRectangle(displayX+5,displayY+5, 10,10);
-		int nCurrRecFrames = mySkeletonLoaderSaver->getCurrentRecordingLength();
-		ofDrawBitmapString( ofToString(nCurrRecFrames), displayX+20, displayY+15);
+		
+		int nCurrRecFrames = 0;
+		if (currentLoaderSaverIndex == 0){
+			nCurrRecFrames = mySkeletonLoaderSaver0->getCurrentRecordingLength();
+		} else {
+			nCurrRecFrames = mySkeletonLoaderSaver1->getCurrentRecordingLength();
+		}
+		ofDrawBitmapString(ofToString(currentLoaderSaverIndex) + ": " + ofToString(nCurrRecFrames),
+						   displayX+20, displayY+15);
 	}
 	
 	
@@ -686,7 +721,8 @@ void ofApp::keyPressed(int key){
                 bProxyVideoPlayerPaused = !bProxyVideoPlayerPaused;
                 proxyVideoPlayer.setPaused(bProxyVideoPlayerPaused);
             }
-			mySkeletonLoaderSaver->togglePlaybackPaused();
+			mySkeletonLoaderSaver0->togglePlaybackPaused();
+			mySkeletonLoaderSaver1->togglePlaybackPaused();
             break;
             
         case ',':
@@ -737,23 +773,70 @@ void ofApp::keyPressed(int key){
             proxyVideoPlayer.play();
             break;
 			
-		case 'r':
-		case 'R':
-			mySkeletonLoaderSaver->toggleRecording();
-			if (mySkeletonLoaderSaver->isRecording() == false){
-				mySkeletonLoaderSaver->saveCurrentRecording();
+		case 'r': // start recording.
+			
+			// Stop anything that's recording.
+			if (mySkeletonLoaderSaver0->isRecording()){
+				mySkeletonLoaderSaver0->stopRecording();
+				mySkeletonLoaderSaver0->saveCurrentRecording();
+			}
+			if (mySkeletonLoaderSaver1->isRecording()){
+				mySkeletonLoaderSaver1->stopRecording();
+				mySkeletonLoaderSaver1->saveCurrentRecording();
+			}
+			
+			currentLoaderSaverIndex = (currentLoaderSaverIndex+1)%2;
+			if (currentLoaderSaverIndex == 0){
+				if (mySkeletonLoaderSaver0->isRecording() == false){
+					mySkeletonLoaderSaver0->startRecording();
+				}
+			} else if (currentLoaderSaverIndex == 1){
+				if (mySkeletonLoaderSaver1->isRecording() == false){
+					mySkeletonLoaderSaver1->startRecording();
+				}
 			}
 			break;
-		case 'p':
-			//mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRecording(0);
-			mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRandomRecording();
-			break;
+			
 		case 't':
-		case 'T':
-			bAddTestPattern = !bAddTestPattern;
+			if (currentLoaderSaverIndex == 0){
+				if (mySkeletonLoaderSaver0->isRecording()){
+					mySkeletonLoaderSaver0->stopRecording();
+					mySkeletonLoaderSaver0->saveCurrentRecording();
+				}
+			} else if (currentLoaderSaverIndex == 1){
+				if (mySkeletonLoaderSaver1->isRecording()){
+					mySkeletonLoaderSaver1->stopRecording();
+					mySkeletonLoaderSaver1->saveCurrentRecording();
+				}
+			}
 			break;
-		case 'q':
-			proxyVideoPlayer.setFrame(700);
+			
+			
+		case 'p':
+			// mySkeletonLoaderSaver0->loadAndInitiatePlaybackOfNextRecording();
+			// mySkeletonLoaderSaver1->loadAndInitiatePlaybackOfNextRecording();
+			// mySkeletonLoaderSaver->loadAndInitiatePlaybackOfRecording(0);
+			
+			// Stop anything that's recording.
+			if (mySkeletonLoaderSaver0->isRecording()){
+				mySkeletonLoaderSaver0->stopRecording();
+				mySkeletonLoaderSaver0->saveCurrentRecording();
+			}
+			if (mySkeletonLoaderSaver1->isRecording()){
+				mySkeletonLoaderSaver1->stopRecording();
+				mySkeletonLoaderSaver1->saveCurrentRecording();
+			}
+			
+			currentLoaderSaverIndex = (currentLoaderSaverIndex+1)%2;
+			if (currentLoaderSaverIndex == 0){
+				mySkeletonLoaderSaver0->loadAndInitiatePlaybackOfRandomRecording();
+			} else {
+				mySkeletonLoaderSaver1->loadAndInitiatePlaybackOfRandomRecording();
+			}
+			break;
+			
+		case 'o':
+			bAddTestPattern = !bAddTestPattern;
 			break;
     }
 }

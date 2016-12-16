@@ -19,8 +19,13 @@ void SkeletonDisplayer::initialize(int w, int h){
 	overallScaleX		= 0.25;
 	overallScaleY		= 0.25;
 	overallTransX		= 0;
-	overallTransY		= 0; 
-	liveColor.set(1.0, 0.0, 0.0);
+	overallTransY		= 0;
+	liveDrawingScale	= 1.10;
+	noiseDiv			= 5.00;
+	noiseAmt			= 0.75;
+	positionAmt			= 0.50; 
+	
+	liveColor.set(1.0, 1.0, 1.0);
 	
 	bConnectToYesterframeLastPoint = true;
 	yesterframeLastPoint.set(0.5, 0.5);
@@ -54,16 +59,20 @@ void SkeletonDisplayer::initialize(int w, int h){
 }
 
 //--------------------------------------------------------------
-void SkeletonDisplayer::givePointers(SkeletonTracer *ST, SkeletonLoaderSaver *SLS){
+void SkeletonDisplayer::givePointers(SkeletonTracer *ST,
+									 SkeletonLoaderSaver *SLS0,
+									 SkeletonLoaderSaver *SLS1){
 	mySkeletonTracer = ST;
-	mySkeletonLoaderSaver = SLS;
+	mySkeletonLoaderSaver0 = SLS0;
+	mySkeletonLoaderSaver1 = SLS1;
 }
 
 //--------------------------------------------------------------
 void SkeletonDisplayer::update(){
 	
 	// Update the playback head of the mySkeletonLoaderSaver.
-	mySkeletonLoaderSaver->retrieveAndAdvanceCurrentPlaybackDrawing();
+	mySkeletonLoaderSaver0->retrieveAndAdvanceCurrentPlaybackDrawing();
+	mySkeletonLoaderSaver1->retrieveAndAdvanceCurrentPlaybackDrawing();
 	
 	// Merge, then optimize, the live & playback drawings into a single drawing
 	compileFinalDrawing();
@@ -77,20 +86,26 @@ void SkeletonDisplayer::compileFinalDrawing(){
 	vector<PolylinePlus> &theRawDrawing				= mySkeletonTracer->theRawDrawing;
 	
 	//--------------------
-	// 2. Fetch the "playback" drawing (if any) from SkeletonLoaderSaver
-	vector<PolylinePlus> &currentPlaybackDrawing	= mySkeletonLoaderSaver->currentPlaybackDrawing;
+	// 2. Fetch the "playback" drawing(s) (if any) from SkeletonLoaderSaver(s)
+	vector<PolylinePlus> &currentPlaybackDrawing0	= mySkeletonLoaderSaver0->currentPlaybackDrawing;
+	vector<PolylinePlus> &currentPlaybackDrawing1	= mySkeletonLoaderSaver1->currentPlaybackDrawing;
 	
 	//--------------------
 	// 3. Combine these into combinedDrawing, producing: vector<PolylinePlus>.
 	// Apply offsets (scale & translation) to various parts NOW
 	
 	combinedDrawing.clear();
-	bool bPaused = mySkeletonLoaderSaver->bPlaybackPaused;
-	float timePercent = mySkeletonLoaderSaver->currentPlaybackFramePercent;
-	int whichRecording = mySkeletonLoaderSaver->recordingIndex;
-	addDrawing (theRawDrawing,liveColor, bPaused, THE_LIVE_DRAWING, 0.5, 0);
-	addDrawing (currentPlaybackDrawing, mySkeletonLoaderSaver->replayColor,
-				bPaused, PLAYBACK_DRAWING, timePercent, whichRecording);
+	bool bPaused0 = mySkeletonLoaderSaver0->bPlaybackPaused;
+	float timePercent0 = mySkeletonLoaderSaver0->currentPlaybackFramePercent;
+
+	bool bPaused1 = mySkeletonLoaderSaver1->bPlaybackPaused;
+	float timePercent1 = mySkeletonLoaderSaver1->currentPlaybackFramePercent;
+
+	addDrawing (theRawDrawing,liveColor, false, THE_LIVE_DRAWING, 0.5, -1);
+	addDrawing (currentPlaybackDrawing0, mySkeletonLoaderSaver0->replayColor,
+				bPaused0, PLAYBACK_DRAWING, timePercent0, 0);
+	addDrawing (currentPlaybackDrawing1, mySkeletonLoaderSaver1->replayColor,
+				bPaused1, PLAYBACK_DRAWING, timePercent1, 1);
 	addTestPattern();
 
 	// Count total number of points in combinedDrawing
@@ -128,7 +143,7 @@ void SkeletonDisplayer::addDrawingSimple (vector<PolylinePlus> &aDrawing){
 void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 									ofFloatColor &drawingColor,
 									bool bPaused, int whichType,
-									float timePercent, int whichRecording){
+									float timePercent, int whichPlayer){
 	
 	// Add mySkeletonLoaderSaver's currentPlaybackDrawing;
 	// vector<PolylinePlus> &aDrawing = aSLS->currentPlaybackDrawing;
@@ -140,16 +155,19 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 		float transX = overallTransX;
 		float transY = overallTransY;
 		
-		if ((whichType == PLAYBACK_DRAWING) && (!bPaused)){
-			float t = ofGetElapsedTimeMillis()/700000.0;
-			transX += 0.750 * (ofNoise(t+whichRecording) - 0.5);
-			transX += ofMap((whichRecording % 10),0,9, -0.25,0.25);
-			transY += 0.060 * (ofNoise(t+whichRecording+10) - 0.5);
+		if (whichType == PLAYBACK_DRAWING){
+			transX += ofMap(whichPlayer,0,1, 0-positionAmt/2.0,positionAmt/2.0);
+			if (!bPaused){
+				float noiseSlow = pow(10.0, noiseDiv);
+				float t = ofGetElapsedTimeMillis()/noiseSlow;
+				transX += noiseAmt * (ofNoise(t+whichPlayer*10.0) - 0.5);
+				transY += noiseAmt * (ofNoise(t+whichPlayer*15.0) - 0.5) * 0.12;
+			}
 		}
 		
 		if (whichType == THE_LIVE_DRAWING){
-			scaleX *= 1.15;
-			scaleY *= 1.15;
+			scaleX *= liveDrawingScale;
+			scaleY *= liveDrawingScale;
 		}
 		
 		
@@ -178,7 +196,7 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 				
 				px = ofClamp(px, MIN_POINT_VALUE,MAX_POINT_VALUE);
 				py = ofClamp(py, MIN_POINT_VALUE,MAX_POINT_VALUE);
-				px += ofRandom(-0.000001,0.000001); // paranoid epsilon to avoid divzero
+				px += ofRandom(-0.000001,0.000001); // paranoid epsilon to avoid div/zero
 				py += ofRandom(-0.000001,0.000001);
 				scaledShiftedPolyline.addVertex(px, py);
 			}
@@ -526,7 +544,7 @@ void SkeletonDisplayer::renderToScreen(){
 	ofPushMatrix();
 	
 	if (bUseNormalizedDrawings){ ofScale(buffer_w, buffer_w); }
-	renderVectorOfPolylinePluses (finalDrawing); //optimizedDrawing);
+	renderVectorOfPolylinePluses (finalDrawing);
 	
 	ofPopMatrix();
 	glPopAttrib(); // Restore blend mode defaults
@@ -545,7 +563,8 @@ void SkeletonDisplayer::renderRawInputsToScreen(){
 	// Render the (uncombined) raw inputs to the screen.
 	
 	vector<PolylinePlus> &theRawDrawing				= mySkeletonTracer->theRawDrawing;
-	vector<PolylinePlus> &currentPlaybackDrawing	= mySkeletonLoaderSaver->currentPlaybackDrawing;
+	vector<PolylinePlus> &currentPlaybackDrawing0	= mySkeletonLoaderSaver0->currentPlaybackDrawing;
+	vector<PolylinePlus> &currentPlaybackDrawing1	= mySkeletonLoaderSaver1->currentPlaybackDrawing;
 	
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glEnable(GL_BLEND);
@@ -554,8 +573,9 @@ void SkeletonDisplayer::renderRawInputsToScreen(){
 	
 	if (bUseNormalizedDrawings){ ofScale(buffer_w, buffer_w); }
 	renderVectorOfPolylinePluses (theRawDrawing);
-	renderVectorOfPolylinePluses (currentPlaybackDrawing);
-
+	renderVectorOfPolylinePluses (currentPlaybackDrawing0);
+	renderVectorOfPolylinePluses (currentPlaybackDrawing1);
+	
 	ofPopMatrix();
 	glPopAttrib(); // Restore blend mode default.
 }

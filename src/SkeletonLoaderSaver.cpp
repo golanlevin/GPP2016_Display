@@ -138,7 +138,6 @@ void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRandomRecording(){
 
 //---------------------------------
 void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRecording (int which){
-    
     if(savedFiles.size() >= which && savedFiles.size() > 0){
         string xmlFilename = savedFiles[which];
         loadXMLRecording(xmlFilename, bUseZippedFiles);
@@ -146,6 +145,19 @@ void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRecording (int which){
 		recordingIndex = which;
     }
 }
+
+//---------------------------------
+void SkeletonLoaderSaver::loadAndInitiatePlaybackOfNextRecording(){
+	recordingsDirectory.listDir();
+	int nRecordings = recordingsDirectory.size();
+	if (nRecordings > 0){
+		recordingIndex = (recordingIndex + 1)%nRecordings;
+		string xmlFilename = recordingsDirectory.getPath(recordingIndex);
+		loadXMLRecording(xmlFilename, bUseZippedFiles);
+		currentPlaybackFrameIndex = 0;
+	}
+}
+
 
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::loadXMLRecording (string &xmlFilename, bool bFileIsZipped){

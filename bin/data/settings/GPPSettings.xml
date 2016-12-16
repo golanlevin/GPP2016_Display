@@ -1,16 +1,16 @@
 <Input_Settings>
 	<proxyThreshold>80</proxyThreshold>
-	<inputLineSmoothing>5</inputLineSmoothing>
-	<inputLineResample>3</inputLineResample>
+	<inputLineSmoothing>4</inputLineSmoothing>
+	<inputLineResample>2.5</inputLineResample>
 	<contourThickness>2</contourThickness>
 	<boneResampling>3</boneResampling>
 <Input_Settings/>
 <bSmoothHolesToo>0</bSmoothHolesToo>
 <group>
 	<proxyThreshold>80</proxyThreshold>
-	<inputLineSmoothing>5</inputLineSmoothing>
-	<inputLineResample>3</inputLineResample>
-	<contourThickness>1</contourThickness>
+	<inputLineSmoothing>4.13333</inputLineSmoothing>
+	<inputLineResample>2.375</inputLineResample>
+	<contourThickness>0</contourThickness>
 	<bSmoothHolesToo>0</bSmoothHolesToo>
 	<bDrawGrayProxy>0</bDrawGrayProxy>
 	<boneResampling>1.5</boneResampling>
