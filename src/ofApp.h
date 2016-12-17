@@ -57,10 +57,13 @@ class ofApp : public ofBaseApp{
 	int		maxBlobSize;
 	int		maxNBlobs;
 	bool	bGetHoles;
-
+	int		nRawContours;
+	
+	bool	bBlankProxyVideo;
 	bool	bProxyVideoPlayerPaused;
 	void	captureProxyVideo(); 
 	void	computeContoursFromProxyVideo();
+	void	sequenceSkeletonPlayback();
 	
 	//-----------------------------------------------
 	// Contour calculation and filtering
@@ -147,15 +150,35 @@ class ofApp : public ofBaseApp{
 	ofxFloatSlider	liveG;
 	ofxFloatSlider	liveB;
 	
+	float			presenceFractionAvg;
+	
+	ofxIntSlider	refreshPeriod;
+	int				refreshPeriodRandomized;
+	long			lastProxySwitchTime; 
+	int				whichRefresh;
+	long			lastRefreshTime;
+	void			refreshSkeletonPlaybacker(int which);
+	
+	
+	
+	ofxFloatSlider	recordStartThresh;
+	ofxFloatSlider	recordStopThresh;
+	ofxFloatSlider	tooMuchPresenceThresh;
+	
+	bool			bRecording;
+	void			toggleRecording();
+	void			startRecording();
+	void			stopRecording();
+	void			stopAndSaveRecording();
+	
 	//-----------------------------------------------
 	// Skeleton tracing produces ofPolylines.
 	//
 	SkeletonTracer	*mySkeletonTracer;
 	bool bGotAProxyFrame;
 	
-	SkeletonLoaderSaver		*mySkeletonLoaderSaver0;
-	SkeletonLoaderSaver		*mySkeletonLoaderSaver1;
-	int						currentLoaderSaverIndex;
+	SkeletonLoaderSaver		*mySkeletonPlaybackers[2];
+	SkeletonLoaderSaver		*mySkeletonRecorder;
 	
 	SkeletonDisplayer		mySkeletonDisplayer;
 	float					mainDisplayAreaScale;

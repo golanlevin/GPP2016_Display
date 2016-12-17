@@ -25,14 +25,19 @@ void SkeletonLoaderSaver::initialize(int w, int h){
 		recordingsDirectory.allowExt("xml");
 	}
 	recordingsDirectory.listDir();
+	/*
 	for (int i=0; i< recordingsDirectory.size(); i++){
 		ofLogNotice(recordingsDirectory.getPath(i));
 	}
-
-
-    maxNRecordingFrames = 1000;
-    bDeleteOldestFramesWhenRecording = true;
-	recordingIndex = 0;
+	*/ 
+	
+	bPlayBackAndForth	= true;
+	playbackDirection	= 1;
+	minNRecordingFrames	= 50;
+    maxNRecordingFrames = 200;
+	maxNRecordings		= 100;
+	bDeleteOldestFramesWhenRecording = true;
+	playbackRecordingIndex = 0;
     
     readXML.clear();
 
@@ -59,11 +64,23 @@ void SkeletonLoaderSaver::initialize(int w, int h){
     ofAddListener(xmlThread.xmlLoaded, this,  &SkeletonLoaderSaver::recordingLoaded);
 }
 
-
+//--------------------------------------------------------------
+void SkeletonLoaderSaver::clear(){
+	readXML.clear();
+	
+	currentPlaybackDrawing.clear();
+	currentPlaybackFrames.clear();
+	currentRecordingFrames.clear();
+	
+	currentPlaybackFrameIndex = 0;
+	currentPlaybackFramePercent = 0;
+	bCurrentlyRecording = false;
+}
 
 
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::startRecording(){
+	recordingStartTime = ofGetElapsedTimeMillis();
     currentRecordingFrames.clear();
     bCurrentlyRecording = true;
 }
@@ -85,14 +102,17 @@ void SkeletonLoaderSaver::toggleRecording(){
 
 //---------------------------------
 void SkeletonLoaderSaver::saveCurrentRecording(){
-    stopRecording();
-    if (currentRecordingFrames.size() > 0){
+	// Don't call stopRecording() beforehand, or this won't do anything!
+	if (bCurrentlyRecording){
+		stopRecording();
 
-		int outn = SkeletonLoaderSaver::outputFileCounter;
-        string xmlFilename = "recordings/recording_" + ofToString(outn) + ".xml";
-        if (bUseZippedFiles){ xmlFilename += ".zip"; }
-        saveXMLRecording (xmlFilename, bUseZippedFiles);
-    }
+		if (currentRecordingFrames.size() > minNRecordingFrames){
+			int outn = SkeletonLoaderSaver::outputFileCounter;
+			string xmlFilename = "recordings/recording_" + ofToString(outn) + ".xml";
+			if (bUseZippedFiles){ xmlFilename += ".zip"; }
+			saveXMLRecording (xmlFilename, bUseZippedFiles);
+		}
+	}
 }
 
 //---------------------------------
@@ -100,10 +120,7 @@ bool SkeletonLoaderSaver::isRecording(){
     return bCurrentlyRecording;
 }
 
-//---------------------------------
-int SkeletonLoaderSaver::getCurrentRecordingLength(){
-    return (currentRecordingFrames.size());
-}
+
 
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::addFrameToCurrentRecording (vector<PolylinePlus> &theRawDrawing){
@@ -127,13 +144,28 @@ void SkeletonLoaderSaver::addFrameToCurrentRecording (vector<PolylinePlus> &theR
 
 //---------------------------------
 void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRandomRecording(){
+	stopRecording();
 	recordingsDirectory.listDir();
 	int randomIndex = (int) ofRandom(0.999999 * recordingsDirectory.size());
-	string xmlFilename = recordingsDirectory.getPath(randomIndex);
-	loadXMLRecording(xmlFilename, bUseZippedFiles);
 	
+	// Ensure difference from previous run.
+	if (recordingsDirectory.size() > 2){
+		while (randomIndex == playbackRecordingIndex){
+			randomIndex = (int) ofRandom(0.999999 * recordingsDirectory.size());
+		}
+	}
+
+	// Flip a weighted coin to decide if we'll go back-and-forth on this run.
+	bPlayBackAndForth = (ofRandom(1.0) < 0.66);
+	
+	// Reset state
 	currentPlaybackFrameIndex = 0;
-	recordingIndex = randomIndex;
+	currentPlaybackFramePercent = 0;
+	
+	// Load the requested file.
+	playbackRecordingIndex = randomIndex;
+	string xmlFilename = recordingsDirectory.getPath(playbackRecordingIndex);
+	loadXMLRecording(xmlFilename, bUseZippedFiles);
 }
 
 //---------------------------------
@@ -142,7 +174,7 @@ void SkeletonLoaderSaver::loadAndInitiatePlaybackOfRecording (int which){
         string xmlFilename = savedFiles[which];
         loadXMLRecording(xmlFilename, bUseZippedFiles);
 		currentPlaybackFrameIndex = 0;
-		recordingIndex = which;
+		playbackRecordingIndex = which;
     }
 }
 
@@ -151,13 +183,32 @@ void SkeletonLoaderSaver::loadAndInitiatePlaybackOfNextRecording(){
 	recordingsDirectory.listDir();
 	int nRecordings = recordingsDirectory.size();
 	if (nRecordings > 0){
-		recordingIndex = (recordingIndex + 1)%nRecordings;
-		string xmlFilename = recordingsDirectory.getPath(recordingIndex);
+		playbackRecordingIndex = (playbackRecordingIndex + 1)%nRecordings;
+		string xmlFilename = recordingsDirectory.getPath(playbackRecordingIndex);
 		loadXMLRecording(xmlFilename, bUseZippedFiles);
 		currentPlaybackFrameIndex = 0;
 	}
 }
 
+//---------------------------------
+int SkeletonLoaderSaver::getCurrentPlaybackRecordingIndex(){
+	return playbackRecordingIndex;
+}
+
+//---------------------------------
+int SkeletonLoaderSaver::getCurrentPlaybackFrameIndex(){
+	return currentPlaybackFrameIndex;
+}
+
+//---------------------------------
+int SkeletonLoaderSaver::getCurrentPlaybackLength(){
+	return (currentPlaybackFrames.size());
+}
+
+//---------------------------------
+int SkeletonLoaderSaver::getCurrentRecordingLength(){
+	return (currentRecordingFrames.size());
+}
 
 //--------------------------------------------------------------
 void SkeletonLoaderSaver::loadXMLRecording (string &xmlFilename, bool bFileIsZipped){
@@ -170,13 +221,17 @@ void SkeletonLoaderSaver::loadXMLRecording (string &xmlFilename, bool bFileIsZip
 
 
 void SkeletonLoaderSaver::recordingSaved(string & filename){
-     ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!  "<<filename<<" saved"<<endl;
+	// ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!  "<<filename<<" saved"<<endl;
     savedFiles.push_back(filename);
-    SkeletonLoaderSaver::outputFileCounter++;
+	
+	int ofc;
+	ofc = SkeletonLoaderSaver::outputFileCounter;
+	ofc = (ofc + 1) % maxNRecordings;
+	SkeletonLoaderSaver::outputFileCounter = ofc;
 }
 
 void SkeletonLoaderSaver::recordingLoaded(ofxXmlSettings & xml){
-     ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!   loaded"<<endl;
+	// ofLog(OF_LOG_NOTICE)<<"!!!!!!!!!!!!!!!!!!!!!!   loaded"<<endl;
     readXML = xml;
     bLoadedFileFromXML = true;
     transferFromXmlToCurrentDrawing();
@@ -255,15 +310,36 @@ void SkeletonLoaderSaver::retrieveAndAdvanceCurrentPlaybackDrawing(){
     if (bLoadedFileFromXML){
         int nFramesInThisRecording = currentPlaybackFrames.size();
         if (nFramesInThisRecording > 0) {
-            
-            currentPlaybackFrameIndex %= nFramesInThisRecording; // Safety check.
-            currentPlaybackDrawing = currentPlaybackFrames[currentPlaybackFrameIndex];
-            
-            // advance currentPlaybackFrameIndex
-            if (!bPlaybackPaused){
-                currentPlaybackFrameIndex ++;
-                currentPlaybackFrameIndex %= nFramesInThisRecording;
-            }
+			
+			
+			if (bPlayBackAndForth){
+				// Sanity check.
+				currentPlaybackFrameIndex = MAX(currentPlaybackFrameIndex, 0);
+				currentPlaybackFrameIndex = MIN(currentPlaybackFrameIndex, nFramesInThisRecording-1);
+				currentPlaybackDrawing = currentPlaybackFrames[currentPlaybackFrameIndex];
+				
+				// advance currentPlaybackFrameIndex
+				if (!bPlaybackPaused){
+					currentPlaybackFrameIndex += playbackDirection;
+					if (currentPlaybackFrameIndex >= (nFramesInThisRecording-1)){
+						playbackDirection = -1;
+					}
+					if (currentPlaybackFrameIndex <= 0){
+						playbackDirection = 1;
+					}
+				}
+				
+			} else {
+				// Straightforward looping, with discontinuity
+				currentPlaybackFrameIndex %= nFramesInThisRecording; // Safety check.
+				currentPlaybackDrawing = currentPlaybackFrames[currentPlaybackFrameIndex];
+				
+				// advance currentPlaybackFrameIndex
+				if (!bPlaybackPaused){
+					currentPlaybackFrameIndex ++;
+					currentPlaybackFrameIndex %= nFramesInThisRecording;
+				}
+			}
 			
 			currentPlaybackFramePercent = (float)currentPlaybackFrameIndex/(float)nFramesInThisRecording;
         }

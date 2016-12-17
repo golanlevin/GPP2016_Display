@@ -127,7 +127,6 @@ void SkeletonDisplayer::compileFinalDrawing(){
 	// 7. Add finalDrawing to ildaFrame, and send points to the etherdream DAC
 	generateAndSendIldaFrame();
 	
-
 }
 
 //------------------------------------------------------------
@@ -169,7 +168,6 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 			scaleX *= liveDrawingScale;
 			scaleY *= liveDrawingScale;
 		}
-		
 		
 		
 		for (int i=0; i<aDrawing.size(); i++){

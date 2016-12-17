@@ -33,21 +33,31 @@ class SkeletonLoaderSaver {
 	void	saveXMLRecording (string &xmlFilename, bool bSaveAsZipped);
 	
 	void	generateBogusFrames();
-	void	drawCurrentPlaybackFrame();
 	void	togglePlaybackPaused();
 	
 	bool	isRecording();
+	void	clear(); 
 	void	toggleRecording(); 
 	void	startRecording();
 	void	addFrameToCurrentRecording (vector<PolylinePlus> &theRawDrawing);
 	void	stopRecording();
 	void	saveCurrentRecording();
 	void	retrieveAndAdvanceCurrentPlaybackDrawing();
-	int		getCurrentRecordingLength(); 
+	long	recordingStartTime; //ms
+	
+	int		getCurrentRecordingLength();
+	int		getCurrentPlaybackLength();
+	int		getCurrentPlaybackRecordingIndex();
+	int		getCurrentPlaybackFrameIndex();
+	
 	bool	bCurrentlyRecording;
 	bool	bDeleteOldestFramesWhenRecording;
 	bool	bUseZippedFiles;
+	bool	bPlayBackAndForth;
+	int		playbackDirection;
+	int		minNRecordingFrames;
 	int		maxNRecordingFrames;
+	int		maxNRecordings;
 	
 	
 	ofxXmlSettings readXML;
@@ -57,7 +67,7 @@ class SkeletonLoaderSaver {
 	vector<vector<PolylinePlus>> currentPlaybackFrames;  // the sequence of currently re-playing drawings
 	vector<vector<PolylinePlus>> currentRecordingFrames; // the drawings currently being recorded
 	
-	int		recordingIndex;
+	int		playbackRecordingIndex;
 	int		currentPlaybackFrameIndex;
 	float	currentPlaybackFramePercent;
 	bool	bLoadedFileFromXML;
