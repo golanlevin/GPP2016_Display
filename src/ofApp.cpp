@@ -153,14 +153,14 @@ void ofApp::initializeGui(){
 	inputGuiPanel2.add(overallTransY.setup		("overallTransY",			0.00, -0.5,0.5));
 	inputGuiPanel2.add(liveDrawingScale.setup	("liveDrawingScale",		1.10, 1.0, 1.5));
 	inputGuiPanel2.add(noiseDiv.setup			("noiseDiv",				5.00, 2.0, 7.0));
-	inputGuiPanel2.add(noiseAmt.setup			("noiseAmt",				0.75, 0.0, 1.0));
-	inputGuiPanel2.add(positionAmt.setup		("positionAmt",				0.50, 0.0, 1.0));
+	inputGuiPanel2.add(noiseAmt.setup			("noiseAmt",				0.325, 0.0, 1.0));
+//	inputGuiPanel2.add(positionAmt.setup		("positionAmt",				0.50, 0.0, 1.0));
 	
 	inputGuiPanel2.add(bFadeColorsAtEdges.setup	("bFadeColorsAtEdges",		true));
 	inputGuiPanel2.add(bFadeColorsAtEnds.setup	("bFadeColorsAtEnds",		true));
 	inputGuiPanel2.add(bAddTestPattern.setup	("bAddTestPattern",			false));
 	
-	inputGuiPanel2.add(refreshPeriod.setup		("refreshPeriod",			5000, 1000,30000));
+	inputGuiPanel2.add(refreshPeriod.setup		("refreshPeriod",			8000, 1000,30000));
 	lastRefreshTime = ofGetElapsedTimeMillis();
 	refreshPeriodRandomized = refreshPeriod;
 	whichRefresh = 0;
@@ -186,6 +186,7 @@ void ofApp::initializeGui(){
 	bDoOptimizeTSP		= true;
 	bClosedTSP			= true;
 	nOptimizePasses		= 2;
+	positionAmt			= 0.50; 
 	
 	replayR				= 0.75;
 	replayG				= 0.75;

@@ -1,6 +1,6 @@
 <group>
-	<overallScaleX>0.3625</overallScaleX>
-	<overallScaleY>1</overallScaleY>
+	<overallScaleX>0.35</overallScaleX>
+	<overallScaleY>0.95</overallScaleY>
 	<overallTransX>0</overallTransX>
 	<overallTransY>0.05</overallTransY>
 	<bFadeColorsAtEdges>0</bFadeColorsAtEdges>
@@ -15,10 +15,10 @@
 	<liveDrawingScale>1.18</liveDrawingScale>
 	<noiseDiv>4.4</noiseDiv>
 	<noiseAmt>0.325</noiseAmt>
-	<positionAmt>0.465487</positionAmt>
-	<refreshPeriod>5000</refreshPeriod>
+	<positionAmt>0.50</positionAmt>
+	<refreshPeriod>8000</refreshPeriod>
 	<recordStartThresh>0.07</recordStartThresh>
 	<recordStopThresh>0.03</recordStopThresh>
+	<tooMuchPresenceThresh>0.25</tooMuchPresenceThresh>
 <group/>
-<tooMuchPresenceThresh>0.25</tooMuchPresenceThresh>
 </group>
