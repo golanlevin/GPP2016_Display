@@ -6,19 +6,20 @@
 	<bFadeColorsAtEdges>0</bFadeColorsAtEdges>
 	<bFadeColorsAtEnds>0</bFadeColorsAtEnds>
 	<bAddTestPattern>0</bAddTestPattern>
-	<replayR>0.78</replayR>
-	<replayG>0.78</replayG>
-	<replayB>0.88</replayB>
+	<replayR>0.1</replayR>
+	<replayG>0.25</replayG>
+	<replayB>1</replayB>
 	<liveR>1</liveR>
-	<liveG>1</liveG>
-	<liveB>1</liveB>
-	<liveDrawingScale>1.18</liveDrawingScale>
+	<liveG>0.25</liveG>
+	<liveB>0.1</liveB>
+	<liveDrawingScale>1.17</liveDrawingScale>
 	<noiseDiv>4.4</noiseDiv>
 	<noiseAmt>0.325</noiseAmt>
 	<positionAmt>0.50</positionAmt>
 	<refreshPeriod>8000</refreshPeriod>
 	<recordStartThresh>0.07</recordStartThresh>
 	<recordStopThresh>0.03</recordStopThresh>
-	<tooMuchPresenceThresh>0.25</tooMuchPresenceThresh>
+	<tooMuchPresenceThresh>0.454167</tooMuchPresenceThresh>
 <group/>
+<bVSync>1</bVSync>
 </group>

@@ -8,8 +8,8 @@
 <bSmoothHolesToo>0</bSmoothHolesToo>
 <group>
 	<proxyThreshold>80</proxyThreshold>
-	<inputLineSmoothing>4.13333</inputLineSmoothing>
-	<inputLineResample>2.375</inputLineResample>
+	<inputLineSmoothing>1.66667</inputLineSmoothing>
+	<inputLineResample>7.83333</inputLineResample>
 	<contourThickness>0</contourThickness>
 	<bSmoothHolesToo>0</bSmoothHolesToo>
 	<bDrawGrayProxy>0</bDrawGrayProxy>
@@ -27,5 +27,6 @@
 		<postRepeatCount>0</postRepeatCount>
 		<postBlankCount>3</postBlankCount>
 	<targetPointCount>500</targetPointCount>
+	<bEnableRecording>0</bEnableRecording>
 	</group>
 </Input_Settings>

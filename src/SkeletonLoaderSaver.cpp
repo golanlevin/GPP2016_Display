@@ -25,6 +25,7 @@ void SkeletonLoaderSaver::initialize(int w, int h){
 		recordingsDirectory.allowExt("xml");
 	}
 	recordingsDirectory.listDir();
+	SkeletonLoaderSaver::outputFileCounter = (recordingsDirectory.size() - 1); 
 	/*
 	for (int i=0; i< recordingsDirectory.size(); i++){
 		ofLogNotice(recordingsDirectory.getPath(i));

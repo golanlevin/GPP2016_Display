@@ -3,14 +3,6 @@
 using namespace ofxCv;
 using namespace cv;
 
-/*
-// Todo:
-// Two saver-loaders
- // behaviors for playbackers
- // on-the-fly saving-loading
-// Kinectv1
-*/
-
 //--------------------------------------------------------------
 void ofApp::setup(){
 
@@ -31,11 +23,15 @@ void ofApp::setup(){
 	
 	initializeGui();
 	
-	proxyVideoFilenames = new string[3];
-	proxyVideoFilenames[0] = "proxy/1_Fernanda-Cascada_Input.mov";
-	proxyVideoFilenames[1] = "proxy/2_Lewis-Cascada_Input.mov";
-	proxyVideoFilenames[2] = "proxy/3_Group-Cascada_Input.mov";
-
+	proxyVideoFilenames = new string[7];
+	proxyVideoFilenames[0] = "proxy/1.mov"; //1_Fernanda-Cascada_Input.mov";
+	proxyVideoFilenames[1] = "proxy/2.mov"; //2_Lewis-Cascada_Input.mov";
+	proxyVideoFilenames[2] = "proxy/3.mov"; //3_Group-Cascada_Input.mov";
+	proxyVideoFilenames[3] = "proxy/4.mov"; //4_extras-Cascada_Input.mov";
+	proxyVideoFilenames[4] = "proxy/5.mov";
+	proxyVideoFilenames[5] = "proxy/6.mov";
+	proxyVideoFilenames[6] = "proxy/7.mov";
+	
 	proxyVideoPlayer.load(proxyVideoFilenames[1]);
 	proxyVideoPlayer.play();
 	proxyVideoPlayer.setLoopState(OF_LOOP_NORMAL);
@@ -118,7 +114,8 @@ void ofApp::initializeGui(){
     ofxGuiSetDefaultWidth(displayW);
     inputGuiPanel1.setup("Settings", "settings/GPPSettings.xml", displayM, (displayM*3)+(displayH*2));
 	
-	inputGuiPanel1.add(bSaveOnExit.setup			("bSaveOnExit", false));
+	inputGuiPanel1.add(bSaveOnExit.setup		("bSaveOnExit", false));
+	inputGuiPanel1.add(bEnableRecording.setup	("bEnableRecording",						true));
 	inputGuiPanel1.add(bUseProxyVideoInsteadOfOSC.setup ("bUseProxyVideoInsteadOfOSC",		true));
     inputGuiPanel1.add(proxyThreshold.setup		("proxyThreshold",		80, 0,254));
     inputGuiPanel1.add(inputLineSmoothing.setup	("inputLineSmoothing",	5.0, 0.0, 16.0));
@@ -130,7 +127,7 @@ void ofApp::initializeGui(){
     inputGuiPanel1.add(boneResampling.setup		("boneResampling",		1.5, 1.0, 11.0));
     inputGuiPanel1.add(boneSmoothSigma.setup	("boneSmoothSigma",		0.9, 0.0, 3.0));
     inputGuiPanel1.add(boneSmoothKernW.setup	("boneSmoothKernW",		2, 1, 7));
-    inputGuiPanel1.add(bDoMergeBones.setup		("bDoMergeBones",		true));
+//	inputGuiPanel1.add(bDoMergeBones.setup		("bDoMergeBones",		true));
 //	inputGuiPanel1.add(bDoOptimizeTSP.setup		("bDoOptimizeTSP",		true));
 //	inputGuiPanel1.add(bClosedTSP.setup			("bClosedTSP",			true));
 //	inputGuiPanel1.add(nOptimizePasses.setup	("nOptimizePasses",		2, 1, 5));
@@ -151,14 +148,15 @@ void ofApp::initializeGui(){
 	inputGuiPanel2.add(overallScaleY.setup		("overallScaleY",			0.25, 0.0,1.0));
 	inputGuiPanel2.add(overallTransX.setup		("overallTransX",			0.00, -0.5,0.5));
 	inputGuiPanel2.add(overallTransY.setup		("overallTransY",			0.00, -0.5,0.5));
-	inputGuiPanel2.add(liveDrawingScale.setup	("liveDrawingScale",		1.10, 1.0, 1.5));
-	inputGuiPanel2.add(noiseDiv.setup			("noiseDiv",				5.00, 2.0, 7.0));
-	inputGuiPanel2.add(noiseAmt.setup			("noiseAmt",				0.325, 0.0, 1.0));
+//	inputGuiPanel2.add(liveDrawingScale.setup	("liveDrawingScale",		1.10, 1.0, 1.5));
+//	inputGuiPanel2.add(noiseDiv.setup			("noiseDiv",				5.00, 2.0, 7.0));
+//	inputGuiPanel2.add(noiseAmt.setup			("noiseAmt",				0.325, 0.0, 1.0));
 //	inputGuiPanel2.add(positionAmt.setup		("positionAmt",				0.50, 0.0, 1.0));
 	
-	inputGuiPanel2.add(bFadeColorsAtEdges.setup	("bFadeColorsAtEdges",		true));
-	inputGuiPanel2.add(bFadeColorsAtEnds.setup	("bFadeColorsAtEnds",		true));
+//	inputGuiPanel2.add(bFadeColorsAtEdges.setup	("bFadeColorsAtEdges",		true));
+//	inputGuiPanel2.add(bFadeColorsAtEnds.setup	("bFadeColorsAtEnds",		true));
 	inputGuiPanel2.add(bAddTestPattern.setup	("bAddTestPattern",			false));
+	inputGuiPanel2.add(bVSync.setup				("bVSync",					true));
 	
 	inputGuiPanel2.add(refreshPeriod.setup		("refreshPeriod",			8000, 1000,30000));
 	lastRefreshTime = ofGetElapsedTimeMillis();
@@ -167,26 +165,34 @@ void ofApp::initializeGui(){
 	
 	inputGuiPanel2.add(recordStartThresh.setup		("recordStartThresh",		0.06, 0.0, 0.25));
 	inputGuiPanel2.add(recordStopThresh.setup		("recordStopThresh",		0.03, 0.0, 0.25));
-	inputGuiPanel2.add(tooMuchPresenceThresh.setup	("tooMuchPresenceThresh",	0.25, 0.0, 0.50));
+	inputGuiPanel2.add(tooMuchPresenceThresh.setup	("tooMuchPresenceThresh",	0.25, 0.0, 1.00));
 	
 	
 	
-	/*
+	
 	inputGuiPanel2.add(replayR.setup			("replayR",					0.75, 0,1));
 	inputGuiPanel2.add(replayG.setup			("replayG",					0.75, 0,1));
 	inputGuiPanel2.add(replayB.setup			("replayB",					1.00, 0,1));
 	inputGuiPanel2.add(liveR.setup				("liveR",					1.00, 0,1));
 	inputGuiPanel2.add(liveG.setup				("liveG",					1.00, 0,1));
 	inputGuiPanel2.add(liveB.setup				("liveB",					1.00, 0,1));
-	 */
+	
 	
 	// Inits for things that have been commented out.
 	bSmoothHolesToo		= false;
 	bDrawGrayProxy		= false;
 	bDoOptimizeTSP		= true;
 	bClosedTSP			= true;
+	bDoMergeBones		= true;
+	bEnableRecording	= true; 
 	nOptimizePasses		= 2;
-	positionAmt			= 0.50; 
+	positionAmt			= 0.50;
+	
+	bFadeColorsAtEdges	= false;
+	bFadeColorsAtEnds	= false;
+	noiseDiv			= 4.4;
+	noiseAmt			= 0.325;
+	liveDrawingScale	= 1.17;
 	
 	replayR				= 0.75;
 	replayG				= 0.75;
@@ -239,6 +245,8 @@ void ofApp::propagateGui(){
 	mySkeletonDisplayer.liveColor.r = liveR;
 	mySkeletonDisplayer.liveColor.g = liveG;
 	mySkeletonDisplayer.liveColor.b = liveB;
+	
+	ofSetVerticalSync(bVSync);
 }
 
 
@@ -330,7 +338,7 @@ void ofApp::sequenceSkeletonPlayback(){
 		long elapsedSinceProxySwitch = (now - lastProxySwitchTime);
 		if (elapsedSinceProxySwitch > minTimeBetweenProxySwitch){
 			if (ofRandom(1.0) < 0.002){
-				int randomProxy = ((int)ofRandom(3));
+				int randomProxy = ((int)ofRandom(7));
 				proxyVideoPlayer.load(proxyVideoFilenames[randomProxy]);
 				proxyVideoPlayer.play();
 				lastProxySwitchTime = now;
@@ -360,22 +368,24 @@ void ofApp::sequenceSkeletonPlayback(){
 	float A = 0.925; float B = 1.0-A;
 	presenceFractionAvg = (A*presenceFractionAvg) + (B*presenceFraction);
 	
-	if (presenceFractionAvg > tooMuchPresenceThresh){
-		// If the person is too big in the frame, too close to the camera, etc.
-		stopRecording();
-	} else if (presenceFractionAvg > recordStartThresh){
-		// If we exceed recordStartThresh (with a latch), start recording.
-		startRecording();
-	} else if (presenceFractionAvg < recordStopThresh){
-		// If we fall below recordStopThresh (with a latch), stop recording.
-		stopAndSaveRecording();
-	}
-	
-	long started = mySkeletonRecorder->recordingStartTime;
-	int elapsed = (int)(now - started);
-	int recordingTooLongDur = 120000;
-	if (mySkeletonRecorder->isRecording() && (elapsed > recordingTooLongDur)){
-		stopAndSaveRecording();
+	if (bEnableRecording){
+		if (presenceFractionAvg > tooMuchPresenceThresh){
+			// If the person is too big in the frame, too close to the camera, etc.
+			stopRecording();
+		} else if (presenceFractionAvg > recordStartThresh){
+			// If we exceed recordStartThresh (with a latch), start recording.
+			startRecording();
+		} else if (presenceFractionAvg < recordStopThresh){
+			// If we fall below recordStopThresh (with a latch), stop recording.
+			stopAndSaveRecording();
+		}
+		
+		long started = mySkeletonRecorder->recordingStartTime;
+		int elapsed = (int)(now - started);
+		int recordingTooLongDur = 120000;
+		if (mySkeletonRecorder->isRecording() && (elapsed > recordingTooLongDur)){
+			// stopAndSaveRecording();
+		}
 	}
 	
 	
@@ -739,8 +749,10 @@ void ofApp::draw(){
 	float dy = 14;
 	if (bUseProxyVideoInsteadOfOSC){
 		int frameIndex = proxyVideoPlayer.getCurrentFrame();
+		int totalLength = proxyVideoPlayer.getTotalNumFrames();
 		ofSetColor(160,160,160);
-		ofDrawBitmapString( "Frame: " + ofToString(frameIndex), displayX+5,ty+dy); ty+=dy;
+		ofDrawBitmapString( "Frame: " + ofToString(frameIndex) + "/" + ofToString(totalLength),
+						   displayX+5,ty+dy); ty+=dy;
 	}
 	
 	
@@ -807,6 +819,10 @@ void ofApp::draw(){
 	ofDrawBitmapString( "%Op: " + ofToString(optim)		+ "%"  , displayX+5,displayY+ty); ty+=dy;
 	ofDrawBitmapString( "#IP: " + ofToString(nIldaPts)	       , displayX+5,displayY+ty); ty+=dy;
 	
+	int wbs = (int) mySkeletonDisplayer.etherdream.getWaitBeforeSend();
+	ofDrawBitmapString( "WBS: " + ofToString(wbs)			   , displayX+5,displayY+ty); ty+=dy;
+	
+	
 	//-------------------------
     // 5. Draw the bones.
     ofPushMatrix();
@@ -835,10 +851,12 @@ void ofApp::draw(){
 	int laserstate = mySkeletonDisplayer.etherdream.getState();
 	if (laserstate == 0){
 		ofSetColor(255,0,0);
-		ofDrawBitmapString( "ETHERDREAM_NOTFOUND", displayX+5,ty+dy); ty+=dy;
+		ofDrawBitmapString( "ETHERDREAM_NOTFOUND", displayX+5,ty+dy);
+		ofDrawBitmapString( "ETHERDREAM_NOTFOUND", displayX+6,ty+dy); ty+=dy;
 	} else {
 		ofSetColor(0,255,0);
-		ofDrawBitmapString( "ETHERDREAM_FOUND: id-" + ofToString(laserstate), displayX+5,ty+dy); ty+=dy;
+		ofDrawBitmapString( "ETHERDREAM_FOUND: id-" + ofToString(laserstate), displayX+5,ty+dy);
+		ofDrawBitmapString( "ETHERDREAM_FOUND: id-" + ofToString(laserstate), displayX+6,ty+dy); ty+=dy;
 	}
 	
 	// Draw the playback indicators.
@@ -895,8 +913,13 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 	mySkeletonDisplayer.DQW->setCalibrationMode(-1);
+	bool wbs = mySkeletonDisplayer.etherdream.getWaitBeforeSend();
 	
     switch (key){
+		case 'v':
+			bVSync = !bVSync;
+			break;
+			
         case ' ':
             if (bUseProxyVideoInsteadOfOSC){
                 bProxyVideoPlayerPaused = !bProxyVideoPlayerPaused;
@@ -943,10 +966,28 @@ void ofApp::keyPressed(int key){
 			mySkeletonDisplayer.DQW->setCalibrationMode(2); break;
 		case '4':
 			mySkeletonDisplayer.DQW->setCalibrationMode(3); break;
-            
+			
+			
+		
+		case '5':
+			lastProxySwitchTime = ofGetElapsedTimeMillis();
+			proxyVideoPlayer.load(proxyVideoFilenames[3]);
+			proxyVideoPlayer.play();
+			break;
+		case '6':
+			lastProxySwitchTime = ofGetElapsedTimeMillis();
+			proxyVideoPlayer.load(proxyVideoFilenames[4]);
+			proxyVideoPlayer.play();
+			break;
+		case '7':
+			lastProxySwitchTime = ofGetElapsedTimeMillis();
+			proxyVideoPlayer.load(proxyVideoFilenames[5]);
+			proxyVideoPlayer.play();
+			break;
+			
         case '8':
 			lastProxySwitchTime = ofGetElapsedTimeMillis();
-            proxyVideoPlayer.load(proxyVideoFilenames[0]);
+            proxyVideoPlayer.load(proxyVideoFilenames[6]);
             proxyVideoPlayer.play();
             break;
         case '9':

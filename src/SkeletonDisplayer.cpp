@@ -222,6 +222,26 @@ void SkeletonDisplayer::addDrawing (vector<PolylinePlus> &aDrawing,
 				colorFade *= fadeT;
 			}
 			
+			/*
+			float cr = drawingColor.r;
+			float cg = drawingColor.g;
+			float cb = drawingColor.b;
+			
+			
+			if ((cr > 0) || (cg > 0) || (cb > 0)){
+				cr = ofClamp(cr, 0.0,1.0);
+				cg = ofClamp(cg, 0.0,1.0);
+				cb = ofClamp(cb, 0.0,1.0);
+				
+				float tr = (ofGetElapsedTimeMillis()+1000+whichType+whichPlayer)/1444.0;
+				float tg = (ofGetElapsedTimeMillis()+2000+whichType+whichPlayer)/1777.0;
+				float tb = (ofGetElapsedTimeMillis()+3000+whichType+whichPlayer)/2333.0;
+				
+				cr = pow(cr, 1.0 + 0.5*ofMap(ofNoise(tr), 0,1, -1,1));
+				cg = pow(cg, 1.0 + 0.5*ofMap(ofNoise(tg), 0,1, -1,1));
+				cb = pow(cb, 1.0 + 0.5*ofMap(ofNoise(tb), 0,1, -1,1));
+			}
+			*/
 			
 			scaledShiftedPP.r = 255.0 * colorFade * drawingColor.r; //aSLS->replayColor.r;
 			scaledShiftedPP.g = 255.0 * colorFade * drawingColor.g; //aSLS->replayColor.g;

@@ -124,6 +124,7 @@ class ofApp : public ofBaseApp{
 	ofxToggle		bDoMergeBones; 
 	ofxToggle		bDoOptimizeTSP;
 	ofxToggle		bClosedTSP;
+	ofxToggle		bEnableRecording; 
 	
 	ofxIntSlider	targetPointCount;
 	ofxIntSlider	preBlankCount;
@@ -143,6 +144,8 @@ class ofApp : public ofBaseApp{
 	ofxToggle		bFadeColorsAtEdges;
 	ofxToggle		bFadeColorsAtEnds;
 	ofxToggle		bAddTestPattern;
+	ofxToggle		bVSync;
+	
 	ofxFloatSlider	replayR;
 	ofxFloatSlider	replayG;
 	ofxFloatSlider	replayB;
